@@ -1,0 +1,128 @@
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-height);
+  padding-inline: var(--space-3) var(--space-1);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
+}
+
+.timer:not(:has(.controls)) {
+  padding-inline-end: var(--space-3);
+}
+
+.readout {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-end: var(--space-1);
+}
+
+.icon {
+  color: var(--color-text-muted);
+}
+
+.clock {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.timer[data-state="paused"] .clock {
+  color: var(--color-text-muted);
+}
+
+.timer[data-state="up"] {
+  border-color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  animation: pulse 1.2s var(--ease-standard) 3;
+}
+
+.timer[data-state="up"] .icon,
+.timer[data-state="up"] .clock,
+.timer[data-state="up"] .label {
+  color: var(--color-danger-text);
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 4px var(--color-danger-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer[data-state="up"] {
+    animation: none;
+  }
+}
+
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  padding-inline-start: var(--space-1);
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+.menuRoot {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--layout-gutter));
+  padding: var(--space-3);
+  box-shadow: var(--shadow-lg);
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  padding-block-start: var(--space-3);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.customLabel {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.customRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.customInput {
+  width: 7rem;
+  min-height: var(--control-height-sm);
+  font-size: var(--text-sm);
+}
