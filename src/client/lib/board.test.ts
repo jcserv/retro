@@ -1,4 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { ServerMessage } from "../../shared/protocol";
+import { applyServerMessage, type RoomState } from "../state/roomState";
 import { group, item, makeRoomState } from "../test/fixtures";
 import { buildBoard, decodeDropTarget, dropIntent, encodeDropTarget } from "./board";
 
@@ -37,6 +39,45 @@ describe("buildBoard", () => {
       ["text i5", true],
     ]);
   });
+
+  test.each<[string, RoomState, ServerMessage[]]>([
+    [
+      "merge",
+      makeRoomState({
+        items: [item("a", "g1", 1), item("b", "g2", 2)],
+        groups: [group("g1", ["a"]), group("g2", ["b"])],
+      }),
+      [
+        { type: "itemUpserted", item: item("a", "g2", 1) },
+        { type: "groupUpserted", group: group("g2", ["a", "b"]) },
+        { type: "groupRemoved", groupId: "g1" },
+      ],
+    ],
+    [
+      "ungroup",
+      makeRoomState({
+        items: [item("a", "g1", 1), item("b", "g1", 2)],
+        groups: [group("g1", ["a", "b"])],
+      }),
+      [
+        { type: "groupUpserted", group: group("g2", ["a"], "well", 5) },
+        { type: "itemUpserted", item: item("a", "g2", 1) },
+        { type: "groupUpserted", group: group("g1", ["b"]) },
+      ],
+    ],
+  ])(
+    "shows every item exactly once mid-way through the server changes for a %s",
+    (_, start, batch) => {
+      let state = start;
+      for (const message of batch) {
+        state = applyServerMessage(state, message) ?? state;
+        const shown = buildBoard(state).flatMap((column) =>
+          column.groups.flatMap((entry) => entry.items.map((entry) => entry.id)),
+        );
+        expect(shown.toSorted()).toEqual(["a", "b"]);
+      }
+    },
+  );
 });
 
 describe("dropIntent", () => {
