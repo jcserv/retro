@@ -1,6 +1,7 @@
-import type { GroupView } from "../../shared/protocol";
-import { VoteBoard } from "../components/VoteBoard";
+import { Board } from "../components/Board";
+import { GroupCard } from "../components/GroupCard";
 import { VoteBudget } from "../components/VoteBudget";
+import { buildBoard } from "../lib/board";
 import { votesUsed } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./VotePhase.module.css";
@@ -29,15 +30,20 @@ export function VotePhase() {
       {room.groups.length === 0 ? (
         <p class={`card ${styles.empty}`}>No items were written in this retro.</p>
       ) : (
-        <VoteBoard
-          room={room}
-          renderGroupFooter={(group, title) => (
-            <VoteControls
-              group={group}
-              title={title}
-              count={room.myVotes[group.id] ?? 0}
-              canAdd={canAdd}
-              canRemove={store.isLive.value}
+        <Board
+          columns={buildBoard(room)}
+          renderGroup={(entry) => (
+            <GroupCard
+              group={entry}
+              actions={
+                <VoteControls
+                  groupId={entry.group.id}
+                  title={entry.label}
+                  count={room.myVotes[entry.group.id] ?? 0}
+                  canAdd={canAdd}
+                  canRemove={store.isLive.value}
+                />
+              }
             />
           )}
         />
@@ -47,14 +53,14 @@ export function VotePhase() {
 }
 
 type VoteControlsProps = {
-  group: GroupView;
+  groupId: string;
   title: string;
   count: number;
   canAdd: boolean;
   canRemove: boolean;
 };
 
-function VoteControls({ group, title, count, canAdd, canRemove }: VoteControlsProps) {
+function VoteControls({ groupId, title, count, canAdd, canRemove }: VoteControlsProps) {
   const store = useRoomStore();
   return (
     <div class={styles.controls} data-voted={count > 0 ? "true" : undefined}>
@@ -63,7 +69,7 @@ function VoteControls({ group, title, count, canAdd, canRemove }: VoteControlsPr
         class="btn btn-ghost btn-sm btn-icon"
         aria-label={`Remove a vote from ${title}`}
         disabled={!canRemove || count === 0}
-        onClick={() => store.unvote(group.id)}
+        onClick={() => store.unvote(groupId)}
       >
         <span aria-hidden="true">−</span>
       </button>
@@ -76,7 +82,7 @@ function VoteControls({ group, title, count, canAdd, canRemove }: VoteControlsPr
         class="btn btn-subtle btn-sm btn-icon"
         aria-label={`Add a vote to ${title}`}
         disabled={!canAdd}
-        onClick={() => store.vote(group.id)}
+        onClick={() => store.vote(groupId)}
       >
         <span aria-hidden="true">+</span>
       </button>

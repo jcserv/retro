@@ -1,11 +1,10 @@
-import type { Category, GroupView } from "../../shared/protocol";
-import { groupItems, groupTitle, type ItemsById, listsItems } from "../lib/groups";
+import type { Category } from "../../shared/protocol";
+import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import { CategoryBadge } from "./CategoryBadge";
 import styles from "./GroupDetails.module.css";
 
 type GroupDetailsProps = {
-  group: GroupView;
-  items: ItemsById;
+  group: BoardGroup;
   categories: readonly Category[];
   votes: number;
   headingLevel: "h2" | "h3";
@@ -15,7 +14,6 @@ type GroupDetailsProps = {
 
 export function GroupDetails({
   group,
-  items,
   categories,
   votes,
   headingLevel: Heading,
@@ -26,17 +24,17 @@ export function GroupDetails({
     <div class={styles.details}>
       <div class={styles.meta}>
         {eyebrow && <span class={styles.eyebrow}>{eyebrow}</span>}
-        <CategoryBadge categories={categories} categoryId={group.categoryId} />
+        <CategoryBadge category={categories[group.categoryIndex]} index={group.categoryIndex} />
         <span class="badge badge-accent">
           {votes} {votes === 1 ? "vote" : "votes"}
         </span>
       </div>
       <Heading id={headingId} class={`user-text ${styles.title}`}>
-        {groupTitle(group, items)}
+        {group.label}
       </Heading>
-      {listsItems(group, items) && (
+      {hasGroupHeading(group) && (
         <ul class={styles.items} aria-label="Items">
-          {groupItems(group, items).map((entry) => (
+          {group.items.map((entry) => (
             <li key={entry.id} class="user-text">
               {entry.text}
             </li>

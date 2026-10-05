@@ -1,34 +1,6 @@
-import { describe, expect, test } from "vitest";
+import { expect, test } from "vitest";
 import { group, item, makeRoomState } from "../test/fixtures";
-import { categoryTone, discussEntries, groupTitle, listsItems, votesUsed } from "./groups";
-
-const items = new Map([
-  ["a", item("a", "g1", 1)],
-  ["b", item("b", "g1", 2)],
-]);
-
-describe("groupTitle", () => {
-  test("uses the stored title, else the earliest item's text", () => {
-    expect(groupTitle({ ...group("g1", ["a", "b"]), title: "Deploys" }, items)).toBe("Deploys");
-    expect(groupTitle(group("g1", ["a", "b"]), items)).toBe("text a");
-  });
-});
-
-describe("listsItems", () => {
-  test("lists items unless the group is a single untitled item", () => {
-    expect(listsItems(group("g1", ["a"]), items)).toBe(false);
-    expect(listsItems({ ...group("g1", ["a"]), title: "text a" }, items)).toBe(false);
-    expect(listsItems({ ...group("g1", ["a"]), title: "Other" }, items)).toBe(true);
-    expect(listsItems(group("g1", ["a", "b"]), items)).toBe(true);
-  });
-});
-
-test("categoryTone wraps category position over the five palette slots", () => {
-  const categories = ["a", "b", "c", "d", "e", "f"].map((id) => ({ id, title: id }));
-  expect(categoryTone(categories, "b")).toBe(1);
-  expect(categoryTone(categories, "f")).toBe(0);
-  expect(categoryTone(categories, "missing")).toBe(0);
-});
+import { discussEntries, votesUsed } from "./groups";
 
 test("votesUsed sums own votes across groups", () => {
   expect(votesUsed({ g1: 2, g2: 1 })).toBe(3);
@@ -53,7 +25,7 @@ test("discussEntries follows discuss order and skips groups that no longer exist
       entry.index,
       entry.status,
       entry.votes,
-      entry.title,
+      entry.label,
     ]),
   ).toEqual([
     ["g2", 0, "skipped", 4, "text b"],

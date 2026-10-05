@@ -5,7 +5,7 @@
   min-height: 22px;
   padding: 0 var(--space-2);
   border-radius: var(--radius-full);
-  background: var(--tone-subtle);
+  background: var(--category-color-subtle);
   color: var(--color-text);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
@@ -16,5 +16,5 @@
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
-  background: var(--tone);
+  background: var(--category-color);
 }

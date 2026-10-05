@@ -1,7 +1,7 @@
 import type { GroupView } from "../../shared/protocol";
 import type { RoomState } from "../state/roomState";
+import { boardGroupResolver, hasGroupHeading } from "./board";
 import { plural } from "./format";
-import { groupItems, groupTitle, itemsById, listsItems } from "./groups";
 
 export function escapeMarkdown(text: string): string {
   return text
@@ -31,7 +31,7 @@ function bulletList(lines: string[]): string[] {
 
 export function toMarkdown(state: RoomState): string {
   const groups = new Map(state.groups.map((group) => [group.id, group]));
-  const items = itemsById(state.items);
+  const resolve = boardGroupResolver(state);
   const categoryTitle = new Map(state.categories.map((c) => [c.id, c.title]));
   const order = state.discuss?.order ?? state.groups.map((group) => group.id);
   const status = state.discuss?.status ?? {};
@@ -39,7 +39,7 @@ export function toMarkdown(state: RoomState): string {
   const summary = (group: GroupView) => {
     const votes = state.voteTotals?.[group.id] ?? 0;
     const category = categoryTitle.get(group.categoryId) ?? group.categoryId;
-    return `${escapeMarkdown(groupTitle(group, items))} (${plural(votes, "vote")}) [${category}]`;
+    return `${escapeMarkdown(resolve(group).label)} (${plural(votes, "vote")}) [${category}]`;
   };
 
   const ordered = order.flatMap((id) => {
@@ -59,8 +59,9 @@ export function toMarkdown(state: RoomState): string {
   if (discussed.length === 0) lines.push("- (none)");
   discussed.forEach((group, index) => {
     lines.push("", `### ${index + 1}. ${summary(group)}`);
-    if (listsItems(group, items)) {
-      const texts = groupItems(group, items).map((item) => escapeMarkdown(item.text));
+    const entry = resolve(group);
+    if (hasGroupHeading(entry)) {
+      const texts = entry.items.map((item) => escapeMarkdown(item.text));
       lines.push("- Items:", ...bulletList(texts));
     }
     const comments = byCreation(state.comments.filter((comment) => comment.groupId === group.id));

@@ -34,7 +34,7 @@ export function DiscussAgenda({
               <span class={styles.marker} aria-hidden="true">
                 {entry.index + 1}
               </span>
-              <span class={`user-text ${styles.title}`}>{entry.title}</span>
+              <span class={`user-text ${styles.title}`}>{entry.label}</span>
               <span class={styles.votes}>
                 {entry.votes}
                 <span class="visually-hidden"> {entry.votes === 1 ? "vote" : "votes"}</span>

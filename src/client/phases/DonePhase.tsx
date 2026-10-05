@@ -2,7 +2,7 @@ import { ActionList, AssigneeBadge } from "../components/ActionList";
 import { CommentList } from "../components/CommentList";
 import { ExportPanel } from "../components/ExportPanel";
 import { GroupDetails } from "../components/GroupDetails";
-import { type DiscussEntry, discussEntries, itemsById } from "../lib/groups";
+import { type DiscussEntry, discussEntries } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import type { RoomState } from "../state/roomState";
 import styles from "./DonePhase.module.css";
@@ -13,7 +13,7 @@ export function DonePhase() {
   const entries = discussEntries(room);
   const discussed = entries.filter((entry) => entry.status === "discussed");
   const notDiscussed = entries.filter((entry) => entry.status !== "discussed");
-  const titles = new Map(entries.map((entry) => [entry.group.id, entry.title]));
+  const titles = new Map(entries.map((entry) => [entry.group.id, entry.label]));
   const actions = entries.flatMap((entry) =>
     room.actions
       .filter((action) => action.groupId === entry.group.id)
@@ -93,7 +93,6 @@ type TopicSectionProps = {
 };
 
 function TopicSection({ id, title, entries, room, numbered }: TopicSectionProps) {
-  const items = itemsById(room.items);
   return (
     <section class={styles.topics} aria-labelledby={id}>
       <h2 id={id} class={styles.sectionHeading}>
@@ -106,8 +105,7 @@ function TopicSection({ id, title, entries, room, numbered }: TopicSectionProps)
           return (
             <li key={entry.group.id} class={`card ${styles.topic}`}>
               <GroupDetails
-                group={entry.group}
-                items={items}
+                group={entry}
                 categories={room.categories}
                 votes={entry.votes}
                 headingLevel="h3"

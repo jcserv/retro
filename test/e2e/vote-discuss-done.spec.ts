@@ -2,51 +2,6 @@ import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { type Browser, expect, type Page, test } from "@playwright/test";
 
-type Message = { type: string; reqId?: string; [key: string]: unknown };
-
-class OwnerSocket {
-  private messages: Message[] = [];
-  private waiters: Array<() => void> = [];
-
-  private constructor(private readonly ws: WebSocket) {
-    ws.addEventListener("message", (event) => {
-      this.messages.push(JSON.parse(String(event.data)));
-      for (const wake of this.waiters.splice(0)) wake();
-    });
-  }
-
-  static async open(baseURL: string, code: string, clientId: string): Promise<OwnerSocket> {
-    const ws = new WebSocket(`${baseURL.replace(/^http/, "ws")}/ws/${code}`);
-    await new Promise((resolve, reject) => {
-      ws.addEventListener("open", resolve, { once: true });
-      ws.addEventListener("error", reject, { once: true });
-    });
-    const socket = new OwnerSocket(ws);
-    await socket.send({ type: "hello", clientId });
-    return socket;
-  }
-
-  async send(intent: Omit<Message, "reqId">): Promise<Message[]> {
-    const reqId = randomUUID();
-    const start = this.messages.length;
-    this.ws.send(JSON.stringify({ ...intent, reqId }));
-    for (;;) {
-      const reply = this.messages.slice(start).find((msg) => msg.reqId === reqId);
-      if (reply?.type === "ack") return this.messages.slice(start);
-      if (reply) throw new Error(`${intent.type} rejected: ${JSON.stringify(reply)}`);
-      await new Promise<void>((resolve) => this.waiters.push(resolve));
-    }
-  }
-
-  received(): Message[] {
-    return [...this.messages];
-  }
-
-  close(): void {
-    this.ws.close();
-  }
-}
-
 async function openAs(browser: Browser, clientId: string, code: string): Promise<Page> {
   const context = await browser.newContext();
   await context.addInitScript((id) => localStorage.setItem("retro.clientId", id), clientId);
@@ -55,39 +10,7 @@ async function openAs(browser: Browser, clientId: string, code: string): Promise
   return page;
 }
 
-function groupIdOf(messages: Message[], text: string): string {
-  const snapshot = messages.find((msg) => msg.type === "snapshot");
-  if (!snapshot) throw new Error("hello produced no snapshot");
-  const room = snapshot.room as {
-    items: { id: string; text: string }[];
-    groups: { id: string; itemIds: string[] }[];
-  };
-  const itemId = room.items.find((entry) => entry.text === text)?.id;
-  const found = room.groups.find((entry) => itemId && entry.itemIds.includes(itemId));
-  if (!found) throw new Error(`no group for ${text}`);
-  return found.id;
-}
-
-async function mergeOverSocket(
-  page: Page,
-  baseURL: string,
-  code: string,
-  from: string,
-  into: string,
-) {
-  const clientId = await page.evaluate(() => localStorage.getItem("retro.clientId"));
-  if (!clientId) throw new Error("owner has no clientId");
-  const socket = await OwnerSocket.open(baseURL, code, clientId);
-  const hello = socket.received();
-  await socket.send({
-    type: "mergeGroups",
-    sourceGroupId: groupIdOf(hello, from),
-    targetGroupId: groupIdOf(hello, into),
-  });
-  socket.close();
-}
-
-test("vote, discuss and done stay in sync across two windows", async ({ browser, baseURL }) => {
+test("vote, discuss and done stay in sync across two windows", async ({ browser }) => {
   const ownerContext = await browser.newContext();
   const ownerPage = await ownerContext.newPage();
   await ownerPage.goto("/");
@@ -110,8 +33,16 @@ test("vote, discuss and done stay in sync across two windows", async ({ browser,
 
   await ownerPage.getByRole("button", { name: "Start grouping" }).click();
   await expect(ownerPage.getByRole("button", { name: "Start voting" })).toBeVisible();
-  await mergeOverSocket(ownerPage, baseURL ?? "", code, "Rollbacks hurt", "Deploys were slow");
+  await ownerPage
+    .getByRole("article", { name: "Rollbacks hurt" })
+    .getByRole("button", { name: "Group with…" })
+    .click();
+  await ownerPage.getByRole("dialog").getByRole("button", { name: "Deploys were slow" }).click();
+  await expect(ownerPage.getByRole("article", { name: "Deploys were slow" })).toContainText(
+    "Rollbacks hurt",
+  );
   await ownerPage.getByRole("button", { name: "Fewer votes per person" }).click();
+  await expect(ownerPage.getByText("Votes per person: 4")).toBeVisible();
   await ownerPage.getByRole("button", { name: "Fewer votes per person" }).click();
   await expect(ownerPage.getByText("Votes per person: 3")).toBeVisible();
   await ownerPage.getByRole("button", { name: "Start voting" }).click();

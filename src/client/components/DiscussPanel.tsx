@@ -1,4 +1,4 @@
-import { discussEntries, itemsById } from "../lib/groups";
+import { discussEntries } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import type { RoomState } from "../state/roomState";
 import { ActionList } from "./ActionList";
@@ -29,11 +29,10 @@ export function DiscussPanel({ room }: { room: RoomState }) {
   return (
     <section class={`card ${styles.panel}`} aria-labelledby="discuss-current">
       <p class="visually-hidden" aria-live="polite">
-        Now discussing {position.toLowerCase()}: {current.title}
+        Now discussing {position.toLowerCase()}: {current.label}
       </p>
       <GroupDetails
-        group={group}
-        items={itemsById(room.items)}
+        group={current}
         categories={room.categories}
         votes={current.votes}
         headingLevel="h2"
