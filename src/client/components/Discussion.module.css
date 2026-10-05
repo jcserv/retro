@@ -63,13 +63,16 @@
   white-space: normal;
 }
 
-.checkbox {
+.marker {
+  display: flex;
   flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: var(--space-1-5);
-  border: var(--border-width-strong) solid var(--color-border-strong);
-  border-radius: var(--radius-xs);
+  align-items: center;
+  height: 1lh;
+  color: var(--color-accent-text);
+}
+
+.entry > .marker {
+  margin-top: var(--space-1);
 }
 
 .entryActions {

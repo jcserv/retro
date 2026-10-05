@@ -6,6 +6,7 @@ import { useRoomStore } from "../state/roomContext";
 import { CharCount } from "./CharCount";
 import { EntryMeta } from "./CommentList";
 import styles from "./Discussion.module.css";
+import { Icon } from "./Icon";
 import { ItemComposer } from "./ItemComposer";
 import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
@@ -56,6 +57,14 @@ export function AssigneeBadge({ assignee }: { assignee: string | null }) {
   );
 }
 
+export function ActionMarker() {
+  return (
+    <span class={styles.marker}>
+      <Icon name="arrowRight" />
+    </span>
+  );
+}
+
 type ActionRowProps = { action: ActionView; editable: boolean; onDeleted: () => void };
 
 function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
@@ -94,7 +103,7 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
 
   return (
     <li class={styles.entry}>
-      <span class={styles.checkbox} aria-hidden="true" />
+      <ActionMarker />
       <div class={styles.body}>
         <p class="user-text">{action.text}</p>
         <div class={styles.metaRow}>

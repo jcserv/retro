@@ -54,15 +54,6 @@
   gap: var(--space-3);
 }
 
-.checkbox {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: var(--space-1);
-  border: var(--border-width-strong) solid var(--color-border-strong);
-  border-radius: var(--radius-xs);
-}
-
 .actionBody {
   display: flex;
   flex-direction: column;

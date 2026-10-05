@@ -1,4 +1,4 @@
-import { ActionList, AssigneeBadge } from "../components/ActionList";
+import { ActionList, ActionMarker, AssigneeBadge } from "../components/ActionList";
 import { CommentList } from "../components/CommentList";
 import { ExportPanel } from "../components/ExportPanel";
 import { GroupDetails } from "../components/GroupDetails";
@@ -46,7 +46,7 @@ export function DonePhase() {
           <ul class={styles.actions}>
             {actions.map((action) => (
               <li key={action.id} class={styles.action}>
-                <span class={styles.checkbox} aria-hidden="true" />
+                <ActionMarker />
                 <div class={styles.actionBody}>
                   <p class="user-text">{action.text}</p>
                   <div class={styles.actionMeta}>
