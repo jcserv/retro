@@ -6,6 +6,7 @@ import { isValidRoomCode } from "../../shared/roomCode";
 import { Header } from "../components/Header";
 import { OwnerControls } from "../components/OwnerControls";
 import { PhaseBar } from "../components/PhaseBar";
+import { READY_PHASES, ReadyToggle } from "../components/ReadyToggle";
 import { RoomLayout } from "../components/RoomLayout";
 import { Timer } from "../components/Timer";
 import { getClientId } from "../lib/clientId";
@@ -73,6 +74,7 @@ function RoomSession({ code }: { code: string }) {
               <PhaseBar phase={room.phase} />
               <div class={styles.toolbarEnd}>
                 <Timer />
+                {READY_PHASES.includes(room.phase) && <ReadyToggle />}
                 <OwnerControls />
               </div>
             </>

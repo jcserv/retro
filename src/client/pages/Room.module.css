@@ -6,6 +6,12 @@
   margin-inline-start: auto;
 }
 
+@media (max-width: 599px) {
+  .toolbarEnd {
+    width: 100%;
+  }
+}
+
 .joining {
   display: flex;
   flex: 1;
