@@ -14,12 +14,6 @@
   text-align: center;
 }
 
-.title {
-  font-size: var(--text-display);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-tight);
-}
-
 .heading {
   font-size: var(--text-3xl);
   letter-spacing: var(--tracking-tight);

@@ -205,7 +205,7 @@ test("owner sets a custom duration from the keyboard and the timer is hidden in 
   await page.keyboard.press("Enter");
   const minutes = page.getByLabel("Custom minutes");
   await minutes.fill("61");
-  await expect(page.getByRole("button", { name: "Start" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Start", exact: true })).toBeDisabled();
   await minutes.fill("12");
   await minutes.press("Enter");
   await expect

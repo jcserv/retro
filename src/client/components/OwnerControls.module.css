@@ -1,0 +1,47 @@
+.controls {
+  display: contents;
+}
+
+.readyCount {
+  min-height: var(--control-height-sm);
+  padding-inline: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.fieldset {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  min-height: var(--control-height);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.stepperLabel {
+  margin-inline-end: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.stepperValue {
+  min-width: 2ch;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+@media (max-width: 599px) {
+  .advance {
+    margin-inline-start: auto;
+  }
+}
