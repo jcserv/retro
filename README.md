@@ -52,6 +52,17 @@ To check a deploy end to end, open the URL in two browsers (or one normal and on
 
 To change the Worker name or add a custom domain, edit `wrangler.jsonc` and run `npm run types`.
 
+### Continuous deploy
+
+Every push to `main` runs `npm run deploy` in CI once the `check` job passes.
+Pull requests never deploy.
+The job needs two repository secrets:
+
+1. `CLOUDFLARE_API_TOKEN`: in the Cloudflare dashboard, open **My Profile > API Tokens > Create Token** and use the **Edit Cloudflare Workers** template.
+2. `CLOUDFLARE_ACCOUNT_ID`: shown by `npx wrangler whoami` and on the **Workers & Pages** overview.
+
+Add them with `gh secret set CLOUDFLARE_API_TOKEN` and `gh secret set CLOUDFLARE_ACCOUNT_ID`.
+
 ## Free plan notes
 
 - Durable Objects on the Free plan must use the SQLite storage backend.

@@ -124,8 +124,10 @@ a {
     transform var(--duration-fast) var(--ease-standard);
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--btn-bg-hover);
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    background: var(--btn-bg-hover);
+  }
 }
 
 .btn:active:not(:disabled) {
@@ -160,8 +162,10 @@ a {
   --btn-fg: var(--color-text-muted);
 }
 
-.btn-ghost:hover:not(:disabled) {
-  color: var(--color-text);
+@media (hover: hover) {
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--color-text);
+  }
 }
 
 .btn-danger {

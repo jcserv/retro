@@ -93,9 +93,14 @@
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
-.item:hover .itemActions,
 .item:focus-within .itemActions {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .item:hover .itemActions {
+    opacity: 1;
+  }
 }
 
 @media (hover: none) {

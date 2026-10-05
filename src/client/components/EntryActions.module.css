@@ -3,6 +3,8 @@
   flex: none;
 }
 
-.delete:hover:not(:disabled) {
-  color: var(--color-danger-text);
+@media (hover: hover) {
+  .delete:hover:not(:disabled) {
+    color: var(--color-danger-text);
+  }
 }

@@ -54,8 +54,10 @@
   user-select: none;
 }
 
-.card [data-draggable]:hover {
-  background: var(--color-surface-hover);
+@media (hover: hover) {
+  .card [data-draggable]:hover {
+    background: var(--color-surface-hover);
+  }
 }
 
 .card[data-dragging],

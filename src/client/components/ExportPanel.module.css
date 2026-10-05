@@ -54,8 +54,10 @@
   border-radius: var(--radius-xs);
 }
 
-.preview summary:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .preview summary:hover {
+    color: var(--color-text);
+  }
 }
 
 .markdown {
