@@ -24,7 +24,7 @@ export function CommentList({ groupId, comments, editable }: CommentListProps) {
         Comments <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
-        <p class={styles.empty}>No comments yet.</p>
+        <p class={styles.empty}>{editable ? "No comments yet." : "No comments."}</p>
       ) : (
         <ul class={styles.list}>
           {sorted.map((comment) => (

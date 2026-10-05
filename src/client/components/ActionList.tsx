@@ -34,7 +34,7 @@ export function ActionList({ groupId, actions, editable }: ActionListProps) {
         Action items <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
-        <p class={styles.empty}>No action items yet.</p>
+        <p class={styles.empty}>{editable ? "No action items yet." : "No action items."}</p>
       ) : (
         <ul class={styles.list}>
           {sorted.map((action) => (
@@ -210,7 +210,7 @@ function ActionFields({
           <input
             id={assigneeId}
             class="input"
-            placeholder="Assignee (optional)"
+            placeholder="Assignee"
             value={draft.assignee}
             disabled={labelPrefix === "New" && disabled}
             onInput={(event) => onChange({ ...draft, assignee: event.currentTarget.value })}

@@ -73,6 +73,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+.entry[data-status="skipped"]:not([data-current="true"]) .marker {
+  border-style: dashed;
+  color: var(--color-text-subtle);
+}
+
 .entry[data-status="skipped"]:not([data-current="true"]) .title {
   color: var(--color-text-subtle);
   text-decoration: line-through;

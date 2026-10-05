@@ -32,7 +32,7 @@ export function DiscussAgenda({
               aria-current={isCurrent ? "step" : undefined}
             >
               <span class={styles.marker} aria-hidden="true">
-                {entry.status === "skipped" ? "↷" : entry.index + 1}
+                {entry.index + 1}
               </span>
               <span class={`user-text ${styles.title}`}>{entry.title}</span>
               <span class={styles.votes}>

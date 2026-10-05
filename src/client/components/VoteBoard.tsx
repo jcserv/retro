@@ -12,12 +12,14 @@ type VoteBoardProps = {
 
 export function VoteBoard({ room, renderGroupFooter }: VoteBoardProps) {
   const items = itemsById(room.items);
+  const firstItemAt = (group: GroupView) =>
+    items.get(group.itemIds[0] ?? "")?.createdAt ?? group.createdAt;
   return (
     <div class={styles.board}>
       {room.categories.map((category) => {
         const groups = room.groups
           .filter((entry) => entry.categoryId === category.id)
-          .sort((a, b) => a.createdAt - b.createdAt);
+          .sort((a, b) => a.createdAt - b.createdAt || firstItemAt(a) - firstItemAt(b));
         const headingId = `vote-column-${category.id}`;
         return (
           <section

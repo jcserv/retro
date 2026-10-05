@@ -1,5 +1,6 @@
 import { ActionList, AssigneeBadge } from "../components/ActionList";
 import { CommentList } from "../components/CommentList";
+import { ExportPanel } from "../components/ExportPanel";
 import { GroupDetails } from "../components/GroupDetails";
 import { type DiscussEntry, discussEntries, itemsById } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
@@ -32,6 +33,8 @@ export function DonePhase() {
           {room.presence.participantCount === 1 ? "participant" : "participants"}
         </p>
       </section>
+
+      <ExportPanel />
 
       <section class={`card ${styles.block}`} aria-labelledby="done-actions">
         <h2 id="done-actions" class={styles.sectionHeading}>
@@ -109,7 +112,11 @@ function TopicSection({ id, title, entries, room, numbered }: TopicSectionProps)
                 votes={entry.votes}
                 headingLevel="h3"
                 eyebrow={
-                  numbered ? `${position + 1}` : entry.status === "skipped" ? "Skipped" : undefined
+                  numbered
+                    ? `Topic ${position + 1}`
+                    : entry.status === "skipped"
+                      ? "Skipped"
+                      : undefined
                 }
               />
               {(numbered || comments.length > 0 || actions.length > 0) && (

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { type Browser, expect, type Page, test } from "@playwright/test";
 
 type Message = { type: string; reqId?: string; [key: string]: unknown };
@@ -126,18 +127,19 @@ test("vote, discuss and done stay in sync across two windows", async ({
     await expect(page.getByLabel("Items").getByText("Rollbacks hurt")).toBeVisible();
   }
   await expect(peerPage.getByRole("button", { name: "Next topic" })).toHaveCount(0);
+  await expect(peerPage.getByRole("button", { name: "Download .md" })).toBeVisible();
 
   const peerComment = peerPage.getByRole("textbox", { name: "Add a comment" });
   await peerComment.fill("Need faster pipelines");
   await peerComment.press("Enter");
   await expect(peerComment).toHaveValue("");
-  await expect(ownerPage.getByText("Need faster pipelines")).toBeVisible();
+  await expect(ownerPage.getByText("Need faster pipelines", { exact: true })).toBeVisible();
   await expect(ownerPage.getByRole("button", { name: "Edit comment" })).toHaveCount(0);
 
   await peerPage.getByRole("button", { name: "Edit comment" }).click();
   await peerPage.getByRole("textbox", { name: "Edit comment" }).fill("Need much faster pipelines");
   await peerPage.getByRole("button", { name: "Save" }).click();
-  await expect(ownerPage.getByText("Need much faster pipelines")).toBeVisible();
+  await expect(ownerPage.getByText("Need much faster pipelines", { exact: true })).toBeVisible();
   await expect(ownerPage.getByText("edited")).toBeVisible();
   await peerPage.getByRole("button", { name: "Delete comment" }).click();
   await expect(ownerPage.getByText("No comments yet.")).toBeVisible();
@@ -145,13 +147,13 @@ test("vote, discuss and done stay in sync across two windows", async ({
   await ownerPage.getByRole("textbox", { name: "New action item" }).fill("Cache docker layers");
   await ownerPage.getByRole("textbox", { name: "Assignee" }).fill("Sam");
   await ownerPage.getByRole("button", { name: "Add action" }).click();
-  await expect(peerPage.getByText("Cache docker layers")).toBeVisible();
-  await expect(peerPage.getByText("Assigned to Sam")).toBeVisible();
+  await expect(peerPage.getByText("Cache docker layers", { exact: true })).toBeVisible();
+  await expect(peerPage.getByText("Assigned to Sam", { exact: true })).toBeVisible();
   await expect(peerPage.getByRole("button", { name: "Edit action item" })).toHaveCount(0);
   await ownerPage.getByRole("button", { name: "Edit action item" }).click();
   await ownerPage.getByRole("textbox", { name: "Edit assignee" }).fill("Alex");
   await ownerPage.getByRole("button", { name: "Save" }).click();
-  await expect(peerPage.getByText("Assigned to Alex")).toBeVisible();
+  await expect(peerPage.getByText("Assigned to Alex", { exact: true })).toBeVisible();
 
   await ownerPage.getByRole("button", { name: "Next topic" }).click();
   await expect(peerPage.getByText("Topic 2 of 3", { exact: true })).toBeVisible();
@@ -176,4 +178,12 @@ test("vote, discuss and done stay in sync across two windows", async ({
     await expect(page.getByRole("button", { name: "Edit action item" })).toHaveCount(0);
     await expect(page.getByRole("textbox")).toHaveCount(0);
   }
+
+  const [download] = await Promise.all([
+    peerPage.waitForEvent("download"),
+    peerPage.getByRole("button", { name: "Download .md" }).click(),
+  ]);
+  const markdown = await readFile(await download.path(), "utf8");
+  expect(markdown).toContain("### 1. Deploys were slow (3 votes) [What went less well?]");
+  expect(markdown).toContain("  - [ ] Cache docker layers (Alex)");
 });
