@@ -47,8 +47,8 @@ test("two participants write privately, see live counts, ready up, and the owner
   await expect(owner.getByText("1/2 ready")).toBeVisible();
 
   await owner.getByRole("button", { name: "Start grouping" }).click();
-  await expect(owner.getByRole("heading", { name: "Group phase" })).toBeVisible();
-  await expect(guest.getByRole("heading", { name: "Group phase" })).toBeVisible();
+  await expect(owner.getByRole("heading", { name: "Group similar items" })).toBeVisible();
+  await expect(guest.getByRole("heading", { name: "Group similar items" })).toBeVisible();
   await expect(guest.getByRole("button", { name: "I'm ready" })).toHaveAttribute(
     "aria-pressed",
     "false",

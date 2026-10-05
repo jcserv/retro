@@ -1,0 +1,129 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-left: 3px solid var(--category-color, var(--color-border-strong));
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+.card:focus-visible {
+  outline-offset: 1px;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.titleButton {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+  text-align: start;
+}
+
+.titleButton[data-untitled] {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.titleButton:disabled {
+  cursor: inherit;
+}
+
+.pencil {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-inline-start: var(--space-1-5);
+  vertical-align: -1px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.titleButton:focus-visible .pencil {
+  opacity: 0.7;
+}
+
+.titleButton:hover:not(:disabled) .pencil {
+  opacity: 0.7;
+}
+
+@media (hover: none) {
+  .titleButton:not(:disabled) .pencil {
+    opacity: 0.5;
+  }
+}
+
+.titleInput {
+  min-height: var(--control-height-sm);
+  padding-block: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.text {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.itemText {
+  flex: 1;
+  min-width: 0;
+  padding-block: var(--space-0-5);
+}
+
+.itemActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-0-5);
+  margin-block: calc(-1 * var(--space-0-5));
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
