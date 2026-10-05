@@ -1,0 +1,31 @@
+.page {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: var(--space-12) var(--layout-gutter);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: var(--layout-narrow);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.heading {
+  font-size: var(--text-3xl);
+  letter-spacing: var(--tracking-tight);
+}
+
+.lead {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}

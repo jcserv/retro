@@ -1,0 +1,37 @@
+import type { Phase } from "../../shared/protocol";
+import styles from "./PhaseBar.module.css";
+
+export const PHASE_LABELS: Record<Phase, string> = {
+  write: "Write",
+  group: "Group",
+  vote: "Vote",
+  discuss: "Discuss",
+  done: "Done",
+};
+
+const PHASE_ORDER = Object.keys(PHASE_LABELS) as Phase[];
+
+export function PhaseBar({ phase }: { phase: Phase }) {
+  const currentIndex = PHASE_ORDER.indexOf(phase);
+  return (
+    <nav class={styles.nav} aria-label="Retro phases">
+      <ol class={styles.bar}>
+        {PHASE_ORDER.map((entry, index) => (
+          <li
+            key={entry}
+            class={styles.step}
+            data-state={
+              index < currentIndex ? "past" : index === currentIndex ? "current" : "future"
+            }
+            aria-current={index === currentIndex ? "step" : undefined}
+          >
+            <span class={styles.marker} aria-hidden="true">
+              {index < currentIndex ? "✓" : index + 1}
+            </span>
+            <span class={styles.label}>{PHASE_LABELS[entry]}</span>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
