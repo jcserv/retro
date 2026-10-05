@@ -75,12 +75,6 @@
   margin-top: var(--space-1);
 }
 
-.entryActions {
-  display: flex;
-  flex: none;
-  gap: var(--space-1);
-}
-
 .form {
   display: flex;
   flex-direction: column;

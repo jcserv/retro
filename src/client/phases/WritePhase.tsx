@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { Category, ItemView } from "../../shared/protocol";
-import { Icon } from "../components/Icon";
+import { EntryActions } from "../components/EntryActions";
 import { ItemComposer } from "../components/ItemComposer";
 import { plural } from "../lib/format";
 import { useRoomStore } from "../state/roomContext";
@@ -126,30 +126,15 @@ function WriteItem({ item }: { item: ItemView }) {
       <p id={`item-${item.id}`} class={`user-text ${styles.itemText}`}>
         {item.text}
       </p>
-      <div class={styles.itemActions}>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm btn-icon"
-          aria-label="Edit item"
-          aria-describedby={`item-${item.id}`}
-          title="Edit"
-          disabled={!live || deleting}
-          onClick={() => setEditing(true)}
-        >
-          <Icon name="pencil" />
-        </button>
-        <button
-          type="button"
-          class={`btn btn-ghost btn-sm btn-icon ${styles.delete}`}
-          aria-label="Delete item"
-          aria-describedby={`item-${item.id}`}
-          title="Delete"
-          disabled={!live || deleting}
-          onClick={remove}
-        >
-          <Icon name="trash" />
-        </button>
-      </div>
+      <EntryActions
+        class={styles.itemActions}
+        noun="item"
+        describedBy={`item-${item.id}`}
+        editDisabled={!live || deleting}
+        deleteDisabled={!live || deleting}
+        onEdit={() => setEditing(true)}
+        onDelete={remove}
+      />
     </li>
   );
 }
