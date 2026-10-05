@@ -53,7 +53,7 @@ test("room page says hello, renders the snapshot phase, and follows phase change
   expect(hellos).toEqual([{ type: "hello", clientId: expect.stringMatching(/^[0-9a-f-]{36}$/) }]);
 
   push(snapshot("vote"));
-  await expect(page.getByRole("heading", { name: "Vote phase" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Vote on what to discuss" })).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: "Vote" })).toHaveAttribute(
     "aria-current",
     "step",

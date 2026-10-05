@@ -28,28 +28,41 @@ export function isPendingGroupId(groupId: string): boolean {
 }
 
 export function groupLabel(group: GroupView, items: readonly ItemView[]): string {
-  return group.title ?? items[0]?.text ?? "";
+  return group.title ?? items[0]?.text ?? "Untitled group";
+}
+
+export function hasGroupHeading(group: BoardGroup): boolean {
+  return group.items.length > 1 || group.group.title !== null;
+}
+
+export function boardGroupResolver(
+  room: Pick<RoomState, "categories" | "items">,
+): (group: GroupView) => BoardGroup {
+  const itemsById = new Map(room.items.map((entry) => [entry.id, entry]));
+  const categoryIndex = new Map(room.categories.map((category, index) => [category.id, index]));
+  return (group) => {
+    const items = group.itemIds.flatMap((id) => itemsById.get(id) ?? []);
+    return {
+      group,
+      items,
+      label: groupLabel(group, items),
+      categoryIndex: categoryIndex.get(group.categoryId) ?? 0,
+      pending: isPendingGroupId(group.id),
+    };
+  };
 }
 
 export function buildBoard(
   room: Pick<RoomState, "categories" | "groups" | "items">,
 ): BoardColumn[] {
-  const itemsById = new Map(room.items.map((entry) => [entry.id, entry]));
-  const categoryIndex = new Map(room.categories.map((category, index) => [category.id, index]));
+  const resolve = boardGroupResolver(room);
+  const known = new Set(room.categories.map((category) => category.id));
   const byCategory = new Map<string, BoardGroup[]>();
 
   for (const group of room.groups) {
-    const index = categoryIndex.get(group.categoryId);
-    if (index === undefined) continue;
-    const items = group.itemIds.flatMap((id) => itemsById.get(id) ?? []);
-    if (items.length === 0) continue;
-    const entry: BoardGroup = {
-      group,
-      items,
-      label: groupLabel(group, items),
-      categoryIndex: index,
-      pending: isPendingGroupId(group.id),
-    };
+    if (!known.has(group.categoryId)) continue;
+    const entry = resolve(group);
+    if (entry.items.length === 0) continue;
     byCategory.set(group.categoryId, [...(byCategory.get(group.categoryId) ?? []), entry]);
   }
 

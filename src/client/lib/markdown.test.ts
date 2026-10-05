@@ -111,6 +111,18 @@ Room ABC234 · 1 participant
 `);
   });
 
+  test("falls back to the shared untitled wording for an empty group", () => {
+    const untitled = makeRoomState({
+      createdAt,
+      groups: [group("g1", [])],
+      voteTotals: { g1: 0 },
+      discuss: { order: ["g1"], currentIndex: 0, status: { g1: "discussed" } },
+    });
+    const lines = toMarkdown(untitled).split("\n");
+    expect(lines).toContain("### 1. Untitled group (0 votes) [What went well?]");
+    expect(lines).not.toContain("- Items:");
+  });
+
   test("hostile user text cannot restructure the document", () => {
     const hostile = makeRoomState({
       createdAt,

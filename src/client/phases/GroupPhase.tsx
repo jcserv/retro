@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { ItemView } from "../../shared/protocol";
 import { Board } from "../components/Board";
-import { GroupCard, GroupTitle, hasGroupHeading } from "../components/GroupCard";
+import { GroupCard, GroupTitle } from "../components/GroupCard";
 import { GroupWithMenu, type GroupWithSubject } from "../components/GroupWithMenu";
 import { Icon } from "../components/Icon";
 import {
@@ -12,6 +12,7 @@ import {
   decodeDropTarget,
   dropIntent,
   encodeDropTarget,
+  hasGroupHeading,
 } from "../lib/board";
 import { createPointerDrag, DROP_ATTRIBUTE } from "../lib/pointerDrag";
 import type { GroupingIntent } from "../state/optimistic";

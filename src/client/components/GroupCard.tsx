@@ -2,7 +2,7 @@ import type { ArticleHTMLAttributes, ComponentChildren, HTMLAttributes } from "p
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { ItemView } from "../../shared/protocol";
-import type { BoardGroup } from "../lib/board";
+import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import styles from "./GroupCard.module.css";
 import { Icon } from "./Icon";
 
@@ -13,10 +13,6 @@ type GroupCardProps = Omit<ArticleHTMLAttributes<HTMLElement>, "title" | "childr
   itemActions?: (item: ItemView) => ComponentChildren;
   itemProps?: (item: ItemView) => HTMLAttributes<HTMLLIElement>;
 };
-
-export function hasGroupHeading(group: BoardGroup): boolean {
-  return group.items.length > 1 || group.group.title !== null;
-}
 
 export function GroupCard({
   group,
