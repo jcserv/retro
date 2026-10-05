@@ -92,8 +92,10 @@
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.option:hover {
-  background: var(--color-surface-hover);
+@media (hover: hover) {
+  .option:hover {
+    background: var(--color-surface-hover);
+  }
 }
 
 .optionLabel {
