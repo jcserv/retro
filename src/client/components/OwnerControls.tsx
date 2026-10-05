@@ -44,6 +44,13 @@ function VoteLimitStepper() {
   const store = useRoomStore();
   const limit = store.room.value?.voteLimit ?? LIMITS.voteLimitDefault;
   const disabled = !store.isLive.value;
+
+  function step(delta: number) {
+    const current = store.room.peek()?.voteLimit ?? LIMITS.voteLimitDefault;
+    const next = Math.min(LIMITS.voteLimitMax, Math.max(LIMITS.voteLimitMin, current + delta));
+    if (next !== current) void store.setVoteLimit(next);
+  }
+
   return (
     <fieldset class={styles.fieldset}>
       <legend class="visually-hidden">Votes per person</legend>
@@ -56,7 +63,7 @@ function VoteLimitStepper() {
           class="btn btn-ghost btn-sm btn-icon"
           aria-label="Fewer votes per person"
           disabled={disabled || limit <= LIMITS.voteLimitMin}
-          onClick={() => store.setVoteLimit(limit - 1)}
+          onClick={() => step(-1)}
         >
           <Icon name="minus" />
         </button>
@@ -69,7 +76,7 @@ function VoteLimitStepper() {
           class="btn btn-ghost btn-sm btn-icon"
           aria-label="More votes per person"
           disabled={disabled || limit >= LIMITS.voteLimitMax}
-          onClick={() => store.setVoteLimit(limit + 1)}
+          onClick={() => step(1)}
         >
           <Icon name="plus" />
         </button>

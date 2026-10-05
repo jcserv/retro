@@ -86,6 +86,26 @@ describe("createRoomStore", () => {
     expect(store.lastError.value).toBeNull();
   });
 
+  test("vote limit changes apply optimistically so rapid steps build on each other", async () => {
+    const { store, sent, deliver } = setup();
+    deliver({ type: "snapshot", room: makeSnapshot({ isOwner: true, voteLimit: 5 }) });
+
+    const first = store.setVoteLimit(4);
+    expect(store.room.value?.voteLimit).toBe(4);
+    const second = store.setVoteLimit(3);
+    expect(store.room.value?.voteLimit).toBe(3);
+
+    deliver({ type: "voteLimit", limit: 4 });
+    sent[0]?.settle();
+    await first;
+    expect(store.room.value?.voteLimit).toBe(3);
+
+    sent[1]?.settle(new IntentError("rate_limited", "slow down"));
+    expect(await second).toMatchObject({ ok: false });
+    expect(store.room.value?.voteLimit).toBe(4);
+    expect(store.lastError.value).toMatchObject({ code: "rate_limited" });
+  });
+
   test("a snapshot discards pending ops", () => {
     const { store, deliver } = setup();
     deliver({ type: "snapshot", room: groupPhase });

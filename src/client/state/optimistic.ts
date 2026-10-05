@@ -7,7 +7,9 @@ export type GroupingIntent = Extract<
   { type: "moveItemToGroup" | "mergeGroups" | "ungroupItem" }
 >;
 
-export type PendingOp = { reqId: string; intent: GroupingIntent; issuedAt: number };
+export type OptimisticIntent = GroupingIntent | Extract<Intent, { type: "setVoteLimit" }>;
+
+export type PendingOp = { reqId: string; intent: OptimisticIntent; issuedAt: number };
 
 export const PENDING_GROUP_ID_PREFIX = "pending:";
 
@@ -70,6 +72,8 @@ function applyOp(state: RoomState, op: PendingOp): RoomState {
       };
       return moveItems({ ...state, groups: [...state.groups, created] }, [moving.id], created);
     }
+    case "setVoteLimit":
+      return { ...state, voteLimit: intent.limit };
   }
 }
 
