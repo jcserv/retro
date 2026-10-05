@@ -38,10 +38,14 @@ export function hasGroupHeading(group: BoardGroup): boolean {
 export function boardGroupResolver(
   room: Pick<RoomState, "categories" | "items">,
 ): (group: GroupView) => BoardGroup {
-  const itemsById = new Map(room.items.map((entry) => [entry.id, entry]));
+  const itemsByGroup = new Map<string, ItemView[]>();
+  for (const entry of room.items) {
+    if (entry.groupId === null) continue;
+    itemsByGroup.set(entry.groupId, [...(itemsByGroup.get(entry.groupId) ?? []), entry]);
+  }
   const categoryIndex = new Map(room.categories.map((category, index) => [category.id, index]));
   return (group) => {
-    const items = group.itemIds.flatMap((id) => itemsById.get(id) ?? []);
+    const items = (itemsByGroup.get(group.id) ?? []).toSorted(compareItems);
     return {
       group,
       items,
@@ -75,6 +79,10 @@ export function buildBoard(
       itemCount: groups.reduce((sum, entry) => sum + entry.items.length, 0),
     };
   });
+}
+
+function compareItems(a: ItemView, b: ItemView): number {
+  return a.createdAt - b.createdAt || a.id.localeCompare(b.id);
 }
 
 function compareGroups(a: BoardGroup, b: BoardGroup): number {
