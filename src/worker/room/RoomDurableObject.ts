@@ -6,6 +6,7 @@ import {
   parseClientMessage,
   type ServerMessage,
 } from "../../shared/protocol";
+import { closedSocketResponse } from "../closedSocket";
 import { actorFor, type Change, createRoom, handle, joinRoom } from "./commands";
 import { SocketRateLimiter } from "./rateLimit";
 import { migrate } from "./schema";
@@ -50,10 +51,11 @@ export class RoomDurableObject extends DurableObject<Env> {
   }
 
   override async fetch(_request: Request): Promise<Response> {
+    if (!this.#isLive(Date.now()))
+      return closedSocketResponse(CloseCode.NotFound, "Room not found");
     const { 0: client, 1: server } = new WebSocketPair();
     this.ctx.acceptWebSocket(server);
     server.serializeAttachment({ clientId: null } satisfies Attachment);
-    if (!this.#isLive(Date.now())) server.close(CloseCode.NotFound, "Room not found");
     return new Response(null, { status: 101, webSocket: client });
   }
 

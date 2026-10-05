@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CloseCode } from "../shared/constants";
 import { generateRoomCode, isValidRoomCode } from "../shared/roomCode";
+import { closedSocketResponse } from "./closedSocket";
 
 export { RoomDurableObject } from "./room/RoomDurableObject";
 
@@ -57,8 +58,5 @@ function connect(request: Request, code: string, env: Env): Response | Promise<R
     return json({ error: "upgrade_required" }, 426);
   }
   if (isValidRoomCode(code)) return env.ROOMS.getByName(code).fetch(request);
-  const { 0: client, 1: server } = new WebSocketPair();
-  server.accept();
-  server.close(CloseCode.NotFound, "Room not found");
-  return new Response(null, { status: 101, webSocket: client });
+  return closedSocketResponse(CloseCode.NotFound, "Room not found");
 }
