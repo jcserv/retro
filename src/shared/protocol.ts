@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { LIMITS } from "./constants";
+import { PHASES, type Phase } from "./phases";
 
-export const PhaseSchema = z.enum(["write", "group", "vote", "discuss", "done"]);
-export type Phase = z.infer<typeof PhaseSchema>;
-export const PHASES = PhaseSchema.options;
+export { PHASES, type Phase };
+export const PhaseSchema = z.enum(PHASES);
 
 export type Category = { id: string; title: string };
 export type DiscussStatus = "pending" | "discussed" | "skipped";

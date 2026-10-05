@@ -3,6 +3,7 @@ import type { CommentView } from "../../shared/protocol";
 import { useRoomStore } from "../state/roomContext";
 import type { IntentResult } from "../state/roomStore";
 import styles from "./Discussion.module.css";
+import { EntryActions } from "./EntryActions";
 import { ItemComposer } from "./ItemComposer";
 import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
@@ -74,31 +75,22 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
   return (
     <li class={styles.entry}>
       <div class={styles.body}>
-        <p class="user-text">{comment.text}</p>
+        <p id={`comment-${comment.id}`} class="user-text">
+          {comment.text}
+        </p>
         <EntryMeta mine={comment.mine} edited={comment.updatedAt > comment.createdAt} />
       </div>
       {editable && comment.mine && (
-        <div class={styles.entryActions}>
-          <button
-            ref={editor.editButton}
-            type="button"
-            class="btn btn-ghost btn-sm"
-            aria-label="Edit comment"
-            disabled={!live}
-            onClick={() => editor.start(true)}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            aria-label="Delete comment"
-            disabled={!live || editor.busy}
-            onClick={() => editor.remove(() => store.deleteComment(comment.id), onDeleted)}
-          >
-            Delete
-          </button>
-        </div>
+        <EntryActions
+          class={styles.entryActions}
+          noun="comment"
+          describedBy={`comment-${comment.id}`}
+          editRef={editor.editButton}
+          editDisabled={!live}
+          deleteDisabled={!live || editor.busy}
+          onEdit={() => editor.start(true)}
+          onDelete={() => editor.remove(() => store.deleteComment(comment.id), onDeleted)}
+        />
       )}
     </li>
   );

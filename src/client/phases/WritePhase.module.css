@@ -89,8 +89,6 @@
 }
 
 .itemActions {
-  display: flex;
-  flex-shrink: 0;
   opacity: 0.6;
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
@@ -98,10 +96,6 @@
 .item:hover .itemActions,
 .item:focus-within .itemActions {
   opacity: 1;
-}
-
-.delete:hover:not(:disabled) {
-  color: var(--color-danger-text);
 }
 
 @media (hover: none) {

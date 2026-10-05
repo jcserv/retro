@@ -6,6 +6,8 @@ import { useRoomStore } from "../state/roomContext";
 import { CharCount } from "./CharCount";
 import { EntryMeta } from "./CommentList";
 import styles from "./Discussion.module.css";
+import { EntryActions } from "./EntryActions";
+import { Icon } from "./Icon";
 import { ItemComposer } from "./ItemComposer";
 import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
@@ -56,6 +58,14 @@ export function AssigneeBadge({ assignee }: { assignee: string | null }) {
   );
 }
 
+export function ActionMarker() {
+  return (
+    <span class={styles.marker}>
+      <Icon name="arrowRight" />
+    </span>
+  );
+}
+
 type ActionRowProps = { action: ActionView; editable: boolean; onDeleted: () => void };
 
 function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
@@ -94,36 +104,27 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
 
   return (
     <li class={styles.entry}>
-      <span class={styles.checkbox} aria-hidden="true" />
+      <ActionMarker />
       <div class={styles.body}>
-        <p class="user-text">{action.text}</p>
+        <p id={`action-${action.id}`} class="user-text">
+          {action.text}
+        </p>
         <div class={styles.metaRow}>
           <AssigneeBadge assignee={action.assignee} />
           <EntryMeta mine={action.mine} edited={action.updatedAt > action.createdAt} />
         </div>
       </div>
       {editable && action.mine && (
-        <div class={styles.entryActions}>
-          <button
-            ref={editor.editButton}
-            type="button"
-            class="btn btn-ghost btn-sm"
-            aria-label="Edit action item"
-            disabled={!live}
-            onClick={() => editor.start(action.assignee ?? "")}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            aria-label="Delete action item"
-            disabled={!live || editor.busy}
-            onClick={() => editor.remove(() => store.deleteAction(action.id), onDeleted)}
-          >
-            Delete
-          </button>
-        </div>
+        <EntryActions
+          class={styles.entryActions}
+          noun="action item"
+          describedBy={`action-${action.id}`}
+          editRef={editor.editButton}
+          editDisabled={!live}
+          deleteDisabled={!live || editor.busy}
+          onEdit={() => editor.start(action.assignee ?? "")}
+          onDelete={() => editor.remove(() => store.deleteAction(action.id), onDeleted)}
+        />
       )}
     </li>
   );

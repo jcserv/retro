@@ -9,7 +9,7 @@ import {
   type IntentErrorCode,
   RoomConnection,
 } from "../lib/connection";
-import { applyPendingOps, type GroupingIntent, type PendingOp } from "./optimistic";
+import { applyPendingOps, type OptimisticIntent, type PendingOp } from "./optimistic";
 import { applyServerMessage, type RoomState } from "./roomState";
 
 export type IntentResult = { ok: true } | { ok: false; error: IntentError };
@@ -131,11 +131,14 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     }
   }
 
-  async function sendGrouping(intent: GroupingIntent): Promise<IntentResult> {
+  async function sendOptimistic(
+    intent: OptimisticIntent,
+    silent: readonly IntentErrorCode[] = [],
+  ): Promise<IntentResult> {
     const reqId = crypto.randomUUID();
     pending.value = [...pending.value, { reqId, intent, issuedAt: clock.serverNowEstimate() }];
     try {
-      return await send(intent, reqId, ["not_found"]);
+      return await send(intent, reqId, silent);
     } finally {
       pending.value = pending.value.filter((op) => op.reqId !== reqId);
     }
@@ -160,10 +163,10 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     setReady: (ready) => send({ type: "setReady", ready }),
 
     moveItemToGroup: (itemId, groupId) =>
-      sendGrouping({ type: "moveItemToGroup", itemId, groupId }),
+      sendOptimistic({ type: "moveItemToGroup", itemId, groupId }, ["not_found"]),
     mergeGroups: (sourceGroupId, targetGroupId) =>
-      sendGrouping({ type: "mergeGroups", sourceGroupId, targetGroupId }),
-    ungroupItem: (itemId) => sendGrouping({ type: "ungroupItem", itemId }),
+      sendOptimistic({ type: "mergeGroups", sourceGroupId, targetGroupId }, ["not_found"]),
+    ungroupItem: (itemId) => sendOptimistic({ type: "ungroupItem", itemId }, ["not_found"]),
     renameGroup: (groupId, title) => send({ type: "renameGroup", groupId, title }),
 
     vote: (groupId) => send({ type: "vote", groupId }),
@@ -178,7 +181,7 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     deleteAction: (actionId) => send({ type: "deleteAction", actionId }),
 
     advance: (from) => send({ type: "advance", from }),
-    setVoteLimit: (limit) => send({ type: "setVoteLimit", limit }),
+    setVoteLimit: (limit) => sendOptimistic({ type: "setVoteLimit", limit }),
     setTimer: (durationMs) => send({ type: "setTimer", durationMs }),
     pauseTimer: () => send({ type: "pauseTimer" }),
     resumeTimer: () => send({ type: "resumeTimer" }),
