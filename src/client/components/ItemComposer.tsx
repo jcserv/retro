@@ -34,21 +34,25 @@ export function ItemComposer({
   children,
 }: ItemComposerProps) {
   const [text, setText] = useState(initialText);
-  const [pending, setPending] = useState(false);
+  const [saving, setSaving] = useState(false);
   const id = useId();
   const length = textLength(text);
   const over = length > max;
-  const canSubmit = !disabled && !pending && length > 0 && !over && !extraInvalid;
+  const canSubmit = !disabled && !saving && length > 0 && !over && !extraInvalid;
 
   async function submit() {
     if (!canSubmit) return;
     const sent = text;
-    setPending(true);
-    if (!onCancel) setText("");
+    if (onCancel) {
+      setSaving(true);
+      const result = await onSubmit(sent.trim());
+      setSaving(false);
+      if (result.ok) onCancel();
+      return;
+    }
+    setText("");
     const result = await onSubmit(sent.trim());
-    setPending(false);
-    if (!result.ok) setText(sent);
-    else onCancel?.();
+    if (!result.ok) setText((current) => current || sent);
   }
 
   function onKeyDown(event: KeyboardEvent) {
