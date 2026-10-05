@@ -671,6 +671,15 @@ describe("timer", () => {
       expect(room.store.getRoom()?.timer).toEqual({ kind: "paused", remainingMs: 0 });
     });
   });
+
+  test("adding a minute to an expired timer runs one minute from now", async () => {
+    await withRoom((room) => {
+      room.ok(owner, { type: "setTimer", durationMs: 60_000 });
+      room.tick(600_000);
+      room.ok(owner, { type: "addTimerMinute" });
+      expect(room.store.getRoom()?.timer).toEqual({ kind: "running", endsAt: room.now + 60_000 });
+    });
+  });
 });
 
 test("owner identity comes from the stored owner client id", async () => {

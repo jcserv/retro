@@ -18,9 +18,6 @@ export function TimerControls({ timer, up }: TimerControlsProps) {
 
   if (timer.kind === "none") return <SetTimerMenu disabled={disabled} />;
 
-  const addMinute = () =>
-    up && timer.kind === "running" ? store.setTimer(MINUTE_MS) : store.addTimerMinute();
-
   return (
     <span class={styles.controls}>
       {timer.kind === "paused" ? (
@@ -38,7 +35,7 @@ export function TimerControls({ timer, up }: TimerControlsProps) {
         type="button"
         class="btn btn-ghost btn-sm"
         disabled={disabled}
-        onClick={addMinute}
+        onClick={store.addTimerMinute}
         aria-label="Add one minute"
       >
         +1 min

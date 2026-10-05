@@ -354,12 +354,12 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
     return ok({ kind: "timerChanged" });
   },
 
-  addTimerMinute({ store, room }) {
+  addTimerMinute({ store, room, now }) {
     const { timer } = room;
     if (timer.kind === "none") return fail("stale", "No timer is set");
     store.setTimer(
       timer.kind === "running"
-        ? { kind: "running", endsAt: timer.endsAt + TIMER_MINUTE_MS }
+        ? { kind: "running", endsAt: Math.max(timer.endsAt, now) + TIMER_MINUTE_MS }
         : { kind: "paused", remainingMs: timer.remainingMs + TIMER_MINUTE_MS },
     );
     return ok({ kind: "timerChanged" });

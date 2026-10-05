@@ -68,7 +68,8 @@ function createMockRoom() {
           broadcastTimer({ kind: "running", endsAt: now + timer.remainingMs });
         return;
       case "addTimerMinute":
-        if (timer.kind === "running") broadcastTimer({ ...timer, endsAt: timer.endsAt + 60_000 });
+        if (timer.kind === "running")
+          broadcastTimer({ ...timer, endsAt: Math.max(timer.endsAt, now) + 60_000 });
         if (timer.kind === "paused")
           broadcastTimer({ ...timer, remainingMs: timer.remainingMs + 60_000 });
         return;
@@ -175,9 +176,7 @@ test("timer stays in sync across windows with a skewed local clock and never adv
 
   await expect(owner.getByRole("button", { name: "Pause timer" })).toHaveCount(0);
   await owner.getByRole("button", { name: "Add one minute" }).click();
-  await expect
-    .poll(() => mock.intents.at(-1))
-    .toMatchObject({ type: "setTimer", durationMs: 60_000 });
+  await expect.poll(() => mock.intents.at(-1)).toMatchObject({ type: "addTimerMinute" });
   await expect(clock(participant)).toHaveText(/^0(1:00|0:5\d)$/);
 
   await owner.getByRole("button", { name: "Clear timer" }).click();
