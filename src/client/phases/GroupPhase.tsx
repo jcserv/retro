@@ -236,8 +236,8 @@ export function GroupPhase() {
         <p class={styles.hint}>
           <span class={styles.hintFine}>Drag a card onto another to group them</span>
           <span class={styles.hintCoarse}>Press and hold a card, then drag it onto another</span>,
-          or use <strong>Group with…</strong>. Drag an item out of a group onto its column to
-          ungroup it.
+          or use a card's <strong>Group with…</strong> menu. Drag an item out of a group onto its
+          column to ungroup it.
         </p>
       </div>
       {room.items.length === 0 ? (
