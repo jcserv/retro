@@ -38,6 +38,10 @@ class OwnerSocket {
     }
   }
 
+  received(): Message[] {
+    return [...this.messages];
+  }
+
   close(): void {
     this.ws.close();
   }
@@ -51,50 +55,66 @@ async function openAs(browser: Browser, clientId: string, code: string): Promise
   return page;
 }
 
-function itemIdOf(messages: Message[]): string {
-  const upserted = messages.find((msg) => msg.type === "itemUpserted");
-  if (!upserted) throw new Error("addItem produced no itemUpserted");
-  return (upserted.item as { id: string }).id;
-}
-
-function groupIdOf(messages: Message[], itemId: string): string {
+function groupIdOf(messages: Message[], text: string): string {
   const snapshot = messages.find((msg) => msg.type === "snapshot");
-  if (!snapshot) throw new Error("advance produced no snapshot");
-  const groups = (snapshot.room as { groups: { id: string; itemIds: string[] }[] }).groups;
-  const found = groups.find((entry) => entry.itemIds.includes(itemId));
-  if (!found) throw new Error(`no group for ${itemId}`);
+  if (!snapshot) throw new Error("hello produced no snapshot");
+  const room = snapshot.room as {
+    items: { id: string; text: string }[];
+    groups: { id: string; itemIds: string[] }[];
+  };
+  const itemId = room.items.find((entry) => entry.text === text)?.id;
+  const found = room.groups.find((entry) => itemId && entry.itemIds.includes(itemId));
+  if (!found) throw new Error(`no group for ${text}`);
   return found.id;
 }
 
-test("vote, discuss and done stay in sync across two windows", async ({
-  browser,
-  request,
-  baseURL,
-}) => {
-  const ownerId = randomUUID();
-  const peerId = randomUUID();
-  const created = await request.post("/api/rooms", { data: { clientId: ownerId } });
-  expect(created.status()).toBe(201);
-  const { code } = (await created.json()) as { code: string };
-
-  const owner = await OwnerSocket.open(baseURL ?? "", code, ownerId);
-  const add = async (categoryId: string, text: string) =>
-    itemIdOf(await owner.send({ type: "addItem", categoryId, text }));
-  const deploys = await add("less-well", "Deploys were slow");
-  const rollbacks = await add("less-well", "Rollbacks hurt");
-  await add("well", "Pairing sessions");
-  await add("puzzles", "Flaky CI");
-  const grouped = await owner.send({ type: "advance", from: "write" });
-  await owner.send({
+async function mergeOverSocket(
+  page: Page,
+  baseURL: string,
+  code: string,
+  from: string,
+  into: string,
+) {
+  const clientId = await page.evaluate(() => localStorage.getItem("retro.clientId"));
+  if (!clientId) throw new Error("owner has no clientId");
+  const socket = await OwnerSocket.open(baseURL, code, clientId);
+  const hello = socket.received();
+  await socket.send({
     type: "mergeGroups",
-    sourceGroupId: groupIdOf(grouped, rollbacks),
-    targetGroupId: groupIdOf(grouped, deploys),
+    sourceGroupId: groupIdOf(hello, from),
+    targetGroupId: groupIdOf(hello, into),
   });
-  await owner.send({ type: "setVoteLimit", limit: 3 });
-  await owner.send({ type: "advance", from: "group" });
+  socket.close();
+}
 
-  const ownerPage = await openAs(browser, ownerId, code);
-  const peerPage = await openAs(browser, peerId, code);
+test("vote, discuss and done stay in sync across two windows", async ({ browser, baseURL }) => {
+  const ownerContext = await browser.newContext();
+  const ownerPage = await ownerContext.newPage();
+  await ownerPage.goto("/");
+  await ownerPage.getByRole("button", { name: "Create room" }).click();
+  await expect(ownerPage).toHaveURL(/\/r\/[A-Z0-9]{6}$/);
+  const code = new URL(ownerPage.url()).pathname.split("/").at(-1) ?? "";
+  const peerPage = await openAs(browser, randomUUID(), code);
+
+  const write = async (category: string, text: string) => {
+    const column = ownerPage.getByRole("region", { name: category });
+    await column.getByRole("textbox").fill(text);
+    await expect(column.getByRole("button", { name: "Add" })).toBeEnabled();
+    await column.getByRole("textbox").press("Enter");
+    await expect(column.getByRole("listitem").filter({ hasText: text })).toBeVisible();
+  };
+  await write("What went less well?", "Deploys were slow");
+  await write("What went less well?", "Rollbacks hurt");
+  await write("What went well?", "Pairing sessions");
+  await write("What puzzles us?", "Flaky CI");
+
+  await ownerPage.getByRole("button", { name: "Start grouping" }).click();
+  await expect(ownerPage.getByRole("button", { name: "Start voting" })).toBeVisible();
+  await mergeOverSocket(ownerPage, baseURL ?? "", code, "Rollbacks hurt", "Deploys were slow");
+  await ownerPage.getByRole("button", { name: "Fewer votes per person" }).click();
+  await ownerPage.getByRole("button", { name: "Fewer votes per person" }).click();
+  await expect(ownerPage.getByText("Votes per person: 3")).toBeVisible();
+  await ownerPage.getByRole("button", { name: "Start voting" }).click();
   const vote = (page: Page, title: string) =>
     page.getByRole("button", { name: `Add a vote to ${title}` }).click();
 
@@ -119,7 +139,7 @@ test("vote, discuss and done stay in sync across two windows", async ({
   await expect(peerPage.getByText("1 of 3 votes left")).toBeVisible();
   await expect(ownerPage.getByText("0 of 3 votes left")).toBeVisible();
 
-  await owner.send({ type: "advance", from: "vote" });
+  await ownerPage.getByRole("button", { name: "Start discussion" }).click();
 
   for (const page of [ownerPage, peerPage]) {
     await expect(page.getByRole("heading", { level: 2, name: "Deploys were slow" })).toBeVisible();
@@ -143,6 +163,7 @@ test("vote, discuss and done stay in sync across two windows", async ({
   await expect(ownerPage.getByText("edited")).toBeVisible();
   await peerPage.getByRole("button", { name: "Delete comment" }).click();
   await expect(ownerPage.getByText("No comments yet.")).toBeVisible();
+  await expect(peerComment).toBeFocused();
 
   await ownerPage.getByRole("textbox", { name: "New action item" }).fill("Cache docker layers");
   await ownerPage.getByRole("textbox", { name: "Assignee" }).fill("Sam");
@@ -167,8 +188,7 @@ test("vote, discuss and done stay in sync across two windows", async ({
   await ownerPage.getByRole("button", { name: "Previous" }).click();
   await expect(peerPage.getByRole("heading", { level: 2, name: "Pairing sessions" })).toBeVisible();
 
-  await owner.send({ type: "advance", from: "discuss" });
-  owner.close();
+  await ownerPage.getByRole("button", { name: "Finish retro" }).click();
 
   for (const page of [ownerPage, peerPage]) {
     await expect(page.getByRole("heading", { name: "Retro complete" })).toBeVisible();

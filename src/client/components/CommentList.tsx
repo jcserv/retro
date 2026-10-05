@@ -1,13 +1,13 @@
-import { useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { CommentView } from "../../shared/protocol";
-import { submitOnEnter } from "../lib/keys";
 import { useRoomStore } from "../state/roomContext";
-import { CharCount, fitsLimit } from "./CharCount";
+import type { IntentResult } from "../state/roomStore";
 import styles from "./Discussion.module.css";
-import { useEntryEditor } from "./useEntryEditor";
+import { ItemComposer } from "./ItemComposer";
+import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
 const MAX = LIMITS.commentTextMax;
+const OK: IntentResult = { ok: true };
 
 type CommentListProps = {
   groupId: string;
@@ -18,9 +18,10 @@ type CommentListProps = {
 export function CommentList({ groupId, comments, editable }: CommentListProps) {
   const headingId = `comments-${groupId}`;
   const sorted = [...comments].sort((a, b) => a.createdAt - b.createdAt);
+  const focus = useSectionFocus();
   return (
-    <section class={styles.section} aria-labelledby={headingId}>
-      <h3 id={headingId} class={styles.heading}>
+    <section ref={focus.section} class={styles.section} aria-labelledby={headingId}>
+      <h3 ref={focus.heading} id={headingId} class={styles.heading} tabIndex={-1}>
         Comments <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
@@ -28,7 +29,12 @@ export function CommentList({ groupId, comments, editable }: CommentListProps) {
       ) : (
         <ul class={styles.list}>
           {sorted.map((comment) => (
-            <CommentRow key={comment.id} comment={comment} editable={editable} />
+            <CommentRow
+              key={comment.id}
+              comment={comment}
+              editable={editable}
+              onDeleted={focus.focusComposer}
+            />
           ))}
         </ul>
       )}
@@ -37,56 +43,30 @@ export function CommentList({ groupId, comments, editable }: CommentListProps) {
   );
 }
 
-function CommentRow({ comment, editable }: { comment: CommentView; editable: boolean }) {
+type CommentRowProps = { comment: CommentView; editable: boolean; onDeleted: () => void };
+
+function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
   const store = useRoomStore();
-  const editor = useEntryEditor<string>();
+  const editor = useEntryEditor<true>();
   const live = store.isLive.value;
-  const fieldId = `comment-edit-${comment.id}`;
 
   if (editor.draft !== null) {
-    const draft = editor.draft;
-    const unchanged = draft.trim() === comment.text;
     return (
       <li class={styles.entry}>
-        <form
-          class={styles.form}
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (unchanged) return editor.cancel();
-            if (!fitsLimit(draft, MAX)) return;
-            void editor.save(() => store.editComment(comment.id, draft.trim()));
-          }}
-        >
-          <label class="visually-hidden" for={fieldId}>
-            Edit comment
-          </label>
-          <textarea
-            id={fieldId}
-            class="textarea"
-            rows={2}
-            value={draft}
-            // biome-ignore lint/a11y/noAutofocus: focus moves into the editor the user just opened
+        <div class={styles.form}>
+          <ItemComposer
+            label="Edit comment"
+            max={MAX}
+            initialText={comment.text}
+            submitLabel="Save"
+            disabled={!live}
             autoFocus
-            onInput={(event) => editor.update(event.currentTarget.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") editor.cancel();
-              else submitOnEnter(event);
-            }}
+            onCancel={editor.cancel}
+            onSubmit={(text) =>
+              text === comment.text ? Promise.resolve(OK) : store.editComment(comment.id, text)
+            }
           />
-          <div class={styles.formFooter}>
-            <CharCount text={draft} max={MAX} />
-            <button type="button" class="btn btn-ghost btn-sm" onClick={editor.cancel}>
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary btn-sm"
-              disabled={!live || editor.busy || !fitsLimit(draft, MAX)}
-            >
-              Save
-            </button>
-          </div>
-        </form>
+        </div>
       </li>
     );
   }
@@ -105,7 +85,7 @@ function CommentRow({ comment, editable }: { comment: CommentView; editable: boo
             class="btn btn-ghost btn-sm"
             aria-label="Edit comment"
             disabled={!live}
-            onClick={() => editor.start(comment.text)}
+            onClick={() => editor.start(true)}
           >
             Edit
           </button>
@@ -114,7 +94,7 @@ function CommentRow({ comment, editable }: { comment: CommentView; editable: boo
             class="btn btn-ghost btn-sm"
             aria-label="Delete comment"
             disabled={!live || editor.busy}
-            onClick={() => editor.remove(() => store.deleteComment(comment.id))}
+            onClick={() => editor.remove(() => store.deleteComment(comment.id), onDeleted)}
           >
             Delete
           </button>
@@ -137,46 +117,14 @@ export function EntryMeta({ mine, edited }: { mine: boolean; edited: boolean }) 
 
 function CommentComposer({ groupId }: { groupId: string }) {
   const store = useRoomStore();
-  const [text, setText] = useState("");
-  const live = store.isLive.value;
-  const fieldId = `comment-new-${groupId}`;
-  const counterId = `${fieldId}-count`;
-
-  async function submit(event: Event) {
-    event.preventDefault();
-    if (!live || !fitsLimit(text, MAX)) return;
-    const value = text.trim();
-    setText("");
-    const result = await store.addComment(groupId, value);
-    if (!result.ok) setText((current) => current || value);
-  }
-
   return (
-    <form class={styles.form} onSubmit={submit}>
-      <label class="visually-hidden" for={fieldId}>
-        Add a comment
-      </label>
-      <textarea
-        id={fieldId}
-        class="textarea"
-        rows={2}
-        placeholder="Add a comment…"
-        value={text}
-        disabled={!live}
-        aria-describedby={counterId}
-        onInput={(event) => setText(event.currentTarget.value)}
-        onKeyDown={submitOnEnter}
-      />
-      <div class={styles.formFooter}>
-        <CharCount id={counterId} text={text} max={MAX} />
-        <button
-          type="submit"
-          class="btn btn-primary btn-sm"
-          disabled={!live || !fitsLimit(text, MAX)}
-        >
-          Comment
-        </button>
-      </div>
-    </form>
+    <ItemComposer
+      label="Add a comment"
+      max={MAX}
+      placeholder="Add a comment…"
+      submitLabel="Comment"
+      disabled={!store.isLive.value}
+      onSubmit={(text) => store.addComment(groupId, text)}
+    />
   );
 }

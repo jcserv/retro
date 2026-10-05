@@ -27,6 +27,21 @@ export function useEntryEditor<Draft>() {
     update: (next: Draft) => setDraft(next),
     cancel: () => setDraft(null),
     save: (action: () => Promise<IntentResult>) => run(action, () => setDraft(null)),
-    remove: (action: () => Promise<IntentResult>) => run(action),
+    remove: (action: () => Promise<IntentResult>, onRemoved: () => void) => run(action, onRemoved),
+  };
+}
+
+export function useSectionFocus() {
+  const section = useRef<HTMLElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  return {
+    section,
+    heading,
+    focusComposer: () => {
+      const field = section.current?.querySelector<HTMLElement>(
+        ":scope > form textarea:not(:disabled)",
+      );
+      (field ?? heading.current)?.focus();
+    },
   };
 }

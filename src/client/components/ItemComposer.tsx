@@ -1,3 +1,4 @@
+import type { ComponentChildren } from "preact";
 import { useId, useState } from "preact/hooks";
 import { textLength } from "../lib/format";
 import type { IntentResult } from "../state/roomStore";
@@ -14,6 +15,8 @@ type ItemComposerProps = {
   disabledHint?: string;
   onCancel?: () => void;
   autoFocus?: boolean;
+  extraInvalid?: boolean;
+  children?: ComponentChildren;
 };
 
 export function ItemComposer({
@@ -27,13 +30,15 @@ export function ItemComposer({
   disabledHint,
   onCancel,
   autoFocus = false,
+  extraInvalid = false,
+  children,
 }: ItemComposerProps) {
   const [text, setText] = useState(initialText);
   const [pending, setPending] = useState(false);
   const id = useId();
   const length = textLength(text);
   const over = length > max;
-  const canSubmit = !disabled && !pending && length > 0 && !over;
+  const canSubmit = !disabled && !pending && length > 0 && !over && !extraInvalid;
 
   async function submit() {
     if (!canSubmit) return;
@@ -81,6 +86,7 @@ export function ItemComposer({
         onInput={(event) => setText(event.currentTarget.value)}
         onKeyDown={onKeyDown}
       />
+      {children}
       <div class={styles.footer}>
         <span id={`${id}-count`} class="field-hint" data-over={over ? "true" : undefined}>
           <span class="visually-hidden">Characters used: </span>

@@ -1,23 +1,16 @@
-import { useState } from "preact/hooks";
+import { useId, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { ActionView } from "../../shared/protocol";
+import { textLength } from "../lib/format";
 import { useRoomStore } from "../state/roomContext";
-import { CharCount, fitsLimit } from "./CharCount";
+import { CharCount } from "./CharCount";
 import { EntryMeta } from "./CommentList";
 import styles from "./Discussion.module.css";
-import { useEntryEditor } from "./useEntryEditor";
+import { ItemComposer } from "./ItemComposer";
+import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
 const TEXT_MAX = LIMITS.actionTextMax;
 const ASSIGNEE_MAX = LIMITS.assigneeMax;
-
-type ActionDraft = { text: string; assignee: string };
-
-function isValid(draft: ActionDraft): boolean {
-  return (
-    fitsLimit(draft.text, TEXT_MAX) &&
-    (draft.assignee.trim() === "" || fitsLimit(draft.assignee, ASSIGNEE_MAX))
-  );
-}
 
 type ActionListProps = {
   groupId: string;
@@ -28,9 +21,10 @@ type ActionListProps = {
 export function ActionList({ groupId, actions, editable }: ActionListProps) {
   const headingId = `actions-${groupId}`;
   const sorted = [...actions].sort((a, b) => a.createdAt - b.createdAt);
+  const focus = useSectionFocus();
   return (
-    <section class={styles.section} aria-labelledby={headingId}>
-      <h3 id={headingId} class={styles.heading}>
+    <section ref={focus.section} class={styles.section} aria-labelledby={headingId}>
+      <h3 ref={focus.heading} id={headingId} class={styles.heading} tabIndex={-1}>
         Action items <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
@@ -38,7 +32,12 @@ export function ActionList({ groupId, actions, editable }: ActionListProps) {
       ) : (
         <ul class={styles.list}>
           {sorted.map((action) => (
-            <ActionRow key={action.id} action={action} editable={editable} />
+            <ActionRow
+              key={action.id}
+              action={action}
+              editable={editable}
+              onDeleted={focus.focusComposer}
+            />
           ))}
         </ul>
       )}
@@ -57,28 +56,38 @@ export function AssigneeBadge({ assignee }: { assignee: string | null }) {
   );
 }
 
-function ActionRow({ action, editable }: { action: ActionView; editable: boolean }) {
+type ActionRowProps = { action: ActionView; editable: boolean; onDeleted: () => void };
+
+function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
   const store = useRoomStore();
-  const editor = useEntryEditor<ActionDraft>();
+  const editor = useEntryEditor<string>();
   const live = store.isLive.value;
 
   if (editor.draft !== null) {
-    const draft = editor.draft;
+    const assignee = editor.draft;
     return (
       <li class={styles.entry}>
-        <ActionFields
-          idPrefix={`action-edit-${action.id}`}
-          labelPrefix="Edit"
-          draft={draft}
-          onChange={editor.update}
-          onCancel={editor.cancel}
-          onSubmit={() =>
-            editor.save(() => store.editAction(action.id, draft.text.trim(), draft.assignee.trim()))
-          }
-          submitLabel="Save"
-          disabled={!live || editor.busy}
-          autoFocus
-        />
+        <div class={styles.form}>
+          <ItemComposer
+            label="Edit action item"
+            max={TEXT_MAX}
+            initialText={action.text}
+            submitLabel="Save"
+            disabled={!live}
+            autoFocus
+            extraInvalid={!assigneeFits(assignee)}
+            onCancel={editor.cancel}
+            onSubmit={(text) => store.editAction(action.id, text, assignee.trim())}
+          >
+            <AssigneeField
+              label="Edit assignee"
+              value={assignee}
+              disabled={!live}
+              onChange={editor.update}
+              onCancel={editor.cancel}
+            />
+          </ItemComposer>
+        </div>
       </li>
     );
   }
@@ -101,7 +110,7 @@ function ActionRow({ action, editable }: { action: ActionView; editable: boolean
             class="btn btn-ghost btn-sm"
             aria-label="Edit action item"
             disabled={!live}
-            onClick={() => editor.start({ text: action.text, assignee: action.assignee ?? "" })}
+            onClick={() => editor.start(action.assignee ?? "")}
           >
             Edit
           </button>
@@ -110,7 +119,7 @@ function ActionRow({ action, editable }: { action: ActionView; editable: boolean
             class="btn btn-ghost btn-sm"
             aria-label="Delete action item"
             disabled={!live || editor.busy}
-            onClick={() => editor.remove(() => store.deleteAction(action.id))}
+            onClick={() => editor.remove(() => store.deleteAction(action.id), onDeleted)}
           >
             Delete
           </button>
@@ -120,115 +129,69 @@ function ActionRow({ action, editable }: { action: ActionView; editable: boolean
   );
 }
 
+function assigneeFits(assignee: string): boolean {
+  return textLength(assignee) <= ASSIGNEE_MAX;
+}
+
 function ActionComposer({ groupId }: { groupId: string }) {
   const store = useRoomStore();
-  const [draft, setDraft] = useState<ActionDraft>({ text: "", assignee: "" });
+  const [assignee, setAssignee] = useState("");
   const live = store.isLive.value;
 
-  async function submit() {
-    const value = { text: draft.text.trim(), assignee: draft.assignee.trim() };
-    setDraft({ text: "", assignee: "" });
-    const result = await store.addAction(groupId, value.text, value.assignee);
-    if (!result.ok) {
-      setDraft((current) => (current.text || current.assignee ? current : value));
-    }
+  async function submit(text: string) {
+    const sent = assignee;
+    setAssignee("");
+    const result = await store.addAction(groupId, text, sent.trim());
+    if (!result.ok) setAssignee((current) => current || sent);
+    return result;
   }
 
   return (
-    <ActionFields
-      idPrefix={`action-new-${groupId}`}
-      labelPrefix="New"
-      draft={draft}
-      onChange={setDraft}
-      onSubmit={submit}
+    <ItemComposer
+      label="New action item"
+      max={TEXT_MAX}
+      placeholder="Add an action item…"
       submitLabel="Add action"
       disabled={!live}
-    />
+      extraInvalid={!assigneeFits(assignee)}
+      onSubmit={submit}
+    >
+      <AssigneeField label="Assignee" value={assignee} disabled={!live} onChange={setAssignee} />
+    </ItemComposer>
   );
 }
 
-type ActionFieldsProps = {
-  idPrefix: string;
-  labelPrefix: "New" | "Edit";
-  draft: ActionDraft;
-  onChange: (draft: ActionDraft) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-  submitLabel: string;
+type AssigneeFieldProps = {
+  label: string;
+  value: string;
   disabled: boolean;
-  autoFocus?: boolean;
+  onChange: (value: string) => void;
+  onCancel?: () => void;
 };
 
-function ActionFields({
-  idPrefix,
-  labelPrefix,
-  draft,
-  onChange,
-  onSubmit,
-  onCancel,
-  submitLabel,
-  disabled,
-  autoFocus,
-}: ActionFieldsProps) {
-  const textId = `${idPrefix}-text`;
-  const assigneeId = `${idPrefix}-assignee`;
-  const valid = isValid(draft);
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && onCancel) onCancel();
-  };
-
+function AssigneeField({ label, value, disabled, onChange, onCancel }: AssigneeFieldProps) {
+  const id = useId();
   return (
-    <form
-      class={styles.form}
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (!disabled && valid) onSubmit();
-      }}
-    >
-      <div class={styles.actionFields}>
-        <div class={styles.field}>
-          <label class="visually-hidden" for={textId}>
-            {labelPrefix} action item
-          </label>
-          <input
-            id={textId}
-            class="input"
-            placeholder={labelPrefix === "New" ? "Add an action item…" : undefined}
-            value={draft.text}
-            disabled={labelPrefix === "New" && disabled}
-            // biome-ignore lint/a11y/noAutofocus: focus moves into the editor the user just opened
-            autoFocus={autoFocus}
-            onInput={(event) => onChange({ ...draft, text: event.currentTarget.value })}
-            onKeyDown={onKeyDown}
-          />
-          <CharCount text={draft.text} max={TEXT_MAX} />
-        </div>
-        <div class={styles.field}>
-          <label class="visually-hidden" for={assigneeId}>
-            {labelPrefix === "New" ? "Assignee" : "Edit assignee"}
-          </label>
-          <input
-            id={assigneeId}
-            class="input"
-            placeholder="Assignee"
-            value={draft.assignee}
-            disabled={labelPrefix === "New" && disabled}
-            onInput={(event) => onChange({ ...draft, assignee: event.currentTarget.value })}
-            onKeyDown={onKeyDown}
-          />
-          {draft.assignee.trim() !== "" && <CharCount text={draft.assignee} max={ASSIGNEE_MAX} />}
-        </div>
-      </div>
-      <div class={styles.formFooter}>
-        {onCancel && (
-          <button type="button" class="btn btn-ghost btn-sm" onClick={onCancel}>
-            Cancel
-          </button>
-        )}
-        <button type="submit" class="btn btn-primary btn-sm" disabled={disabled || !valid}>
-          {submitLabel}
-        </button>
-      </div>
-    </form>
+    <div class={styles.assigneeField}>
+      <label class="visually-hidden" for={id}>
+        {label}
+      </label>
+      <input
+        id={id}
+        class="input"
+        placeholder="Assignee (optional)"
+        value={value}
+        disabled={disabled}
+        aria-invalid={assigneeFits(value) ? undefined : "true"}
+        onInput={(event) => onChange(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && onCancel) {
+            event.preventDefault();
+            onCancel();
+          }
+        }}
+      />
+      {value.trim() !== "" && <CharCount text={value} max={ASSIGNEE_MAX} />}
+    </div>
   );
 }

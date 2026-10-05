@@ -42,6 +42,6 @@
 
 @media (max-width: 599px) {
   .advance {
-    margin-inline-start: auto;
+    flex: 1 0 auto;
   }
 }
