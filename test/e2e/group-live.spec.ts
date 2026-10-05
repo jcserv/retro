@@ -1,10 +1,5 @@
-import {
-  type Browser,
-  type BrowserContextOptions,
-  expect,
-  type Page,
-  test,
-} from "@playwright/test";
+import type { BrowserContextOptions, Page } from "@playwright/test";
+import { addItem, card, createRoom, dragOnto, expect, type NewUser, test } from "./fixtures";
 
 const ITEMS: Record<string, string[]> = {
   "What went well?": ["Shipped on time", "Great pairing"],
@@ -12,37 +7,20 @@ const ITEMS: Record<string, string[]> = {
   "What do we want to try next?": ["Quarantine flaky tests", "No-meeting Wednesdays"],
 };
 
-async function openGroupPhase(browser: Browser, guestOptions: BrowserContextOptions = {}) {
-  const ownerContext = await browser.newContext();
-  const guestContext = await browser.newContext(guestOptions);
-  const owner = await ownerContext.newPage();
-  const guest = await guestContext.newPage();
-
-  await owner.goto("/");
-  await owner.getByRole("button", { name: "Create room" }).click();
-  await expect(owner).toHaveURL(/\/r\/[A-Z0-9]{6}$/);
+async function openGroupPhase(newUser: NewUser, guestOptions: BrowserContextOptions = {}) {
+  const owner = await newUser();
+  const guest = await newUser(guestOptions);
+  const code = await createRoom(owner);
   for (const [category, texts] of Object.entries(ITEMS)) {
-    const region = owner.getByRole("region", { name: category });
-    for (const text of texts) {
-      await region.getByRole("textbox").fill(text);
-      await region.getByRole("textbox").press("Enter");
-      await expect(region.getByRole("listitem").filter({ hasText: text })).toBeVisible();
-    }
+    for (const text of texts) await addItem(owner, category, text);
   }
   await owner.getByRole("button", { name: "Start grouping" }).click();
   await expect(owner.getByRole("heading", { name: "Group similar items" })).toBeVisible();
 
-  await guest.goto(owner.url());
+  await guest.goto(`/r/${code}`);
   await expect(guest.getByRole("heading", { name: "Group similar items" })).toBeVisible();
-  const close = async () => {
-    await ownerContext.close();
-    await guestContext.close();
-  };
-  return { owner, guest, close };
+  return { owner, guest };
 }
-
-const card = (page: Page, text: string) =>
-  page.locator("[data-group-card]").filter({ hasText: text });
 
 function boardSnapshot(page: Page) {
   return page.locator("section[aria-labelledby]").evaluateAll((columns) =>
@@ -55,19 +33,8 @@ function boardSnapshot(page: Page) {
   );
 }
 
-async function dragOnto(page: Page, sourceText: string, targetText: string) {
-  const source = await card(page, sourceText).locator("p, li").first().boundingBox();
-  const target = await card(page, targetText).boundingBox();
-  if (!source || !target) throw new Error("missing card");
-  await page.mouse.move(source.x + 10, source.y + 5);
-  await page.mouse.down();
-  await page.mouse.move(source.x + 30, source.y + 20, { steps: 4 });
-  await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 10 });
-  await page.mouse.up();
-}
-
-test("live: two windows grouping concurrently converge", async ({ browser }) => {
-  const { owner, guest, close } = await openGroupPhase(browser);
+test("live: two windows grouping concurrently converge", async ({ newUser }) => {
+  const { owner, guest } = await openGroupPhase(newUser);
 
   const ownerDrag = dragOnto(owner, "Flaky CI", "Quarantine flaky tests");
   const guestMenu = (async () => {
@@ -81,12 +48,10 @@ test("live: two windows grouping concurrently converge", async ({ browser }) => 
     await expect(card(page, "Great pairing")).toContainText("Shipped on time");
   }
   await expect.poll(() => boardSnapshot(guest)).toEqual(await boardSnapshot(owner));
-
-  await close();
 });
 
-test("live: keyboard-only grouping, rename, and ungroup", async ({ browser }) => {
-  const { owner, guest, close } = await openGroupPhase(browser);
+test("live: keyboard-only grouping, rename, and ungroup", async ({ newUser }) => {
+  const { owner, guest } = await openGroupPhase(newUser);
 
   await card(owner, "Too many meetings").getByRole("button", { name: "Group with…" }).focus();
   await owner.keyboard.press("Enter");
@@ -115,12 +80,10 @@ test("live: keyboard-only grouping, rename, and ungroup", async ({ browser }) =>
     lessWell.locator("[data-group-card]").filter({ hasText: "Too many meetings" }),
   ).toBeVisible();
   await expect(card(guest, "No-meeting Wednesdays")).not.toContainText("Too many meetings");
-
-  await close();
 });
 
-test("live: touch long-press drag groups cards", async ({ browser }) => {
-  const { owner, guest, close } = await openGroupPhase(browser, {
+test("live: touch long-press drag groups cards", async ({ newUser }) => {
+  const { owner, guest } = await openGroupPhase(newUser, {
     viewport: { width: 375, height: 812 },
     hasTouch: true,
     isMobile: true,
@@ -150,6 +113,4 @@ test("live: touch long-press drag groups cards", async ({ browser }) => {
 
   await expect(card(guest, "Shipped on time")).toContainText("Great pairing");
   await expect(card(owner, "Shipped on time")).toContainText("Great pairing");
-
-  await close();
 });
