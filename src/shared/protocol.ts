@@ -133,6 +133,7 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
   intent("clearTimer", {}),
   intent("next", { fromIndex: index }),
   intent("prev", { fromIndex: index }),
+  intent("goTo", { fromIndex: index, toIndex: index }),
   intent("skip", { fromIndex: index }),
 ]);
 

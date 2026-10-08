@@ -51,6 +51,7 @@ const SAMPLE_INTENTS: Record<ClientIntent["type"], ClientIntent> = {
   clearTimer: { type: "clearTimer" },
   next: { type: "next", fromIndex: 0 },
   prev: { type: "prev", fromIndex: 0 },
+  goTo: { type: "goTo", fromIndex: 0, toIndex: 1 },
   skip: { type: "skip", fromIndex: 0 },
 };
 
@@ -81,6 +82,7 @@ const ALLOWED_PHASES: Record<ClientIntent["type"], Phase[]> = {
   clearTimer: ACTIVE,
   next: ["discuss"],
   prev: ["discuss"],
+  goTo: ["discuss"],
   skip: ["discuss"],
 };
 
@@ -94,6 +96,7 @@ const OWNER_ONLY = new Set<ClientIntent["type"]>([
   "clearTimer",
   "next",
   "prev",
+  "goTo",
   "skip",
 ]);
 
@@ -541,6 +544,22 @@ describe("discuss navigation", () => {
       room.ok(owner, { type: "prev", fromIndex: 2 });
       expect(index(room)).toBe(1);
       expect(statuses(room)).toEqual(["discussed", "discussed", "discussed"]);
+    });
+  });
+
+  test("goTo jumps to any topic, marks it discussed and rejects stale or out-of-range targets", async () => {
+    await inDiscussion((room) => {
+      expect(room.ok(owner, { type: "goTo", fromIndex: 0, toIndex: 2 })).toEqual([
+        { kind: "discussCursorChanged" },
+      ]);
+      expect(index(room)).toBe(2);
+      expect(statuses(room)).toEqual(["discussed", "pending", "discussed"]);
+      expect(room.rejects(owner, { type: "goTo", fromIndex: 0, toIndex: 1 })).toBe("stale");
+      expect(room.ok(owner, { type: "goTo", fromIndex: 2, toIndex: 2 })).toEqual([]);
+      expect(room.ok(owner, { type: "goTo", fromIndex: 2, toIndex: 3 })).toEqual([]);
+      expect(index(room)).toBe(2);
+      room.ok(owner, { type: "goTo", fromIndex: 2, toIndex: 1 });
+      expect(index(room)).toBe(1);
     });
   });
 

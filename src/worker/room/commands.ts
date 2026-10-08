@@ -66,6 +66,7 @@ const RULES: { [K in IntentType]: Rule } = {
   clearTimer: { ownerOnly: true, phases: ACTIVE_PHASES },
   next: { ownerOnly: true, phases: ["discuss"] },
   prev: { ownerOnly: true, phases: ["discuss"] },
+  goTo: { ownerOnly: true, phases: ["discuss"] },
   skip: { ownerOnly: true, phases: ["discuss"] },
 };
 
@@ -371,11 +372,15 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
   },
 
   next(ctx, { fromIndex }) {
-    return moveCursor(ctx, fromIndex, +1);
+    return moveCursor(ctx, fromIndex, fromIndex + 1);
   },
 
   prev(ctx, { fromIndex }) {
-    return moveCursor(ctx, fromIndex, -1);
+    return moveCursor(ctx, fromIndex, fromIndex - 1);
+  },
+
+  goTo(ctx, { fromIndex, toIndex }) {
+    return moveCursor(ctx, fromIndex, toIndex);
   },
 
   skip(ctx, { fromIndex }) {
@@ -429,10 +434,9 @@ function arriveAt(store: RoomStore, index: number): void {
   store.setDiscussStatus(index, "discussed");
 }
 
-function moveCursor({ store, room }: Context, fromIndex: number, step: 1 | -1): CommandResult {
+function moveCursor({ store, room }: Context, fromIndex: number, target: number): CommandResult {
   if (fromIndex !== room.discussIndex) return fail("stale", "The discussion already moved");
-  const target = room.discussIndex + step;
-  if (target < 0 || target >= store.listDiscussOrder().length) return ok();
+  if (target === fromIndex || target < 0 || target >= store.listDiscussOrder().length) return ok();
   arriveAt(store, target);
   return ok({ kind: "discussCursorChanged" });
 }

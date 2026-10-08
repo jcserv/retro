@@ -24,11 +24,32 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1-5) var(--space-2);
+  width: 100%;
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
 
-.entry[data-current="true"] {
+button.entry {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+button.entry:disabled {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  button.entry:enabled:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.item[data-current="true"] .entry {
   background: var(--color-accent-subtle);
   color: var(--color-accent-text);
   font-weight: var(--weight-semibold);
@@ -46,13 +67,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-.entry[data-status="discussed"] .marker {
+.item[data-status="discussed"] .marker {
   border-color: var(--color-success);
   background: var(--color-success-subtle);
   color: var(--color-success-text);
 }
 
-.entry[data-current="true"] .marker {
+.item[data-current="true"] .marker {
   border-color: var(--color-accent);
   background: var(--color-accent);
   color: var(--color-on-accent);
@@ -73,12 +94,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-.entry[data-status="skipped"]:not([data-current="true"]) .marker {
+.item[data-status="skipped"]:not([data-current="true"]) .marker {
   border-style: dashed;
   color: var(--color-text-subtle);
 }
 
-.entry[data-status="skipped"]:not([data-current="true"]) .title {
+.item[data-status="skipped"]:not([data-current="true"]) .title {
   color: var(--color-text-subtle);
   text-decoration: line-through;
 }

@@ -65,6 +65,7 @@ export type RoomStore = {
   clearTimer(): Promise<IntentResult>;
   next(fromIndex: number): Promise<IntentResult>;
   prev(fromIndex: number): Promise<IntentResult>;
+  goTo(fromIndex: number, toIndex: number): Promise<IntentResult>;
   skip(fromIndex: number): Promise<IntentResult>;
 };
 
@@ -189,6 +190,7 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     clearTimer: () => send({ type: "clearTimer" }),
     next: (fromIndex) => send({ type: "next", fromIndex }),
     prev: (fromIndex) => send({ type: "prev", fromIndex }),
+    goTo: (fromIndex, toIndex) => send({ type: "goTo", fromIndex, toIndex }),
     skip: (fromIndex) => send({ type: "skip", fromIndex }),
   };
 }

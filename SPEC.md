@@ -90,7 +90,7 @@ The owner can set an optional timer.
 ### Discuss
 
 All groups are sorted by vote count, descending.
-The owner steps next and previous.
+The owner steps next and previous, or jumps to any topic from the agenda.
 Every client's view follows the current group.
 The owner can skip groups.
 Anyone can add comments and action items on the current group.
@@ -162,7 +162,7 @@ Room ABC234 · 7 participants
 
 One WebSocket per client at `/ws/:code?clientId=...`.
 The server sends a full filtered snapshot on join, then patch events.
-Client messages are intents such as `addItem`, `editItem`, `deleteItem`, `ready`, `vote`, `unvote`, `comment`, `addAction`, `advance`, `setTimer`, `next`, `prev`.
+Client messages are intents such as `addItem`, `editItem`, `deleteItem`, `ready`, `vote`, `unvote`, `comment`, `addAction`, `advance`, `setTimer`, `next`, `prev`, `goTo`.
 Owner-only intents from non-owners are rejected.
 Snapshots and patches are filtered per client.
 Others' items are hidden in Write.

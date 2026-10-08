@@ -86,6 +86,21 @@ test("live: voting budget, discuss skip and navigation, and done", async ({ newU
   await ownerPage.getByRole("button", { name: "Previous" }).click();
   await expect(peerPage.getByRole("heading", { level: 2, name: "Pairing sessions" })).toBeVisible();
 
+  const agenda = (page: Page) => page.getByRole("complementary", { name: "Agenda" });
+  await expect(agenda(peerPage).getByRole("button")).toHaveCount(0);
+  await expect(agenda(ownerPage).getByRole("button", { name: /Pairing sessions/ })).toHaveCount(0);
+  await agenda(ownerPage)
+    .getByRole("button", { name: /Deploys were slow/ })
+    .click();
+  await expect(peerPage.getByText("Topic 1 of 3", { exact: true })).toBeVisible();
+  await expect(
+    peerPage.getByRole("heading", { level: 2, name: "Deploys were slow" }),
+  ).toBeVisible();
+  await agenda(ownerPage)
+    .getByRole("button", { name: /Flaky CI/ })
+    .click();
+  await expect(peerPage.getByRole("heading", { level: 2, name: "Flaky CI" })).toBeVisible();
+
   await ownerPage.getByRole("button", { name: "Finish retro" }).click();
 
   for (const page of [ownerPage, peerPage]) {

@@ -24,7 +24,7 @@ All other open questions are resolved in section 11.
 - Command handlers are synchronous (DO SQLite calls are synchronous). There is no `await` between reading and writing state, so every intent is atomic without locks. Concurrent grouping resolves as last write wins in arrival order.
 - Visibility filtering lives in exactly one module (`views.ts`). Every byte sent to a client passes through it. This is the main privacy boundary and gets the heaviest testing.
 - Phase transitions resend a full snapshot to every client instead of patching. Visibility rules change radically between phases, and a snapshot is the simplest correct answer.
-- Client intents are idempotency-guarded where a double click would cause harm (`advance` carries the expected current phase, `next`/`prev`/`skip` carry the expected index).
+- Client intents are idempotency-guarded where a double click would cause harm (`advance` carries the expected current phase, `next`/`prev`/`goTo`/`skip` carry the expected index).
 - The client is not optimistic, with one exception: grouping drags apply locally at once and reconcile with the server, because a card snapping back after a drop feels broken.
 - All user content is rendered as plain text. `dangerouslySetInnerHTML` is banned by lint rule.
 
@@ -273,6 +273,7 @@ Any other message before a successful `hello` closes the socket with `4001`.
 | `clearTimer` | none | owner | all but done |
 | `next` | `fromIndex` | owner | discuss |
 | `prev` | `fromIndex` | owner | discuss |
+| `goTo` | `fromIndex`, `toIndex` | owner | discuss |
 | `skip` | `fromIndex` | owner | discuss |
 
 ### 5.5 Server to client messages
@@ -457,6 +458,7 @@ Rules (beyond the table in 5.4):
 - `unvote`: decrement; delete the row at zero.
 - `advance vote -> discuss`: clear timer, compute `discuss_order` via `discussOrder.ts`, set `discuss_index = 0`, mark position 0 `discussed`.
 - `next` / `prev`: clamp to bounds (empty change list at the ends). Arriving at a group always marks it `discussed`, including a previously skipped one. The timer is not touched.
+- `goTo`: move to any index, with the same stale check, bounds no-op, and arrival marking as `next` / `prev`.
 - `skip`: mark the current group `skipped`, then move to the next group (which becomes `discussed`). Skipping the last group marks it `skipped` and leaves the cursor in place.
 - `advance discuss -> done`: clear timer.
 - Timer: `setTimer` sets `endsAt = now + durationMs`. `pauseTimer` stores `remainingMs = max(0, endsAt - now)`. `resumeTimer` sets `endsAt = now + remainingMs`. `addTimerMinute` adds 60 s to whichever field is set.
@@ -533,7 +535,7 @@ Shared chrome on every phase: Header (room code, copy-link button, participant c
 - **Write**: one column per category (grid on desktop, stacked on mobile). Each column shows the count of all items, the viewer's own items with inline edit and delete, and a composer with a live 280-character counter. Ready toggle for everyone. Owner sees "5/7 ready" (`readyCount/connectedCount`) and "Start grouping".
 - **Group**: the Board with every group as a GroupCard under its category. Drag an item or a whole group onto another group or item to merge, including across columns. Drag an item out of a multi-item group onto empty column space to ungroup it. Group titles edit inline; an untitled group shows an "Add a title" placeholder. Ready toggle and owner ready count as in Write. Owner sees "Start voting".
 - **Vote**: the Board, read-only for grouping. Each group shows the viewer's own vote count with + and - buttons. VoteBudget shows "3 of 5 votes left". Owner sees "Start discussion".
-- **Discuss**: focused current group with its title, items, category, vote total, comments, and action items, plus composers for both. Own comments and actions have edit and delete. A side list shows the full order with status markers. Owner sees previous, next, skip, and "Finish". Non-owners follow the cursor automatically. No export until Done.
+- **Discuss**: focused current group with its title, items, category, vote total, comments, and action items, plus composers for both. Own comments and actions have edit and delete. A side list shows the full order with status markers; the owner clicks a topic to jump to it. Owner sees previous, next, skip, and "Finish". Non-owners follow the cursor automatically. No export until Done.
 - **Done**: read-only summary in discuss order with comments and actions. ExportPanel prominent.
 
 Timer component renders `mm:ss` from `serverNowEstimate()` with a 250 ms interval. At zero it shows a "time's up" state and plays one short WebAudio beep (once per `endsAt` value, only if the page has had a user gesture). It never advances anything.

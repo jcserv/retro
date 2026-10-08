@@ -11,9 +11,13 @@ const STATUS_LABELS: Record<DiscussStatus, string> = {
 export function DiscussAgenda({
   entries,
   currentIndex,
+  onSelect,
+  disabled = false,
 }: {
   entries: readonly DiscussEntry[];
   currentIndex: number;
+  onSelect?: (index: number) => void;
+  disabled?: boolean;
 }) {
   return (
     <aside class={`card ${styles.agenda}`} aria-labelledby="discuss-agenda">
@@ -23,14 +27,8 @@ export function DiscussAgenda({
       <ol class={styles.list}>
         {entries.map((entry) => {
           const isCurrent = entry.index === currentIndex;
-          return (
-            <li
-              key={entry.group.id}
-              class={styles.entry}
-              data-status={entry.status}
-              data-current={isCurrent ? "true" : undefined}
-              aria-current={isCurrent ? "step" : undefined}
-            >
+          const content = (
+            <>
               <span class={styles.marker} aria-hidden="true">
                 {entry.index + 1}
               </span>
@@ -42,6 +40,28 @@ export function DiscussAgenda({
               <span class="visually-hidden">
                 , {isCurrent ? "current topic" : STATUS_LABELS[entry.status]}
               </span>
+            </>
+          );
+          return (
+            <li
+              key={entry.group.id}
+              class={styles.item}
+              data-status={entry.status}
+              data-current={isCurrent ? "true" : undefined}
+              aria-current={isCurrent ? "step" : undefined}
+            >
+              {onSelect && !isCurrent ? (
+                <button
+                  type="button"
+                  class={styles.entry}
+                  disabled={disabled}
+                  onClick={() => onSelect(entry.index)}
+                >
+                  {content}
+                </button>
+              ) : (
+                <div class={styles.entry}>{content}</div>
+              )}
             </li>
           );
         })}
