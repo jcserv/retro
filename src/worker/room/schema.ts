@@ -64,6 +64,7 @@ const MIGRATIONS: readonly string[] = [
     updated_at INTEGER NOT NULL
   );
   `,
+  "ALTER TABLE actions ADD COLUMN due_date TEXT",
 ];
 
 export function migrate(sql: SqlStorage): void {

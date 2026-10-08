@@ -71,8 +71,12 @@ export function toMarkdown(state: RoomState): string {
       "- Action items:",
       ...bulletList(
         actions.map((action) => {
-          const assignee = action.assignee ? ` (${escapeMarkdown(action.assignee)})` : "";
-          return `[ ] ${escapeMarkdown(action.text)}${assignee}`;
+          const details = [
+            action.assignee && escapeMarkdown(action.assignee),
+            action.dueDate && `due ${action.dueDate}`,
+          ].filter(Boolean);
+          const suffix = details.length > 0 ? ` (${details.join(", ")})` : "";
+          return `[ ] ${escapeMarkdown(action.text)}${suffix}`;
         }),
       ),
     );

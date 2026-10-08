@@ -1,8 +1,9 @@
 import { useId, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { ActionView } from "../../shared/protocol";
-import { textLength } from "../lib/format";
+import { formatDueDate, textLength } from "../lib/format";
 import { useRoomStore } from "../state/roomContext";
+import type { ActionFields } from "../state/roomStore";
 import { CharCount } from "./CharCount";
 import { EntryMeta } from "./CommentList";
 import styles from "./Discussion.module.css";
@@ -58,6 +59,15 @@ export function AssigneeBadge({ assignee }: { assignee: string | null }) {
   );
 }
 
+export function DueDateBadge({ dueDate }: { dueDate: string | null }) {
+  if (!dueDate) return null;
+  return (
+    <span class="badge">
+      Due <time dateTime={dueDate}>{formatDueDate(dueDate)}</time>
+    </span>
+  );
+}
+
 export function ActionMarker() {
   return (
     <span class={styles.marker}>
@@ -70,11 +80,11 @@ type ActionRowProps = { action: ActionView; editable: boolean; onDeleted: () => 
 
 function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
   const store = useRoomStore();
-  const editor = useEntryEditor<string>();
+  const editor = useEntryEditor<ActionFields>();
   const live = store.isLive.value;
 
   if (editor.draft !== null) {
-    const assignee = editor.draft;
+    const fields = editor.draft;
     return (
       <li class={styles.entry}>
         <div class={styles.form}>
@@ -85,13 +95,13 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
             submitLabel="Save"
             disabled={!live}
             autoFocus
-            extraInvalid={!assigneeFits(assignee)}
+            extraInvalid={!assigneeFits(fields.assignee)}
             onCancel={editor.cancel}
-            onSubmit={(text) => store.editAction(action.id, text, assignee.trim())}
+            onSubmit={(text) => store.editAction(action.id, text, trimmed(fields))}
           >
-            <AssigneeField
-              label="Edit assignee"
-              value={assignee}
+            <ActionFieldInputs
+              labelPrefix="Edit "
+              value={fields}
               disabled={!live}
               onChange={editor.update}
               onCancel={editor.cancel}
@@ -111,6 +121,7 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
         </p>
         <div class={styles.metaRow}>
           <AssigneeBadge assignee={action.assignee} />
+          <DueDateBadge dueDate={action.dueDate} />
           <EntryMeta mine={action.mine} edited={action.updatedAt > action.createdAt} />
         </div>
       </div>
@@ -122,7 +133,9 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
           editRef={editor.editButton}
           editDisabled={!live}
           deleteDisabled={!live || editor.busy}
-          onEdit={() => editor.start(action.assignee ?? "")}
+          onEdit={() =>
+            editor.start({ assignee: action.assignee ?? "", dueDate: action.dueDate ?? "" })
+          }
           onDelete={() => editor.remove(() => store.deleteAction(action.id), onDeleted)}
         />
       )}
@@ -130,20 +143,26 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
   );
 }
 
+const EMPTY_FIELDS: ActionFields = { assignee: "", dueDate: "" };
+
 function assigneeFits(assignee: string): boolean {
   return textLength(assignee) <= ASSIGNEE_MAX;
 }
 
+function trimmed(fields: ActionFields): ActionFields {
+  return { ...fields, assignee: fields.assignee.trim() };
+}
+
 function ActionComposer({ groupId }: { groupId: string }) {
   const store = useRoomStore();
-  const [assignee, setAssignee] = useState("");
+  const [fields, setFields] = useState(EMPTY_FIELDS);
   const live = store.isLive.value;
 
   async function submit(text: string) {
-    const sent = assignee;
-    setAssignee("");
-    const result = await store.addAction(groupId, text, sent.trim());
-    if (!result.ok) setAssignee((current) => current || sent);
+    const sent = fields;
+    setFields(EMPTY_FIELDS);
+    const result = await store.addAction(groupId, text, trimmed(sent));
+    if (!result.ok) setFields((current) => (current === EMPTY_FIELDS ? sent : current));
     return result;
   }
 
@@ -154,45 +173,70 @@ function ActionComposer({ groupId }: { groupId: string }) {
       placeholder="Add an action item…"
       submitLabel="Add action"
       disabled={!live}
-      extraInvalid={!assigneeFits(assignee)}
+      extraInvalid={!assigneeFits(fields.assignee)}
       onSubmit={submit}
     >
-      <AssigneeField label="Assignee" value={assignee} disabled={!live} onChange={setAssignee} />
+      <ActionFieldInputs labelPrefix="" value={fields} disabled={!live} onChange={setFields} />
     </ItemComposer>
   );
 }
 
-type AssigneeFieldProps = {
-  label: string;
-  value: string;
+type ActionFieldInputsProps = {
+  labelPrefix: string;
+  value: ActionFields;
   disabled: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: ActionFields) => void;
   onCancel?: () => void;
 };
 
-function AssigneeField({ label, value, disabled, onChange, onCancel }: AssigneeFieldProps) {
-  const id = useId();
+function ActionFieldInputs({
+  labelPrefix,
+  value,
+  disabled,
+  onChange,
+  onCancel,
+}: ActionFieldInputsProps) {
+  const assigneeId = useId();
+  const dueDateId = useId();
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape" && onCancel) {
+      event.preventDefault();
+      onCancel();
+    }
+  };
   return (
-    <div class={styles.assigneeField}>
-      <label class="visually-hidden" for={id}>
-        {label}
+    <div class={styles.actionFields}>
+      <div class={styles.assigneeField}>
+        <label class="visually-hidden" for={assigneeId}>
+          {labelPrefix ? `${labelPrefix}assignee` : "Assignee"}
+        </label>
+        <input
+          id={assigneeId}
+          class="input"
+          placeholder="Assignee (optional)"
+          value={value.assignee}
+          disabled={disabled}
+          aria-invalid={assigneeFits(value.assignee) ? undefined : "true"}
+          onInput={(event) => onChange({ ...value, assignee: event.currentTarget.value })}
+          onKeyDown={onKeyDown}
+        />
+        {value.assignee.trim() !== "" && <CharCount text={value.assignee} max={ASSIGNEE_MAX} />}
+      </div>
+      <label class={styles.dueDateField} for={dueDateId}>
+        <span class={styles.dueDateLabel} aria-hidden="true">
+          Due
+        </span>
+        <span class="visually-hidden">{labelPrefix ? `${labelPrefix}due date` : "Due date"}</span>
+        <input
+          id={dueDateId}
+          type="date"
+          class="input"
+          value={value.dueDate}
+          disabled={disabled}
+          onInput={(event) => onChange({ ...value, dueDate: event.currentTarget.value })}
+          onKeyDown={onKeyDown}
+        />
       </label>
-      <input
-        id={id}
-        class="input"
-        placeholder="Assignee (optional)"
-        value={value}
-        disabled={disabled}
-        aria-invalid={assigneeFits(value) ? undefined : "true"}
-        onInput={(event) => onChange(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && onCancel) {
-            event.preventDefault();
-            onCancel();
-          }
-        }}
-      />
-      {value.trim() !== "" && <CharCount text={value} max={ASSIGNEE_MAX} />}
     </div>
   );
 }

@@ -156,6 +156,21 @@ test("live: full retro with an owner and two participants", async ({ newUser }) 
   await comment.press("Enter");
   await expect(owner.getByText("Track flake rate weekly", { exact: true })).toBeVisible();
 
+  const comments = (page: Page) => page.getByRole("region", { name: /^Comments/ });
+  const actionItems = (page: Page) => page.getByRole("region", { name: /^Action items/ });
+  await comment.fill("Rotate the flake triage owner");
+  await comment.press("Enter");
+  await expect(comments(bob).getByText("Rotate the flake triage owner")).toBeVisible();
+  await expect(bob.getByRole("button", { name: "Convert comment to action item" })).toHaveCount(0);
+  await comments(alice)
+    .getByRole("listitem")
+    .filter({ hasText: "Rotate the flake triage owner" })
+    .getByRole("button", { name: "Convert comment to action item" })
+    .click();
+  await expect(actionItems(bob).getByText("Rotate the flake triage owner")).toBeVisible();
+  await expect(comments(bob).getByText("Rotate the flake triage owner")).toHaveCount(0);
+  await expect(comments(bob).getByText("Track flake rate weekly")).toBeVisible();
+
   await bob.getByRole("textbox", { name: "New action item" }).fill("Tag flaky tests");
   await bob.getByRole("textbox", { name: "Assignee" }).fill("Sam");
   await bob.getByRole("button", { name: "Add action" }).click();
@@ -173,8 +188,11 @@ test("live: full retro with an owner and two participants", async ({ newUser }) 
 
   await owner.getByRole("textbox", { name: "New action item" }).fill("Add a flake dashboard");
   await owner.getByRole("textbox", { name: "Assignee" }).fill("Priya");
+  await owner.getByLabel("Due date").fill("2026-11-02");
   await owner.getByRole("button", { name: "Add action" }).click();
   await expect(alice.getByText("Add a flake dashboard", { exact: true })).toBeVisible();
+  await expect(alice.locator('time[datetime="2026-11-02"]')).toBeVisible();
+  await expect(owner.getByLabel("Due date")).toHaveValue("");
 
   await owner.getByRole("button", { name: "Next topic" }).click();
   await expect(heading(alice, "Shipped on time")).toBeVisible();
@@ -183,7 +201,7 @@ test("live: full retro with an owner and two participants", async ({ newUser }) 
   for (const page of [...everyone, carol]) {
     await expect(page.getByRole("heading", { name: "Retro complete" })).toBeVisible();
     await expect(
-      page.getByText("2 of 3 topics discussed · 1 action item · 4 participants"),
+      page.getByText("2 of 3 topics discussed · 2 action items · 4 participants"),
     ).toBeVisible();
     await expect(page.getByRole("textbox")).toHaveCount(0);
     await expect(page.getByRole("timer")).toHaveCount(0);
@@ -216,7 +234,8 @@ test("live: full retro with an owner and two participants", async ({ newUser }) 
       "- Comments:",
       "  - Track flake rate weekly",
       "- Action items:",
-      "  - [ ] Add a flake dashboard (Priya)",
+      "  - [ ] Rotate the flake triage owner",
+      "  - [ ] Add a flake dashboard (Priya, due 2026-11-02)",
       "",
       "### 2. Shipped on time (2 votes) [What went well?]",
       "- Comments:",

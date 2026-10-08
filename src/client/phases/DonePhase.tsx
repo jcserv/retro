@@ -1,4 +1,4 @@
-import { ActionList, ActionMarker, AssigneeBadge } from "../components/ActionList";
+import { ActionList, ActionMarker, AssigneeBadge, DueDateBadge } from "../components/ActionList";
 import { CommentList } from "../components/CommentList";
 import { ExportPanel } from "../components/ExportPanel";
 import { GroupDetails } from "../components/GroupDetails";
@@ -51,6 +51,7 @@ export function DonePhase() {
                   <p class="user-text">{action.text}</p>
                   <div class={styles.actionMeta}>
                     <AssigneeBadge assignee={action.assignee} />
+                    <DueDateBadge dueDate={action.dueDate} />
                     <span class={`user-text ${styles.from}`}>
                       <span class="visually-hidden">From topic </span>
                       {titles.get(action.groupId)}

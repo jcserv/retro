@@ -17,6 +17,7 @@ const action = (id: string, text = `action ${id}`): ActionView => ({
   groupId: "g1",
   text,
   assignee: null,
+  dueDate: null,
   mine: false,
   createdAt: 1,
   updatedAt: 1,

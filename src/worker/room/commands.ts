@@ -54,6 +54,7 @@ const RULES: { [K in IntentType]: Rule } = {
   addComment: { ownerOnly: false, phases: ["discuss"] },
   editComment: { ownerOnly: false, phases: ["discuss"] },
   deleteComment: { ownerOnly: false, phases: ["discuss"] },
+  convertComment: { ownerOnly: false, phases: ["discuss"] },
   addAction: { ownerOnly: false, phases: ["discuss"] },
   editAction: { ownerOnly: false, phases: ["discuss"] },
   deleteAction: { ownerOnly: false, phases: ["discuss"] },
@@ -267,7 +268,31 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
     return ok({ kind: "commentRemoved", commentId });
   },
 
-  addAction(ctx, { groupId, text, assignee }) {
+  convertComment(ctx, { commentId }) {
+    const comment = ctx.store.getComment(commentId);
+    if (!comment) return fail("not_found", "Comment not found");
+    if (comment.clientId !== ctx.actor.clientId) return fail("forbidden", "Not your comment");
+    const guard = requireCurrentGroup(ctx, comment.groupId);
+    if (guard) return guard;
+    if (comment.text.length > LIMITS.actionTextMax) {
+      return fail("too_long", "Comment is too long for an action item");
+    }
+    const id = crypto.randomUUID();
+    ctx.store.deleteComment(commentId);
+    ctx.store.insertAction({
+      id,
+      groupId: comment.groupId,
+      clientId: comment.clientId,
+      text: comment.text,
+      assignee: null,
+      dueDate: null,
+      createdAt: ctx.now,
+      updatedAt: ctx.now,
+    });
+    return ok({ kind: "commentRemoved", commentId }, { kind: "actionUpserted", actionId: id });
+  },
+
+  addAction(ctx, { groupId, text, assignee, dueDate }) {
     const guard = requireCurrentGroup(ctx, groupId);
     if (guard) return guard;
     const id = crypto.randomUUID();
@@ -277,17 +302,19 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
       clientId: ctx.actor.clientId,
       text,
       assignee: assignee || null,
+      dueDate: dueDate || null,
       createdAt: ctx.now,
       updatedAt: ctx.now,
     });
     return ok({ kind: "actionUpserted", actionId: id });
   },
 
-  editAction({ store, actor, now }, { actionId, text, assignee }) {
+  editAction({ store, actor, now }, { actionId, text, assignee, dueDate }) {
     const action = store.getAction(actionId);
     if (!action) return fail("not_found", "Action item not found");
     if (action.clientId !== actor.clientId) return fail("forbidden", "Not your action item");
-    store.updateAction(actionId, text, assignee || null, now);
+    const fields = { text, assignee: assignee || null, dueDate: dueDate || null };
+    store.updateAction(actionId, fields, now);
     return ok({ kind: "actionUpserted", actionId });
   },
 
