@@ -38,7 +38,7 @@ export function item(
   createdAt: number,
   categoryId = "well",
 ): ItemView {
-  return { id, categoryId, groupId, text: `text ${id}`, createdAt };
+  return { id, categoryId, groupId, text: `text ${id}`, reactions: [], createdAt };
 }
 
 export function group(

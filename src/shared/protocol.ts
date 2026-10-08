@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LIMITS } from "./constants";
+import { isEmoji, normalizeEmoji } from "./emoji";
 import { PHASES, type Phase } from "./phases";
 
 export { PHASES, type Phase };
@@ -13,12 +14,15 @@ export type TimerState =
   | { kind: "running"; endsAt: number }
   | { kind: "paused"; remainingMs: number };
 
+export type ReactionView = { emoji: string; count: number; mine: boolean };
+
 export type ItemView = {
   id: string;
   categoryId: string;
   groupId: string | null;
   text: string;
   mine?: true;
+  reactions: ReactionView[];
   createdAt: number;
 };
 
@@ -94,6 +98,7 @@ const isFieldErrorCode = (message: string): message is FieldErrorCode =>
   message === EMPTY || message === TOO_LONG;
 const text = (max: number) =>
   z.string().trim().min(1, { error: EMPTY }).max(max, { error: TOO_LONG });
+const emoji = z.string().max(LIMITS.reactionEmojiMax).overwrite(normalizeEmoji).refine(isEmoji);
 const optionalText = (max: number) => z.string().trim().max(max, { error: TOO_LONG });
 const optionalDate = z.union([z.iso.date(), z.literal("")]);
 
@@ -110,6 +115,8 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
   intent("mergeGroups", { sourceGroupId: id, targetGroupId: id }),
   intent("ungroupItem", { itemId: id }),
   intent("renameGroup", { groupId: id, title: optionalText(LIMITS.groupTitleMax) }),
+  intent("addReaction", { itemId: id, emoji }),
+  intent("removeReaction", { itemId: id, emoji }),
   intent("vote", { groupId: id }),
   intent("unvote", { groupId: id }),
   intent("addComment", { groupId: id, text: text(LIMITS.commentTextMax) }),
@@ -154,6 +161,7 @@ export type ErrorCode =
   | "empty"
   | "item_limit"
   | "vote_limit"
+  | "reaction_limit"
   | "stale"
   | "rate_limited";
 

@@ -28,6 +28,8 @@ export type Group = {
   createdAt: number;
 };
 
+export type Reaction = { itemId: string; clientId: string; emoji: string };
+
 export type DiscussEntry = { groupId: string; position: number; status: DiscussStatus };
 
 export type Comment = {
@@ -75,6 +77,8 @@ type CommentRow = {
 };
 
 type ActionRow = CommentRow & { assignee: string | null; due_date: string | null };
+
+type ReactionRow = { item_id: string; client_id: string; emoji: string; created_at: number };
 
 const toTimer = (row: RoomRow): TimerState => {
   if (row.timer_ends_at !== null) return { kind: "running", endsAt: row.timer_ends_at };
@@ -127,7 +131,14 @@ const toAction = (row: ActionRow): Action => ({
   dueDate: row.due_date,
 });
 
+const toReaction = (row: ReactionRow): Reaction => ({
+  itemId: row.item_id,
+  clientId: row.client_id,
+  emoji: row.emoji,
+});
+
 const ITEM_ORDER = "ORDER BY created_at, id";
+const REACTION_ORDER = "ORDER BY created_at, rowid";
 
 export class RoomStore {
   readonly #storage: DurableObjectStorage;
@@ -407,6 +418,56 @@ export class RoomStore {
       totals[row.id] = row.n;
     }
     return totals;
+  }
+
+  listReactions(): Reaction[] {
+    return this.#all<ReactionRow>(`SELECT * FROM reactions ${REACTION_ORDER}`).map(toReaction);
+  }
+
+  listReactionsOnItem(itemId: string): Reaction[] {
+    return this.#all<ReactionRow>(
+      `SELECT * FROM reactions WHERE item_id = ? ${REACTION_ORDER}`,
+      itemId,
+    ).map(toReaction);
+  }
+
+  countReactionEmojis(itemId: string): number {
+    return (
+      this.#first<{ n: number }>(
+        "SELECT COUNT(DISTINCT emoji) AS n FROM reactions WHERE item_id = ?",
+        itemId,
+      )?.n ?? 0
+    );
+  }
+
+  hasReactionEmoji(itemId: string, emoji: string): boolean {
+    return (
+      this.#first(
+        "SELECT 1 FROM reactions WHERE item_id = ? AND emoji = ? LIMIT 1",
+        itemId,
+        emoji,
+      ) !== null
+    );
+  }
+
+  addReaction(reaction: Reaction, createdAt: number): void {
+    this.#run(
+      `INSERT INTO reactions (item_id, client_id, emoji, created_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT DO NOTHING`,
+      reaction.itemId,
+      reaction.clientId,
+      reaction.emoji,
+      createdAt,
+    );
+  }
+
+  removeReaction(reaction: Reaction): void {
+    this.#run(
+      "DELETE FROM reactions WHERE item_id = ? AND client_id = ? AND emoji = ?",
+      reaction.itemId,
+      reaction.clientId,
+      reaction.emoji,
+    );
   }
 
   replaceDiscussOrder(groupIds: readonly string[]): void {

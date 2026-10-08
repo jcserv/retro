@@ -105,6 +105,14 @@ Read-only.
 Markdown export is available.
 The room remains until expiry.
 
+## Reactions
+
+Anyone can react to an item with any single emoji during Group, Vote and Discuss.
+Grouped items keep their own reactions.
+Each user can add a given emoji to an item once, and can remove their own reactions.
+Reactions are anonymous: everyone sees each emoji's count and whether they reacted, never who.
+Reactions are shown read-only in Done.
+
 ## Timer
 
 The owner sets a duration.
@@ -165,7 +173,7 @@ Room ABC234 · 7 participants
 
 One WebSocket per client at `/ws/:code?clientId=...`.
 The server sends a full filtered snapshot on join, then patch events.
-Client messages are intents such as `addItem`, `editItem`, `deleteItem`, `ready`, `vote`, `unvote`, `comment`, `addAction`, `advance`, `setTimer`, `next`, `prev`, `goTo`.
+Client messages are intents such as `addItem`, `editItem`, `deleteItem`, `ready`, `addReaction`, `removeReaction`, `vote`, `unvote`, `comment`, `addAction`, `advance`, `setTimer`, `next`, `prev`, `goTo`.
 Owner-only intents from non-owners are rejected.
 Snapshots and patches are filtered per client.
 Others' items are hidden in Write.
@@ -176,6 +184,7 @@ Vote counts are hidden in Vote.
 Item max length 280 characters.
 Max 30 items per client per room.
 Max 50 participants per room.
+Max 20 different reaction emojis per item.
 Per-socket message rate limit.
 Per-IP room creation rate limit.
 All content is rendered as plain text.
@@ -186,7 +195,6 @@ Accounts.
 Persistence beyond 7 days.
 Custom category UI and presets.
 Display names.
-Emoji reactions.
 Owner transfer.
 Internationalization.
 

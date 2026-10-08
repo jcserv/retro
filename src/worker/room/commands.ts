@@ -49,6 +49,8 @@ const RULES: { [K in IntentType]: Rule } = {
   mergeGroups: { ownerOnly: false, phases: ["group"] },
   ungroupItem: { ownerOnly: false, phases: ["group"] },
   renameGroup: { ownerOnly: false, phases: ["group"] },
+  addReaction: { ownerOnly: false, phases: ["group", "vote", "discuss"] },
+  removeReaction: { ownerOnly: false, phases: ["group", "vote", "discuss"] },
   vote: { ownerOnly: false, phases: ["vote"] },
   unvote: { ownerOnly: false, phases: ["vote"] },
   addComment: { ownerOnly: false, phases: ["discuss"] },
@@ -218,6 +220,29 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
     if (!store.getGroup(groupId)) return fail("not_found", "Group not found");
     store.setGroupTitle(groupId, title === "" ? null : title);
     return ok({ kind: "groupUpserted", groupId });
+  },
+
+  addReaction({ store, actor, now }, { itemId, emoji }) {
+    const item = store.getItem(itemId);
+    if (!item) return fail("not_found", "Item not found");
+    if (
+      !store.hasReactionEmoji(itemId, emoji) &&
+      store.countReactionEmojis(itemId) >= LIMITS.reactionEmojisPerItem
+    ) {
+      return fail(
+        "reaction_limit",
+        `An item can have at most ${LIMITS.reactionEmojisPerItem} different reactions`,
+      );
+    }
+    store.addReaction({ itemId, clientId: actor.clientId, emoji }, now);
+    return ok(itemUpserted(item));
+  },
+
+  removeReaction({ store, actor }, { itemId, emoji }) {
+    const item = store.getItem(itemId);
+    if (!item) return fail("not_found", "Item not found");
+    store.removeReaction({ itemId, clientId: actor.clientId, emoji });
+    return ok(itemUpserted(item));
   },
 
   vote({ store, actor, room }, { groupId }) {

@@ -5,6 +5,7 @@ import type { ItemView } from "../../shared/protocol";
 import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import styles from "./GroupCard.module.css";
 import { Icon } from "./Icon";
+import { ItemReactions } from "./ItemReactions";
 
 type GroupCardProps = Omit<ArticleHTMLAttributes<HTMLElement>, "title" | "children"> & {
   group: BoardGroup;
@@ -39,12 +40,18 @@ export function GroupCard({
         </div>
       )}
       {only && !showHeading ? (
-        <p class={`${styles.text} user-text`}>{only.text}</p>
+        <div class={styles.single}>
+          <p class={`${styles.text} user-text`}>{only.text}</p>
+          <ItemReactions item={only} />
+        </div>
       ) : (
         <ul class={styles.items}>
           {items.map((entry) => (
             <li key={entry.id} {...itemProps?.(entry)} class={styles.item}>
-              <span class={`${styles.itemText} user-text`}>{entry.text}</span>
+              <div class={styles.itemBody}>
+                <span class={`${styles.itemText} user-text`}>{entry.text}</span>
+                <ItemReactions item={entry} />
+              </div>
             </li>
           ))}
         </ul>

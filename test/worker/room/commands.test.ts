@@ -34,6 +34,8 @@ const SAMPLE_INTENTS: Record<ClientIntent["type"], ClientIntent> = {
   mergeGroups: { type: "mergeGroups", sourceGroupId: ID, targetGroupId: ID },
   ungroupItem: { type: "ungroupItem", itemId: ID },
   renameGroup: { type: "renameGroup", groupId: ID, title: "x" },
+  addReaction: { type: "addReaction", itemId: ID, emoji: "👍" },
+  removeReaction: { type: "removeReaction", itemId: ID, emoji: "👍" },
   vote: { type: "vote", groupId: ID },
   unvote: { type: "unvote", groupId: ID },
   addComment: { type: "addComment", groupId: ID, text: "x" },
@@ -66,6 +68,8 @@ const ALLOWED_PHASES: Record<ClientIntent["type"], Phase[]> = {
   mergeGroups: ["group"],
   ungroupItem: ["group"],
   renameGroup: ["group"],
+  addReaction: ["group", "vote", "discuss"],
+  removeReaction: ["group", "vote", "discuss"],
   vote: ["vote"],
   unvote: ["vote"],
   addComment: ["discuss"],
@@ -517,6 +521,39 @@ describe("voting", () => {
       room.ok(alice, { type: "unvote", groupId });
       expect(room.store.votesBy(ALICE)).toEqual({});
       expect(room.ok(alice, { type: "unvote", groupId })).toEqual([]);
+    });
+  });
+});
+
+describe("reactions", () => {
+  test("adding twice is idempotent and removing one you never added is a no-op", async () => {
+    await withRoom((room) => {
+      const { a } = seedThreeItems(room);
+      room.advanceTo("group");
+      room.ok(alice, { type: "addReaction", itemId: a, emoji: "🎉" });
+      room.ok(alice, { type: "addReaction", itemId: a, emoji: "🎉" });
+      room.ok(bob, { type: "removeReaction", itemId: a, emoji: "🎉" });
+      expect(room.store.listReactions()).toEqual([{ itemId: a, clientId: ALICE, emoji: "🎉" }]);
+      room.ok(alice, { type: "removeReaction", itemId: a, emoji: "🎉" });
+      expect(room.store.listReactions()).toEqual([]);
+      expect(room.rejects(alice, { type: "addReaction", itemId: ID, emoji: "🎉" })).toBe(
+        "not_found",
+      );
+    });
+  });
+
+  test("caps distinct emojis per item but still allows joining an existing one", async () => {
+    await withRoom((room) => {
+      const { a } = seedThreeItems(room);
+      room.advanceTo("group");
+      const emojis = [..."😀😁😂🤣😃😄😅😆😉😊😋😎😍😘🥰😗😙😚🙂🤗🤩"];
+      const allowed = emojis.slice(0, LIMITS.reactionEmojisPerItem);
+      for (const emoji of allowed) room.ok(alice, { type: "addReaction", itemId: a, emoji });
+      const extra = emojis[LIMITS.reactionEmojisPerItem] ?? "";
+      expect(room.rejects(bob, { type: "addReaction", itemId: a, emoji: extra })).toBe(
+        "reaction_limit",
+      );
+      room.ok(bob, { type: "addReaction", itemId: a, emoji: allowed[0] ?? "" });
     });
   });
 });

@@ -6,11 +6,12 @@ import type {
   ItemView,
   Phase,
   Presence,
+  ReactionView,
   RoomSnapshot,
   ServerMessage,
 } from "../../shared/protocol";
 import type { Change } from "./commands";
-import type { Action, Comment, Group, Item, Room, RoomStore } from "./store";
+import type { Action, Comment, Group, Item, Reaction, Room, RoomStore } from "./store";
 
 export type Viewer = { clientId: string; isOwner: boolean };
 
@@ -27,16 +28,45 @@ const ownItemView = (item: Item): ItemView => ({
   groupId: null,
   text: item.text,
   mine: true,
+  reactions: [],
   createdAt: item.createdAt,
 });
 
-const revealedItemView = (item: Item): ItemView => ({
+const revealedItemView = (
+  item: Item,
+  reactions: readonly Reaction[],
+  viewer: Viewer,
+): ItemView => ({
   id: item.id,
   categoryId: item.categoryId,
   groupId: item.groupId,
   text: item.text,
+  reactions: reactionViews(reactions, viewer),
   createdAt: item.createdAt,
 });
+
+function reactionViews(reactions: readonly Reaction[], viewer: Viewer): ReactionView[] {
+  const byEmoji = new Map<string, ReactionView>();
+  for (const reaction of reactions) {
+    const view = byEmoji.get(reaction.emoji) ?? { emoji: reaction.emoji, count: 0, mine: false };
+    view.count += 1;
+    if (reaction.clientId === viewer.clientId) view.mine = true;
+    byEmoji.set(reaction.emoji, view);
+  }
+  return [...byEmoji.values()];
+}
+
+function listRevealedItemViews(
+  store: RoomStore,
+  items: readonly Item[],
+  viewer: Viewer,
+): ItemView[] {
+  const byItem = new Map<string, Reaction[]>();
+  for (const reaction of store.listReactions()) {
+    byItem.set(reaction.itemId, [...(byItem.get(reaction.itemId) ?? []), reaction]);
+  }
+  return items.map((item) => revealedItemView(item, byItem.get(item.id) ?? [], viewer));
+}
 
 const groupView = (group: Group, items: readonly Item[]): GroupView => ({
   id: group.id,
@@ -116,7 +146,7 @@ export function snapshot(store: RoomStore, viewer: Viewer, ctx: ViewContext): Ro
     timer: room.timer,
     voteLimit: room.voteLimit,
     items: revealed
-      ? allItems.map(revealedItemView)
+      ? listRevealedItemViews(store, allItems, viewer)
       : store.listItemsByClient(viewer.clientId).map(ownItemView),
     groups: revealed ? listGroupViews(store, allItems) : [],
     categoryCounts: store.countItemsByCategory(),
@@ -141,7 +171,10 @@ export function project(
     case "itemUpserted": {
       const item = store.getItem(change.itemId);
       if (!item) return null;
-      if (isRevealed(room.phase)) return { type: "itemUpserted", item: revealedItemView(item) };
+      if (isRevealed(room.phase)) {
+        const reactions = store.listReactionsOnItem(item.id);
+        return { type: "itemUpserted", item: revealedItemView(item, reactions, viewer) };
+      }
       if (change.authorId !== viewer.clientId) return null;
       return { type: "itemUpserted", item: ownItemView(item) };
     }

@@ -3,6 +3,7 @@ import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import { CategoryBadge } from "./CategoryBadge";
 import { categoryColorStyle } from "./CategoryColumn";
 import styles from "./GroupDetails.module.css";
+import { ItemReactions } from "./ItemReactions";
 
 type GroupDetailsProps = {
   group: BoardGroup;
@@ -43,7 +44,7 @@ export function GroupDetails({
       <Heading id={headingId} class={`user-text ${styles.title}`}>
         {group.label}
       </Heading>
-      {hasGroupHeading(group) && (
+      {hasGroupHeading(group) ? (
         <ul class={`${styles.items} ${mixed ? styles.mixed : ""}`} aria-label="Items">
           {group.items.map((entry) => {
             const index = categoryIndex(entry.categoryId);
@@ -56,11 +57,16 @@ export function GroupDetails({
                     </span>
                   </span>
                 )}
-                <span class="user-text">{entry.text}</span>
+                <div class={styles.itemBody}>
+                  <span class="user-text">{entry.text}</span>
+                  <ItemReactions item={entry} />
+                </div>
               </li>
             );
           })}
         </ul>
+      ) : (
+        group.items[0] && <ItemReactions item={group.items[0]} />
       )}
     </div>
   );

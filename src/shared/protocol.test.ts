@@ -81,6 +81,26 @@ test.each([
   expect(parseClientMessage(raw)).toEqual({ ok: false, code: "invalid_message" });
 });
 
+test.each(["👍", "👍🏽", "👩‍👩‍👧‍👦", "🇨🇦", "❤️", "1️⃣"])("accepts %s as a reaction", (emoji) => {
+  expect(parseClientMessage(json({ type: "addReaction", itemId: "i", emoji })).ok).toBe(true);
+});
+
+test("normalizes a redundant variation selector to the RGI form", () => {
+  expect(parseClientMessage(json({ type: "addReaction", itemId: "i", emoji: "👍\uFE0F" }))).toEqual(
+    {
+      ok: true,
+      message: { type: "addReaction", itemId: "i", emoji: "👍" },
+    },
+  );
+});
+
+test.each(["", "a", "1", "👍👍", "👍 ", ":+1:"])("rejects %j as a reaction", (emoji) => {
+  expect(parseClientMessage(json({ type: "addReaction", itemId: "i", emoji }))).toEqual({
+    ok: false,
+    code: "invalid_message",
+  });
+});
+
 test("echoes a well-formed reqId from an invalid message", () => {
   expect(parseClientMessage(json({ type: "dropTables", reqId: "r2" }))).toEqual({
     ok: false,

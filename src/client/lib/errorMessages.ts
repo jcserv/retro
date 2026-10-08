@@ -9,6 +9,7 @@ export const ERROR_MESSAGES: Record<IntentErrorCode, string> = {
   empty: "That can't be empty.",
   item_limit: "You've reached the item limit for this room.",
   vote_limit: "You're out of votes.",
+  reaction_limit: "That item has too many different reactions.",
   stale: "Someone already did that.",
   rate_limited: "Slow down a little and try again.",
   disconnected: "You're offline. Reconnecting…",
