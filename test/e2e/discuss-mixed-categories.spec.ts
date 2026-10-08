@@ -23,7 +23,6 @@ test("discuss shows each item's category when a group mixes categories", async (
     "What went less well?: Merge conflicts",
   ]);
   await expect(current.getByText("What went less well?", { exact: true })).toBeVisible();
-  await page.screenshot({ path: process.env.SHOT ?? "/dev/null" });
 
   await page.getByRole("button", { name: "Next topic" }).click();
   await expect(
