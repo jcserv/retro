@@ -135,7 +135,7 @@ Late joiners are allowed in any phase.
 
 Generated client-side from room state.
 Download and copy buttons.
-Available to everyone from the Discuss phase onward.
+Available to everyone once the retro is done.
 
 Format:
 

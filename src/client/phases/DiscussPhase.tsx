@@ -1,6 +1,5 @@
 import { DiscussAgenda } from "../components/DiscussAgenda";
 import { DiscussPanel } from "../components/DiscussPanel";
-import { ExportPanel } from "../components/ExportPanel";
 import { discussEntries } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./DiscussPhase.module.css";
@@ -16,7 +15,6 @@ export function DiscussPhase() {
         {entries.length > 0 && (
           <DiscussAgenda entries={entries} currentIndex={room.discuss?.currentIndex ?? 0} />
         )}
-        <ExportPanel />
       </div>
     </div>
   );

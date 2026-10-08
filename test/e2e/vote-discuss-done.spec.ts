@@ -60,7 +60,7 @@ test("live: voting budget, discuss skip and navigation, and done", async ({ newU
     await expect(page.getByLabel("Items").getByText("Rollbacks hurt")).toBeVisible();
   }
   await expect(peerPage.getByRole("button", { name: "Next topic" })).toHaveCount(0);
-  await expect(peerPage.getByRole("button", { name: "Download .md" })).toBeVisible();
+  await expect(peerPage.getByRole("button", { name: "Download .md" })).toHaveCount(0);
 
   const peerComment = peerPage.getByRole("textbox", { name: "Add a comment" });
   await peerComment.fill("Need faster pipelines");
