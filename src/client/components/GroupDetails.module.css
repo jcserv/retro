@@ -36,3 +36,23 @@ h3.title {
   padding-inline-start: var(--space-4);
   color: var(--color-text-muted);
 }
+
+.mixed {
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+.mixed .item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--category-color);
+  transform: translateY(-1px);
+}

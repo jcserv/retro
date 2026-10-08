@@ -1,6 +1,7 @@
 import type { Category } from "../../shared/protocol";
 import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import { CategoryBadge } from "./CategoryBadge";
+import { categoryColorStyle } from "./CategoryColumn";
 import styles from "./GroupDetails.module.css";
 
 type GroupDetailsProps = {
@@ -20,11 +21,21 @@ export function GroupDetails({
   headingId,
   eyebrow,
 }: GroupDetailsProps) {
+  const categoryIndex = (categoryId: string) => {
+    const index = categories.findIndex((category) => category.id === categoryId);
+    return index === -1 ? group.categoryIndex : index;
+  };
+  const itemCategories = [...new Set(group.items.map((entry) => categoryIndex(entry.categoryId)))];
+  const shownCategories = itemCategories.length > 0 ? itemCategories : [group.categoryIndex];
+  const mixed = shownCategories.length > 1;
+
   return (
     <div class={styles.details}>
       <div class={styles.meta}>
         {eyebrow && <span class={styles.eyebrow}>{eyebrow}</span>}
-        <CategoryBadge category={categories[group.categoryIndex]} index={group.categoryIndex} />
+        {shownCategories.map((index) => (
+          <CategoryBadge key={index} category={categories[index]} index={index} />
+        ))}
         <span class="badge badge-accent">
           {votes} {votes === 1 ? "vote" : "votes"}
         </span>
@@ -33,12 +44,22 @@ export function GroupDetails({
         {group.label}
       </Heading>
       {hasGroupHeading(group) && (
-        <ul class={styles.items} aria-label="Items">
-          {group.items.map((entry) => (
-            <li key={entry.id} class="user-text">
-              {entry.text}
-            </li>
-          ))}
+        <ul class={`${styles.items} ${mixed ? styles.mixed : ""}`} aria-label="Items">
+          {group.items.map((entry) => {
+            const index = categoryIndex(entry.categoryId);
+            return (
+              <li key={entry.id} class={styles.item} style={categoryColorStyle(index)}>
+                {mixed && (
+                  <span class={styles.dot} title={categories[index]?.title}>
+                    <span class="visually-hidden">
+                      {categories[index]?.title ?? "Uncategorized"}:{" "}
+                    </span>
+                  </span>
+                )}
+                <span class="user-text">{entry.text}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
