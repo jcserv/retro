@@ -128,7 +128,7 @@ It must be implemented first and changed only deliberately.
 ```ts
 export const ROOM_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 export const ROOM_CODE_LENGTH = 6;
-export const ROOM_TTL_MS = 24 * 60 * 60 * 1000;
+export const ROOM_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const LIMITS = {
   itemTextMax: 280,

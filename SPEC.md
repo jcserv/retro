@@ -125,9 +125,9 @@ Concurrent grouping changes resolve as last write wins on the server.
 
 ## Lifecycle
 
-A room lives 24 hours from creation.
+A room lives 7 days from creation.
 The expiry is fixed, not sliding.
-A Durable Object alarm at `createdAt + 24h` deletes all storage and closes sockets.
+A Durable Object alarm at `createdAt + 7d` deletes all storage and closes sockets.
 The UI shows time remaining.
 Late joiners are allowed in any phase.
 
@@ -179,7 +179,7 @@ All content is rendered as plain text.
 ## Out of scope for v1
 
 Accounts.
-Persistence beyond 24 hours.
+Persistence beyond 7 days.
 Custom category UI and presets.
 Display names.
 Emoji reactions.

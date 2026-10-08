@@ -9,8 +9,10 @@ export function formatTimeLeft(ms: number): string {
   if (ms <= 0) return "expired";
   if (ms < MINUTE_MS) return "less than 1m";
   const totalMinutes = Math.floor(ms / MINUTE_MS);
-  const hours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor(totalMinutes / 60) % 24;
   const minutes = totalMinutes % 60;
+  if (days > 0) return `${days}d ${hours}h`;
   if (hours === 0) return `${minutes}m`;
   return `${hours}h ${minutes}m`;
 }

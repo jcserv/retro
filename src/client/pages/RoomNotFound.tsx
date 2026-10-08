@@ -3,7 +3,7 @@ import styles from "./Centered.module.css";
 const COPY = {
   not_found: {
     title: "Room not found",
-    body: "This room doesn't exist or has expired. Rooms last 24 hours.",
+    body: "This room doesn't exist or has expired. Rooms last 7 days.",
   },
   full: {
     title: "Room is full",

@@ -72,7 +72,7 @@ Add them with `gh secret set CLOUDFLARE_API_TOKEN` and `gh secret set CLOUDFLARE
   Once an allowance is exhausted, requests fail until it resets at 00:00 UTC.
 - Each room is one Durable Object using the WebSocket Hibernation API, so idle rooms are evicted from memory and do not accrue duration.
   Incoming WebSocket messages are billed at 20 messages per request.
-- Rooms delete themselves 24 hours after creation through a Durable Object alarm, which keeps storage near zero.
+- Rooms delete themselves 7 days after creation through a Durable Object alarm, which keeps storage near zero.
 - The room creation limit uses the Workers Rate Limiting binding (`CREATE_ROOM_LIMITER`, 10 per 60 seconds per IP).
   Cloudflare counts it per location, so it is approximate rather than global.
   `namespace_id` only has to be unique within your account; change it if `1001` is already taken.
