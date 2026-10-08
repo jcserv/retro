@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { Page } from "@playwright/test";
-import { addItem, createRoom, expect, test } from "./fixtures";
+import { addItem, createRoom, dragOnto, expect, test } from "./fixtures";
 
 test("live: voting budget, discuss skip and navigation, and done", async ({ newUser }) => {
   const ownerPage = await newUser();
@@ -15,11 +15,7 @@ test("live: voting budget, discuss skip and navigation, and done", async ({ newU
 
   await ownerPage.getByRole("button", { name: "Start grouping" }).click();
   await expect(ownerPage.getByRole("button", { name: "Start voting" })).toBeVisible();
-  await ownerPage
-    .getByRole("article", { name: "Rollbacks hurt" })
-    .getByRole("button", { name: "Group with…" })
-    .click();
-  await ownerPage.getByRole("dialog").getByRole("button", { name: "Deploys were slow" }).click();
+  await dragOnto(ownerPage, "Rollbacks hurt", "Deploys were slow");
   await expect(ownerPage.getByRole("article", { name: "Deploys were slow" })).toContainText(
     "Rollbacks hurt",
   );

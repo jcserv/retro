@@ -116,10 +116,11 @@ It gives a visual and audio cue and never auto-advances.
 Grouping happens in the dedicated Group phase, before any votes are cast.
 Anyone can group items.
 An item or a whole group is dragged onto another item or group to merge them.
-A "Group with..." menu offers the same action without dragging.
+On touch devices, a card is pressed and held before dragging.
 Groups can span categories; a merged group takes the target's category.
-An item can be ungrouped back into its original category.
-A group has an optional title that anyone can edit; without one it shows its first item's text.
+An item is ungrouped by dragging it out of its group onto its original category.
+A group has an optional title that anyone can edit.
+While grouping, an untitled group shows an "Add a title" placeholder; elsewhere it shows its first item's text.
 A group is the unit of voting, discussion, and export.
 Concurrent grouping changes resolve as last write wins on the server.
 

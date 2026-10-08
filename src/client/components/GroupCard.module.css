@@ -115,13 +115,6 @@
   padding-block: var(--space-0-5);
 }
 
-.itemActions {
-  display: flex;
-  flex-shrink: 0;
-  gap: var(--space-0-5);
-  margin-block: calc(-1 * var(--space-0-5));
-}
-
 .actions {
   display: flex;
   flex-wrap: wrap;

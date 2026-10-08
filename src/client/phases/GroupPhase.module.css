@@ -94,14 +94,3 @@
   -webkit-user-select: none;
   user-select: none;
 }
-
-.iconButton {
-  width: 28px;
-  min-height: 28px;
-}
-
-.groupWith {
-  min-height: 28px;
-  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2)) calc(-1 * var(--space-1)) 0;
-  padding-inline: var(--space-2);
-}

@@ -106,7 +106,6 @@ retro/
         CategoryColumn.tsx
         ItemCard.tsx
         GroupCard.tsx        # stacked items, editable title, drag source/target
-        GroupWithMenu.tsx    # keyboard/touch alternative to dragging
         ItemComposer.tsx
         VoteBudget.tsx
         DiscussPanel.tsx
@@ -532,7 +531,7 @@ Projection rules:
 Shared chrome on every phase: Header (room code, copy-link button, participant count, connection indicator, "expires in 5h 12m"), PhaseBar (write, group, vote, discuss, done with current highlighted), Timer when set, OwnerControls visible only when `isOwner` (advance button, timer controls, vote limit where allowed).
 
 - **Write**: one column per category (grid on desktop, stacked on mobile). Each column shows the count of all items, the viewer's own items with inline edit and delete, and a composer with a live 280-character counter. Ready toggle for everyone. Owner sees "5/7 ready" (`readyCount/connectedCount`) and "Start grouping".
-- **Group**: the Board with every group as a GroupCard under its category. Drag an item or a whole group onto another group or item to merge, including across columns. Drag an item out of a multi-item group onto empty column space to ungroup it. Every card also has a "Group with..." menu (searchable list of groups) and an "Ungroup" action for keyboard and touch users. Group titles edit inline; placeholder is the first item's text. Ready toggle and owner ready count as in Write. Owner sees "Start voting".
+- **Group**: the Board with every group as a GroupCard under its category. Drag an item or a whole group onto another group or item to merge, including across columns. Drag an item out of a multi-item group onto empty column space to ungroup it. Group titles edit inline; an untitled group shows an "Add a title" placeholder. Ready toggle and owner ready count as in Write. Owner sees "Start voting".
 - **Vote**: the Board, read-only for grouping. Each group shows the viewer's own vote count with + and - buttons. VoteBudget shows "3 of 5 votes left". Owner sees "Start discussion".
 - **Discuss**: focused current group with its title, items, category, vote total, comments, and action items, plus composers for both. Own comments and actions have edit and delete. A side list shows the full order with status markers. Owner sees previous, next, skip, and "Finish". Non-owners follow the cursor automatically. No export until Done.
 - **Done**: read-only summary in discuss order with comments and actions. ExportPanel prominent.
@@ -631,7 +630,7 @@ Drive real WebSockets against the real DO with a small test harness (`connect(co
 Run against `vite dev` (worker and DO local via the Cloudflare plugin). Use separate browser contexts per user so each has its own localStorage.
 
 1. Full retro: owner creates room, two participants join by code and by link, everyone writes, counts update live, others' items hidden, ready count shows on owner, grouping by drag across categories visible live to all, vote with limit enforcement, discuss navigation followed by all clients, comment and action added, edited, and deleted, done, export copied and downloaded content matches expected structure.
-2. Grouping with keyboard only via "Group with..." and "Ungroup".
+2. Group rename with keyboard only.
 3. Owner reload keeps ownership; a participant reload keeps own items.
 4. Nonexistent code shows "room not found" both from Home and from a direct `/r/` URL.
 5. Timer: set, pause, add minute, reach zero (short duration via clock control), "time's up" shown, phase not advanced. Repeat once in Discuss to confirm next/prev leave it running.
@@ -696,7 +695,7 @@ W7 and W8 both render the Board; W7 owns `Board.tsx`, `CategoryColumn.tsx`, and 
 ### W7 Group phase
 
 - Verify `@dnd-kit/core` under `preact/compat` (bundle size and touch behavior); fall back to a pointer-events implementation if it is a poor fit.
-- Board, CategoryColumn, GroupCard (drag source and drop target, inline title edit), GroupWithMenu, ungroup, optimistic grouping via `optimistic.ts`.
+- Board, CategoryColumn, GroupCard (drag source and drop target, inline title edit), ungroup, optimistic grouping via `optimistic.ts`.
 - Acceptance: two windows grouping concurrently converge; keyboard-only grouping works; drag on a touch-emulated viewport works or the menu path is clearly offered.
 
 ### W8 Vote, Discuss, Done phases
@@ -728,7 +727,7 @@ These fill gaps in `SPEC.md` and were confirmed with the user.
 6. **Discuss order tie-break**: group category order, then earliest item creation time.
 7. **Comments and action items** can be edited and deleted by their author during Discuss. Comment max 500 characters, action max 280, assignee max 60.
 8. **Item `mine` flag** is shown to the author during Write only. From Group onward, items are fully anonymous to everyone, including their author.
-9. **Grouping**: dedicated Group phase; anyone can group; groups may span categories and take the target's category; a group is the unit of voting, discussion, and export; optional title editable by anyone; drag and drop with a "Group with..." menu alternative; concurrent edits resolve as last write wins in server arrival order, with no undo.
+9. **Grouping**: dedicated Group phase; anyone can group; groups may span categories and take the target's category; a group is the unit of voting, discussion, and export; optional title editable by anyone; drag and drop only (long press on touch); concurrent edits resolve as last write wins in server arrival order, with no undo.
 10. **Room creation rate limit** is 10 per minute per IP.
 11. **Socket rate limit** is a token bucket of 30 burst, 10 per second refill.
 12. **Optimistic UI** only for grouping ops.

@@ -9,7 +9,6 @@ const PATHS = {
   plus: "M8 3v10M3 8h10",
   minus: "M3 8h10",
   arrowRight: "M3 8h9M9 4.5 12.5 8 9 11.5",
-  ungroup: "M7 3H3.5v9.5H13V9M9.5 2.5h4v4M13.5 2.5l-6 6",
   close: "M4 4l8 8M12 4l-8 8",
 } as const;
 

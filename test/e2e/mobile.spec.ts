@@ -1,5 +1,5 @@
 import type { Page, TestInfo } from "@playwright/test";
-import { addItem, card, createRoom, expect, test } from "./fixtures";
+import { addItem, card, createRoom, expect, test, touchDragOnto } from "./fixtures";
 
 const PHONE = { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true };
 
@@ -16,7 +16,7 @@ async function checkLayout(pages: Page[], phase: string, testInfo: TestInfo) {
   }
 }
 
-test("live: every phase fits a phone and grouping works by tapping the menu", async ({
+test("live: every phase fits a phone and grouping works by long-press drag", async ({
   newUser,
 }, testInfo) => {
   const owner = await newUser(PHONE);
@@ -33,8 +33,7 @@ test("live: every phase fits a phone and grouping works by tapping the menu", as
 
   await owner.getByRole("button", { name: "Start grouping" }).tap();
   await expect(guest.getByRole("heading", { name: "Group similar items" })).toBeVisible();
-  await card(guest, "Rollbacks hurt").getByRole("button", { name: "Group with…" }).tap();
-  await guest.getByRole("dialog").getByRole("button", { name: "Deploys were slow" }).tap();
+  await touchDragOnto(guest, "Rollbacks hurt", "Deploys were slow");
   for (const page of pages) {
     await expect(card(page, "Deploys were slow")).toContainText("Rollbacks hurt");
   }

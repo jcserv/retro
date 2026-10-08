@@ -10,7 +10,6 @@ type GroupCardProps = Omit<ArticleHTMLAttributes<HTMLElement>, "title" | "childr
   group: BoardGroup;
   heading?: ComponentChildren;
   actions?: ComponentChildren;
-  itemActions?: (item: ItemView) => ComponentChildren;
   itemProps?: (item: ItemView) => HTMLAttributes<HTMLLIElement>;
 };
 
@@ -18,7 +17,6 @@ export function GroupCard({
   group,
   heading,
   actions,
-  itemActions,
   itemProps,
   class: className,
   ...rest
@@ -47,7 +45,6 @@ export function GroupCard({
           {items.map((entry) => (
             <li key={entry.id} {...itemProps?.(entry)} class={styles.item}>
               <span class={`${styles.itemText} user-text`}>{entry.text}</span>
-              {itemActions && <span class={styles.itemActions}>{itemActions(entry)}</span>}
             </li>
           ))}
         </ul>
@@ -62,6 +59,8 @@ type GroupTitleProps = {
   disabled: boolean;
   onRename: (title: string) => void;
 };
+
+const UNTITLED_PLACEHOLDER = "Add a title";
 
 export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
   const [draft, setDraft] = useState<string | null>(null);
@@ -81,8 +80,6 @@ export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
     }
   }, [editing]);
 
-  const placeholder = group.items[0]?.text ?? "";
-
   if (draft === null) {
     return (
       <h3 class={styles.title}>
@@ -97,7 +94,7 @@ export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
             setDraft(title ?? "");
           }}
         >
-          <span class="user-text">{group.label}</span>
+          <span class="user-text">{title ?? UNTITLED_PLACEHOLDER}</span>
           <span class="visually-hidden">, rename group</span>
           <span class={styles.pencil}>
             <Icon name="pencil" size={12} />
@@ -120,7 +117,7 @@ export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
       ref={inputRef}
       class={`input ${styles.titleInput}`}
       aria-label="Group title"
-      placeholder={placeholder}
+      placeholder={UNTITLED_PLACEHOLDER}
       maxLength={LIMITS.groupTitleMax}
       value={draft}
       onInput={(event) => setDraft(event.currentTarget.value)}

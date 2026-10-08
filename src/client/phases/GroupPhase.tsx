@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import type { ItemView } from "../../shared/protocol";
 import { Board } from "../components/Board";
 import { GroupCard, GroupTitle } from "../components/GroupCard";
-import { GroupWithMenu, type GroupWithSubject } from "../components/GroupWithMenu";
-import { Icon } from "../components/Icon";
 import {
   type BoardColumn,
   type BoardGroup,
@@ -25,8 +22,6 @@ type DragHandlers = {
   "data-draggable"?: "true";
   onPointerDown?: (event: PointerEvent & { currentTarget: HTMLElement }) => void;
 };
-
-type MenuTarget = { kind: "group"; groupId: string } | { kind: "item"; itemId: string };
 
 function quote(text: string): string {
   return `“${text}”`;
@@ -66,29 +61,21 @@ function send(store: RoomStore, intent: GroupingIntent) {
   }
 }
 
-function focusGroupCard(groupId: string): void {
-  requestAnimationFrame(() => {
-    document.querySelector<HTMLElement>(`[data-group-card="${CSS.escape(groupId)}"]`)?.focus();
-  });
-}
-
 export function GroupPhase() {
   const store = useRoomStore();
   const room = store.room.value;
   const live = store.isLive.value;
   const columns = useMemo(() => (room ? buildBoard(room) : []), [room]);
-  const [menuTarget, setMenuTarget] = useState<MenuTarget | null>(null);
   const [announcement, setAnnouncement] = useState("");
 
   const roomRef = useRef(room);
   roomRef.current = room;
 
-  const perform = (intent: GroupingIntent, focusTarget?: string) => {
+  const perform = (intent: GroupingIntent) => {
     const current = roomRef.current;
     if (!current) return;
     setAnnouncement(announcementFor(intent, current));
     void send(store, intent);
-    if (focusTarget) focusGroupCard(focusTarget);
   };
   const performRef = useRef(perform);
   performRef.current = perform;
@@ -115,40 +102,7 @@ export function GroupPhase() {
     if (!live) drag.cancel();
   }, [live, drag]);
 
-  const subject = useMemo((): GroupWithSubject | null => {
-    if (!menuTarget || !room) return null;
-    if (menuTarget.kind === "group") {
-      const group = findGroup(columns, menuTarget.groupId);
-      return group ? { kind: "group", group } : null;
-    }
-    const item = room.items.find((entry) => entry.id === menuTarget.itemId);
-    return item ? { kind: "item", item } : null;
-  }, [menuTarget, columns, room]);
-
   if (!room) return null;
-
-  const pickTarget = (targetGroupId: string) => {
-    if (!subject) return;
-    setMenuTarget(null);
-    const source: DragSource =
-      subject.kind === "group"
-        ? { kind: "group", groupId: subject.group.group.id }
-        : { kind: "item", itemId: subject.item.id };
-    const intent = dropIntent(room, source, { kind: "group", groupId: targetGroupId });
-    if (intent) perform(intent, targetGroupId);
-  };
-
-  const ungroup = (item: ItemView) => {
-    const intent = dropIntent(
-      room,
-      { kind: "item", itemId: item.id },
-      {
-        kind: "column",
-        categoryId: item.categoryId,
-      },
-    );
-    if (intent) perform(intent);
-  };
 
   const dragHandlers = (source: DragSource, enabled: boolean): DragHandlers =>
     enabled
@@ -166,7 +120,6 @@ export function GroupPhase() {
       <GroupCard
         group={entry}
         class={styles.card}
-        tabIndex={-1}
         {...{
           [DROP_ATTRIBUTE]: pending
             ? undefined
@@ -185,44 +138,6 @@ export function GroupPhase() {
         itemProps={
           multi ? (item) => dragHandlers({ kind: "item", itemId: item.id }, live) : undefined
         }
-        itemActions={
-          multi
-            ? (item) => (
-                <>
-                  <button
-                    type="button"
-                    class={`btn btn-ghost btn-sm btn-icon ${styles.iconButton}`}
-                    aria-label={`Move ${quote(item.text)} to another group`}
-                    title="Move to another group"
-                    disabled={!live}
-                    onClick={() => setMenuTarget({ kind: "item", itemId: item.id })}
-                  >
-                    <Icon name="arrowRight" size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    class={`btn btn-ghost btn-sm btn-icon ${styles.iconButton}`}
-                    aria-label={`Ungroup ${quote(item.text)}`}
-                    title="Ungroup"
-                    disabled={!live}
-                    onClick={() => ungroup(item)}
-                  >
-                    <Icon name="ungroup" size={14} />
-                  </button>
-                </>
-              )
-            : undefined
-        }
-        actions={
-          <button
-            type="button"
-            class={`btn btn-ghost btn-sm ${styles.groupWith}`}
-            disabled={!canGroup}
-            onClick={() => setMenuTarget({ kind: "group", groupId: group.id })}
-          >
-            Group with…
-          </button>
-        }
       />
     );
   };
@@ -235,9 +150,8 @@ export function GroupPhase() {
         </h2>
         <p class={styles.hint}>
           <span class={styles.hintFine}>Drag a card onto another to group them</span>
-          <span class={styles.hintCoarse}>Press and hold a card, then drag it onto another</span>,
-          or use a card's <strong>Group with…</strong> menu. Drag an item out of a group onto its
-          column to ungroup it.
+          <span class={styles.hintCoarse}>Press and hold a card, then drag it onto another</span>.
+          Drag an item out of a group onto its column to ungroup it.
         </p>
       </div>
       {room.items.length === 0 ? (
@@ -254,12 +168,6 @@ export function GroupPhase() {
       <p class="visually-hidden" aria-live="polite">
         {announcement}
       </p>
-      <GroupWithMenu
-        subject={subject}
-        columns={columns}
-        onPick={pickTarget}
-        onClose={() => setMenuTarget(null)}
-      />
     </section>
   );
 }
