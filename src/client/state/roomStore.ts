@@ -48,6 +48,9 @@ export type RoomStore = {
   ungroupItem(itemId: string): Promise<IntentResult>;
   renameGroup(groupId: string, title: string): Promise<IntentResult>;
 
+  addReaction(itemId: string, emoji: string): Promise<IntentResult>;
+  removeReaction(itemId: string, emoji: string): Promise<IntentResult>;
+
   vote(groupId: string): Promise<IntentResult>;
   unvote(groupId: string): Promise<IntentResult>;
 
@@ -172,6 +175,9 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
       sendOptimistic({ type: "mergeGroups", sourceGroupId, targetGroupId }, ["not_found"]),
     ungroupItem: (itemId) => sendOptimistic({ type: "ungroupItem", itemId }, ["not_found"]),
     renameGroup: (groupId, title) => send({ type: "renameGroup", groupId, title }),
+
+    addReaction: (itemId, emoji) => sendOptimistic({ type: "addReaction", itemId, emoji }),
+    removeReaction: (itemId, emoji) => sendOptimistic({ type: "removeReaction", itemId, emoji }),
 
     vote: (groupId) => send({ type: "vote", groupId }),
     unvote: (groupId) => send({ type: "unvote", groupId }),

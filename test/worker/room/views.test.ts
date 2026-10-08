@@ -35,6 +35,7 @@ describe("snapshot", () => {
           groupId: null,
           text: "alice secret",
           mine: true,
+          reactions: [],
           createdAt: expect.any(Number),
         },
       ]);
@@ -190,6 +191,7 @@ describe("project", () => {
               categoryId: "well",
               groupId: target,
               text: "alice secret",
+              reactions: [],
               createdAt: expect.any(Number),
             },
           },
@@ -313,6 +315,53 @@ describe("project", () => {
   });
 });
 
+describe("reactions", () => {
+  test("aggregate per emoji in first-reacted order with a per-viewer mine flag", async () => {
+    await withRoom((room) => {
+      const { a, b } = seed(room);
+      room.advanceTo("group");
+      room.ok(bob, { type: "addReaction", itemId: a, emoji: "🎉" });
+      room.ok(alice, { type: "addReaction", itemId: a, emoji: "👍🏽" });
+      room.ok(alice, { type: "addReaction", itemId: a, emoji: "🎉" });
+
+      const reactionsOn = (viewer: Actor, itemId: string) =>
+        snapshot(room.store, viewer, ctxFor(room)).items.find((item) => item.id === itemId)
+          ?.reactions;
+      expect(reactionsOn(alice, a)).toEqual([
+        { emoji: "🎉", count: 2, mine: true },
+        { emoji: "👍🏽", count: 1, mine: true },
+      ]);
+      expect(reactionsOn(owner, a)).toEqual([
+        { emoji: "🎉", count: 2, mine: false },
+        { emoji: "👍🏽", count: 1, mine: false },
+      ]);
+      expect(reactionsOn(alice, b)).toEqual([]);
+    });
+  });
+
+  test("a reaction change reaches everyone as that item with their own mine flag", async () => {
+    await withRoom((room) => {
+      const { a } = seed(room);
+      room.advanceTo("vote");
+      const changes = room.ok(bob, { type: "addReaction", itemId: a, emoji: "🔥" });
+      expect(projectAll(room, changes, bob)).toEqual([
+        expect.objectContaining({
+          type: "itemUpserted",
+          item: expect.objectContaining({
+            id: a,
+            reactions: [{ emoji: "🔥", count: 1, mine: true }],
+          }),
+        }),
+      ]);
+      expect(projectAll(room, changes, alice)).toEqual([
+        expect.objectContaining({
+          item: expect.objectContaining({ reactions: [{ emoji: "🔥", count: 1, mine: false }] }),
+        }),
+      ]);
+    });
+  });
+});
+
 describe("leak test", () => {
   test("a full scripted session leaks no ids, authorship, hidden items or vote totals", async () => {
     await withRoom((room) => {
@@ -370,6 +419,9 @@ describe("leak test", () => {
       });
       act(alice, { type: "ungroupItem", itemId: bobSecond.id });
       act(alice, { type: "renameGroup", groupId: room.groupOf(bobFirst.id), title: "Theme" });
+      act(bob, { type: "addReaction", itemId: aliceFirst.id, emoji: "🎉" });
+      act(alice, { type: "addReaction", itemId: aliceFirst.id, emoji: "🎉" });
+      act(alice, { type: "removeReaction", itemId: aliceFirst.id, emoji: "🎉" });
       act(owner, { type: "advance", from: "group" });
 
       act(alice, { type: "vote", groupId: room.groupOf(bobFirst.id) });

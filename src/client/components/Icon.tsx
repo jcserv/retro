@@ -10,6 +10,8 @@ const PATHS = {
   minus: "M3 8h10",
   arrowRight: "M3 8h9M9 4.5 12.5 8 9 11.5",
   close: "M4 4l8 8M12 4l-8 8",
+  smilePlus:
+    "M14.4 9A6.5 6.5 0 1 1 7 1.6M5.5 9.5c.6.9 1.4 1.4 2.5 1.4s1.9-.5 2.5-1.4M6 6.2v.1M10 6.2v.1M12.5 1v4.5M10.25 3.25h4.5",
 } as const;
 
 export type IconName = keyof typeof PATHS;

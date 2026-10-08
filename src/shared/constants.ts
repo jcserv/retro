@@ -9,6 +9,8 @@ export const LIMITS = {
   actionTextMax: 280,
   assigneeMax: 60,
   itemsPerClient: 30,
+  reactionEmojiMax: 32,
+  reactionEmojisPerItem: 20,
   participantsPerRoom: 50,
   voteLimitDefault: 5,
   voteLimitMin: 1,

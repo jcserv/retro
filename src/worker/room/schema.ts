@@ -65,6 +65,15 @@ const MIGRATIONS: readonly string[] = [
   );
   `,
   "ALTER TABLE actions ADD COLUMN due_date TEXT",
+  `
+  CREATE TABLE reactions (
+    item_id TEXT NOT NULL REFERENCES items(id),
+    client_id TEXT NOT NULL,
+    emoji TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (item_id, client_id, emoji)
+  );
+  `,
 ];
 
 export function migrate(sql: SqlStorage): void {

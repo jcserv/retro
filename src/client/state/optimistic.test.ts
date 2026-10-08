@@ -3,6 +3,7 @@ import { group, item, makeRoomState } from "../test/fixtures";
 import {
   applyPendingOps,
   type GroupingIntent,
+  type OptimisticIntent,
   PENDING_GROUP_ID_PREFIX,
   type PendingOp,
 } from "./optimistic";
@@ -126,5 +127,48 @@ describe("applyPendingOps", () => {
       op("r2", { type: "ungroupItem", itemId: "i2" }),
     ]);
     expect(state).toEqual(frozen);
+  });
+});
+
+describe("pending reactions", () => {
+  const reacted = makeRoomState({
+    phase: "vote",
+    items: [
+      {
+        ...item("i1", "g1", 1),
+        reactions: [
+          { emoji: "🎉", count: 2, mine: false },
+          { emoji: "👍", count: 1, mine: true },
+        ],
+      },
+    ],
+    groups: [group("g1", ["i1"])],
+  });
+  const reactionsAfter = (...intents: OptimisticIntent[]) =>
+    applyPendingOps(
+      reacted,
+      intents.map((intent, index) => ({ reqId: `r${index}`, intent, issuedAt: 0 })),
+    ).items[0]?.reactions;
+
+  test("joining, adding a new emoji, and dropping your last reaction", () => {
+    expect(
+      reactionsAfter(
+        { type: "addReaction", itemId: "i1", emoji: "🎉" },
+        { type: "addReaction", itemId: "i1", emoji: "🔥" },
+        { type: "removeReaction", itemId: "i1", emoji: "👍" },
+      ),
+    ).toEqual([
+      { emoji: "🎉", count: 3, mine: true },
+      { emoji: "🔥", count: 1, mine: true },
+    ]);
+  });
+
+  test("repeating what you already did changes nothing", () => {
+    expect(
+      reactionsAfter(
+        { type: "addReaction", itemId: "i1", emoji: "👍" },
+        { type: "removeReaction", itemId: "i1", emoji: "🎉" },
+      ),
+    ).toEqual(reacted.items[0]?.reactions);
   });
 });

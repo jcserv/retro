@@ -109,9 +109,19 @@
   line-height: var(--leading-snug);
 }
 
-.itemText {
+.single,
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.itemBody {
   flex: 1;
   min-width: 0;
+}
+
+.itemText {
   padding-block: var(--space-0-5);
 }
 

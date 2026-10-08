@@ -18,6 +18,8 @@
   "private": true,
   "dependencies": {
     "@preact/signals": "^2.11.3",
+    "emoji-picker-element": "^1.29.1",
+    "emoji-picker-element-data": "^1.8.0",
     "preact": "^11.0.0",
     "preact-iso": "^2.12.2",
     "zod": "^4.6.5"

@@ -132,6 +132,7 @@ export class FakeRoom {
       categoryId: item.categoryId,
       groupId: this.phase === "write" ? null : `group-${item.id}`,
       text: item.text,
+      reactions: [],
       createdAt: item.createdAt,
       ...(mine ? { mine: true as const } : {}),
     };

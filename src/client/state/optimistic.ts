@@ -1,4 +1,4 @@
-import type { GroupView, ItemView } from "../../shared/protocol";
+import type { GroupView, ItemView, ReactionView } from "../../shared/protocol";
 import type { Intent } from "../lib/connection";
 import type { RoomState } from "./roomState";
 
@@ -7,7 +7,12 @@ export type GroupingIntent = Extract<
   { type: "moveItemToGroup" | "mergeGroups" | "ungroupItem" }
 >;
 
-export type OptimisticIntent = GroupingIntent | Extract<Intent, { type: "setVoteLimit" }>;
+export type ReactionIntent = Extract<Intent, { type: "addReaction" | "removeReaction" }>;
+
+export type OptimisticIntent =
+  | GroupingIntent
+  | ReactionIntent
+  | Extract<Intent, { type: "setVoteLimit" }>;
 
 export type PendingOp = { reqId: string; intent: OptimisticIntent; issuedAt: number };
 
@@ -43,6 +48,19 @@ function moveItems(state: RoomState, itemIds: string[], target: GroupView): Room
   return { ...state, items, groups };
 }
 
+function toggleReaction(reactions: ReactionView[], intent: ReactionIntent): ReactionView[] {
+  const adding = intent.type === "addReaction";
+  const existing = reactions.find((reaction) => reaction.emoji === intent.emoji);
+  if (!existing) {
+    return adding ? [...reactions, { emoji: intent.emoji, count: 1, mine: true }] : reactions;
+  }
+  if (existing.mine === adding) return reactions;
+  const count = existing.count + (adding ? 1 : -1);
+  return reactions.flatMap((reaction) =>
+    reaction !== existing ? [reaction] : count > 0 ? [{ ...reaction, count, mine: adding }] : [],
+  );
+}
+
 function applyOp(state: RoomState, op: PendingOp): RoomState {
   const { intent } = op;
   switch (intent.type) {
@@ -72,6 +90,16 @@ function applyOp(state: RoomState, op: PendingOp): RoomState {
       };
       return moveItems({ ...state, groups: [...state.groups, created] }, [moving.id], created);
     }
+    case "addReaction":
+    case "removeReaction":
+      return {
+        ...state,
+        items: state.items.map((entry) =>
+          entry.id === intent.itemId
+            ? { ...entry, reactions: toggleReaction(entry.reactions, intent) }
+            : entry,
+        ),
+      };
     case "setVoteLimit":
       return { ...state, voteLimit: intent.limit };
   }
