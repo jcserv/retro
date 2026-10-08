@@ -85,8 +85,16 @@
   flex: 1;
 }
 
+.actionFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .assigneeField {
   display: flex;
+  flex: 1 1 200px;
+  min-width: 0;
   align-items: center;
   gap: var(--space-2);
 }
@@ -94,6 +102,23 @@
 .assigneeField > :global(.input) {
   flex: 1;
   min-width: 0;
+  font-size: var(--text-sm);
+}
+
+.dueDateField {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dueDateLabel {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.dueDateField > :global(.input) {
+  width: auto;
   font-size: var(--text-sm);
 }
 

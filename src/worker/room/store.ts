@@ -39,7 +39,7 @@ export type Comment = {
   updatedAt: number;
 };
 
-export type Action = Comment & { assignee: string | null };
+export type Action = Comment & { assignee: string | null; dueDate: string | null };
 
 type RoomRow = {
   code: string;
@@ -74,7 +74,7 @@ type CommentRow = {
   updated_at: number;
 };
 
-type ActionRow = CommentRow & { assignee: string | null };
+type ActionRow = CommentRow & { assignee: string | null; due_date: string | null };
 
 const toTimer = (row: RoomRow): TimerState => {
   if (row.timer_ends_at !== null) return { kind: "running", endsAt: row.timer_ends_at };
@@ -121,7 +121,11 @@ const toComment = (row: CommentRow): Comment => ({
   updatedAt: row.updated_at,
 });
 
-const toAction = (row: ActionRow): Action => ({ ...toComment(row), assignee: row.assignee });
+const toAction = (row: ActionRow): Action => ({
+  ...toComment(row),
+  assignee: row.assignee,
+  dueDate: row.due_date,
+});
 
 const ITEM_ORDER = "ORDER BY created_at, id";
 
@@ -471,23 +475,29 @@ export class RoomStore {
 
   insertAction(action: Action): void {
     this.#run(
-      `INSERT INTO actions (id, group_id, client_id, text, assignee, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO actions (id, group_id, client_id, text, assignee, due_date, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       action.id,
       action.groupId,
       action.clientId,
       action.text,
       action.assignee,
+      action.dueDate,
       action.createdAt,
       action.updatedAt,
     );
   }
 
-  updateAction(id: string, text: string, assignee: string | null, updatedAt: number): void {
+  updateAction(
+    id: string,
+    fields: { text: string; assignee: string | null; dueDate: string | null },
+    updatedAt: number,
+  ): void {
     this.#run(
-      "UPDATE actions SET text = ?, assignee = ?, updated_at = ? WHERE id = ?",
-      text,
-      assignee,
+      "UPDATE actions SET text = ?, assignee = ?, due_date = ?, updated_at = ? WHERE id = ?",
+      fields.text,
+      fields.assignee,
+      fields.dueDate,
       updatedAt,
       id,
     );

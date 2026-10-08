@@ -14,6 +14,8 @@ import { applyServerMessage, type RoomState } from "./roomState";
 
 export type IntentResult = { ok: true } | { ok: false; error: IntentError };
 
+export type ActionFields = { assignee: string; dueDate: string };
+
 export type RoomStoreError = { id: number; code: IntentErrorCode; message: string };
 
 export type ConnectionLike = Pick<RoomConnection, "connect" | "send" | "dispose">;
@@ -52,8 +54,9 @@ export type RoomStore = {
   addComment(groupId: string, text: string): Promise<IntentResult>;
   editComment(commentId: string, text: string): Promise<IntentResult>;
   deleteComment(commentId: string): Promise<IntentResult>;
-  addAction(groupId: string, text: string, assignee: string): Promise<IntentResult>;
-  editAction(actionId: string, text: string, assignee: string): Promise<IntentResult>;
+  convertComment(commentId: string): Promise<IntentResult>;
+  addAction(groupId: string, text: string, fields: ActionFields): Promise<IntentResult>;
+  editAction(actionId: string, text: string, fields: ActionFields): Promise<IntentResult>;
   deleteAction(actionId: string): Promise<IntentResult>;
 
   advance(from: Phase): Promise<IntentResult>;
@@ -175,9 +178,9 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     addComment: (groupId, text) => send({ type: "addComment", groupId, text }),
     editComment: (commentId, text) => send({ type: "editComment", commentId, text }),
     deleteComment: (commentId) => send({ type: "deleteComment", commentId }),
-    addAction: (groupId, text, assignee) => send({ type: "addAction", groupId, text, assignee }),
-    editAction: (actionId, text, assignee) =>
-      send({ type: "editAction", actionId, text, assignee }),
+    convertComment: (commentId) => send({ type: "convertComment", commentId }),
+    addAction: (groupId, text, fields) => send({ type: "addAction", groupId, text, ...fields }),
+    editAction: (actionId, text, fields) => send({ type: "editAction", actionId, text, ...fields }),
     deleteAction: (actionId) => send({ type: "deleteAction", actionId }),
 
     advance: (from) => send({ type: "advance", from }),

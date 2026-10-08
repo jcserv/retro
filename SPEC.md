@@ -94,7 +94,10 @@ The owner steps next and previous.
 Every client's view follows the current group.
 The owner can skip groups.
 Anyone can add comments and action items on the current group.
-An action item has text and an optional free-text assignee.
+An action item has text, an optional free-text assignee, and an optional due date.
+Comments and action items are shown in one column, comments first.
+The author of a comment can convert it into an action item with the same text; the comment is removed.
+A comment longer than the action item limit cannot be converted.
 
 ### Done
 
@@ -151,7 +154,7 @@ Room ABC234 · 7 participants
 - Comments:
   - ...
 - Action items:
-  - [ ] ... (assignee)
+  - [ ] ... (assignee, due YYYY-MM-DD)
 
 ## Not discussed
 - <group title> (2 votes) [What puzzles us?]

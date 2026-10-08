@@ -60,6 +60,7 @@ const actionView = (action: Action, viewer: Viewer): ActionView => ({
   groupId: action.groupId,
   text: action.text,
   assignee: action.assignee,
+  dueDate: action.dueDate,
   mine: action.clientId === viewer.clientId,
   createdAt: action.createdAt,
   updatedAt: action.updatedAt,

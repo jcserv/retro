@@ -44,6 +44,7 @@ export type ActionView = {
   groupId: string;
   text: string;
   assignee: string | null;
+  dueDate: string | null;
   mine: boolean;
   createdAt: number;
   updatedAt: number;
@@ -94,6 +95,7 @@ const isFieldErrorCode = (message: string): message is FieldErrorCode =>
 const text = (max: number) =>
   z.string().trim().min(1, { error: EMPTY }).max(max, { error: TOO_LONG });
 const optionalText = (max: number) => z.string().trim().max(max, { error: TOO_LONG });
+const optionalDate = z.union([z.iso.date(), z.literal("")]);
 
 const intent = <T extends string, S extends z.ZodRawShape>(type: T, shape: S) =>
   z.strictObject({ type: z.literal(type), reqId, ...shape });
@@ -113,15 +115,18 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
   intent("addComment", { groupId: id, text: text(LIMITS.commentTextMax) }),
   intent("editComment", { commentId: id, text: text(LIMITS.commentTextMax) }),
   intent("deleteComment", { commentId: id }),
+  intent("convertComment", { commentId: id }),
   intent("addAction", {
     groupId: id,
     text: text(LIMITS.actionTextMax),
     assignee: optionalText(LIMITS.assigneeMax).optional(),
+    dueDate: optionalDate.optional(),
   }),
   intent("editAction", {
     actionId: id,
     text: text(LIMITS.actionTextMax),
     assignee: optionalText(LIMITS.assigneeMax).optional(),
+    dueDate: optionalDate.optional(),
   }),
   intent("deleteAction", { actionId: id }),
   intent("advance", { from: PhaseSchema }),

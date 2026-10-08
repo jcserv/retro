@@ -38,6 +38,18 @@ test.each([
   });
 });
 
+test.each(["2026-02-30", "2026-1-5", "next week"])("rejects malformed due date %s", (dueDate) => {
+  const message = { type: "addAction", groupId: "g", text: "x", dueDate };
+  expect(parseClientMessage(json(message)).ok).toBe(false);
+});
+
+test("accepts an ISO due date or an empty one", () => {
+  for (const dueDate of ["2026-10-15", ""]) {
+    const message = { type: "addAction", groupId: "g", text: "x", dueDate };
+    expect(parseClientMessage(json(message)).ok).toBe(true);
+  }
+});
+
 test("rejects whitespace-only text as empty", () => {
   expect(parseClientMessage(json({ type: "addComment", groupId: "g", text: "   " }))).toEqual({
     ok: false,

@@ -39,6 +39,7 @@ const SAMPLE_INTENTS: Record<ClientIntent["type"], ClientIntent> = {
   addComment: { type: "addComment", groupId: ID, text: "x" },
   editComment: { type: "editComment", commentId: ID, text: "x" },
   deleteComment: { type: "deleteComment", commentId: ID },
+  convertComment: { type: "convertComment", commentId: ID },
   addAction: { type: "addAction", groupId: ID, text: "x" },
   editAction: { type: "editAction", actionId: ID, text: "x" },
   deleteAction: { type: "deleteAction", actionId: ID },
@@ -69,6 +70,7 @@ const ALLOWED_PHASES: Record<ClientIntent["type"], Phase[]> = {
   addComment: ["discuss"],
   editComment: ["discuss"],
   deleteComment: ["discuss"],
+  convertComment: ["discuss"],
   addAction: ["discuss"],
   editAction: ["discuss"],
   deleteAction: ["discuss"],
@@ -627,6 +629,72 @@ describe("comments and actions", () => {
       expect(room.store.getAction(actionId)).toMatchObject({ text: "do it now", assignee: "Sam" });
       room.ok(bob, { type: "deleteAction", actionId });
       expect(room.store.getAction(actionId)).toBeNull();
+    });
+  });
+
+  test("actions store an empty due date as null", async () => {
+    await withRoom((room) => {
+      seedThreeItems(room);
+      room.advanceTo("discuss");
+      const groupId = room.discussOrder()[0] ?? "";
+      const add = { type: "addAction", groupId, text: "ship it" } as const;
+      const change = room.ok(bob, { ...add, dueDate: "2026-10-15" })[0];
+      const actionId = change?.kind === "actionUpserted" ? change.actionId : "";
+      expect(room.store.getAction(actionId)?.dueDate).toBe("2026-10-15");
+
+      room.ok(bob, { type: "editAction", actionId, text: "ship it", dueDate: "" });
+      expect(room.store.getAction(actionId)?.dueDate).toBeNull();
+    });
+  });
+
+  test("converting a comment replaces it with an action item by the same author", async () => {
+    await withRoom((room) => {
+      seedThreeItems(room);
+      room.advanceTo("discuss");
+      const groupId = room.discussOrder()[0] ?? "";
+      const added = room.ok(alice, { type: "addComment", groupId, text: "follow up" })[0];
+      const commentId = added?.kind === "commentUpserted" ? added.commentId : "";
+
+      expect(room.rejects(bob, { type: "convertComment", commentId })).toBe("forbidden");
+      const changes = room.ok(alice, { type: "convertComment", commentId });
+      expect(changes[0]).toEqual({ kind: "commentRemoved", commentId });
+      const actionId = changes[1]?.kind === "actionUpserted" ? changes[1].actionId : "";
+      expect(room.store.getComment(commentId)).toBeNull();
+      expect(room.store.getAction(actionId)).toMatchObject({
+        groupId,
+        clientId: ALICE,
+        text: "follow up",
+        assignee: null,
+        dueDate: null,
+      });
+      expect(room.rejects(alice, { type: "convertComment", commentId })).toBe("not_found");
+    });
+  });
+
+  test("a comment too long for an action item cannot be converted", async () => {
+    await withRoom((room) => {
+      seedThreeItems(room);
+      room.advanceTo("discuss");
+      const groupId = room.discussOrder()[0] ?? "";
+      const text = "a".repeat(LIMITS.actionTextMax + 1);
+      const added = room.ok(alice, { type: "addComment", groupId, text })[0];
+      const commentId = added?.kind === "commentUpserted" ? added.commentId : "";
+
+      expect(room.rejects(alice, { type: "convertComment", commentId })).toBe("too_long");
+      expect(room.store.getComment(commentId)?.text).toBe(text);
+    });
+  });
+
+  test("a comment on a topic no longer being discussed cannot be converted", async () => {
+    await withRoom((room) => {
+      seedThreeItems(room);
+      room.advanceTo("discuss");
+      const groupId = room.discussOrder()[0] ?? "";
+      const added = room.ok(alice, { type: "addComment", groupId, text: "later" })[0];
+      const commentId = added?.kind === "commentUpserted" ? added.commentId : "";
+      room.ok(owner, { type: "next", fromIndex: 0 });
+
+      expect(room.rejects(alice, { type: "convertComment", commentId })).toBe("stale");
     });
   });
 });

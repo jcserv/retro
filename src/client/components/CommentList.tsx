@@ -4,6 +4,7 @@ import { useRoomStore } from "../state/roomContext";
 import type { IntentResult } from "../state/roomStore";
 import styles from "./Discussion.module.css";
 import { EntryActions } from "./EntryActions";
+import { Icon } from "./Icon";
 import { ItemComposer } from "./ItemComposer";
 import { useEntryEditor, useSectionFocus } from "./useEntryEditor";
 
@@ -50,6 +51,7 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
   const store = useRoomStore();
   const editor = useEntryEditor<true>();
   const live = store.isLive.value;
+  const fitsAction = comment.text.length <= LIMITS.actionTextMax;
 
   if (editor.draft !== null) {
     return (
@@ -90,7 +92,23 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
           deleteDisabled={!live || editor.busy}
           onEdit={() => editor.start(true)}
           onDelete={() => editor.remove(() => store.deleteComment(comment.id), onDeleted)}
-        />
+        >
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm btn-icon"
+            aria-label="Convert comment to action item"
+            aria-describedby={`comment-${comment.id}`}
+            title={
+              fitsAction
+                ? "Convert to action item"
+                : `Too long for an action item (max ${LIMITS.actionTextMax} characters)`
+            }
+            disabled={!live || editor.busy || !fitsAction}
+            onClick={() => editor.remove(() => store.convertComment(comment.id), onDeleted)}
+          >
+            <Icon name="arrowRight" />
+          </button>
+        </EntryActions>
       )}
     </li>
   );

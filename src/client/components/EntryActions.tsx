@@ -1,4 +1,4 @@
-import type { Ref } from "preact";
+import type { ComponentChildren, Ref } from "preact";
 import styles from "./EntryActions.module.css";
 import { Icon } from "./Icon";
 
@@ -11,6 +11,7 @@ type EntryActionsProps = {
   onEdit: () => void;
   onDelete: () => void;
   class?: string;
+  children?: ComponentChildren;
 };
 
 export function EntryActions({
@@ -22,9 +23,11 @@ export function EntryActions({
   onEdit,
   onDelete,
   class: className,
+  children,
 }: EntryActionsProps) {
   return (
     <div class={`${styles.actions} ${className ?? ""}`}>
+      {children}
       <button
         ref={editRef}
         type="button"

@@ -16,7 +16,7 @@ function action(
   assignee: string | null,
   at: number,
 ): ActionView {
-  return { id, groupId, text, assignee, mine: false, createdAt: at, updatedAt: at };
+  return { id, groupId, text, assignee, dueDate: null, mine: false, createdAt: at, updatedAt: at };
 }
 
 const room = makeRoomState({
