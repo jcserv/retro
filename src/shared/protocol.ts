@@ -72,7 +72,7 @@ export type SuggestionEntryView = {
 
 export type SuggestionsView = {
   enabled: boolean;
-  pending: boolean;
+  pendingUntil: number | null;
   runsLeft: number;
   cooldownEndsAt: number | null;
   set: { id: string; entries: SuggestionEntryView[] } | null;

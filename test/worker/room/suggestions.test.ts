@@ -3,8 +3,10 @@ import { AI } from "../../../src/shared/constants";
 import {
   applySuggestionEntries,
   buildSuggestInput,
+  completeSuggestion,
   type IdMap,
   parseSuggestions,
+  prepareSuggestion,
   sanitizeTitle,
 } from "../../../src/worker/room/suggestions";
 import { ALICE, alice, expectGroupingInvariant, owner, type Room, withRoom } from "./harness";
@@ -111,6 +113,36 @@ function groupBoard<const T extends ReadonlyArray<readonly [string, string]>>(
   room.advanceTo("group");
   return ids as { [K in keyof T]: string };
 }
+
+describe("completeSuggestion", () => {
+  test("a run that timed out and was replaced leaves the newer run alone", async () => {
+    await withRoom((room) => {
+      groupBoard(room, [
+        ["well", "deploys a"],
+        ["well", "deploys b"],
+      ]);
+      const startedAt = room.now;
+      const prepared = prepareSuggestion(room.store, owner, startedAt, true);
+      if (!prepared.ok) throw new Error(prepared.code);
+      const newer = startedAt + AI.timeoutMs;
+      room.store.setAiPending(newer);
+
+      const output = {
+        ok: true,
+        value: { groups: [{ target: null, itemIds: [1, 2], title: "Late" }] },
+      };
+      expect(completeSuggestion(room.store, prepared.idMap, output, "late-set", startedAt)).toEqual(
+        {
+          ok: true,
+        },
+      );
+      expect(room.store.getRoom()).toMatchObject({
+        suggestionSetId: null,
+        ai: { pendingSince: newer },
+      });
+    });
+  });
+});
 
 describe("buildSuggestInput", () => {
   test("splits singletons from groups and sends no client or item ids", async () => {

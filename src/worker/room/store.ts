@@ -226,8 +226,17 @@ export class RoomStore {
     this.#run("UPDATE room SET discuss_index = ? WHERE id = 1", index);
   }
 
-  setAiPending(since: number | null): void {
+  setAiPending(since: number): void {
     this.#run("UPDATE room SET ai_pending_since = ? WHERE id = 1", since);
+  }
+
+  clearAiPending(since: number): boolean {
+    return (
+      this.#sql.exec(
+        "UPDATE room SET ai_pending_since = NULL WHERE id = 1 AND ai_pending_since = ?",
+        since,
+      ).rowsWritten > 0
+    );
   }
 
   recordAiRun(at: number): void {

@@ -157,6 +157,7 @@ An item appears in at most one suggestion.
 The owner presses "Suggest groups" in the owner controls.
 The button is disabled with a reason when the request is not allowed (see Abuse prevention).
 While the request runs, the owner sees a pending state.
+The pending state ends on its own when the timeout passes, even if no result arrives.
 Other participants see nothing.
 When it finishes, the owner sees a panel listing each suggested group: its title, the items it would contain, and Accept and Dismiss buttons.
 An "Accept all" button applies every remaining suggestion.
@@ -200,7 +201,7 @@ Limits, from narrowest to widest:
 
 1. **Who and when.** Only the owner, only in the Group phase. Non-owner and wrong-phase requests are rejected like other owner-only intents.
 2. **Input size.** The board needs at least two ungrouped items or one untitled group. Each item's text is cut to 120 characters before it is sent. A board with more than 200 items or 12,000 characters of item text after that cut is refused with "Too many items for suggestions". The model's output is capped with `max_tokens`.
-3. **Per room.** One request in flight at a time. A 30 second cooldown between requests. At most 5 requests over the room's lifetime. The count and the in-flight marker live in the room's SQLite, so hibernation cannot reset them. An in-flight marker older than the timeout is treated as cleared.
+3. **Per room.** One request in flight at a time. A 30 second cooldown between requests. At most 5 requests over the room's lifetime. The count and the in-flight marker live in the room's SQLite, so hibernation cannot reset them. An in-flight marker older than the timeout is treated as cleared. A result that arrives after its marker was cleared or replaced is discarded.
 4. **Per IP.** A Workers rate limiting binding, `AI_SUGGEST_LIMITER`, keyed by the owner's connecting IP, allows 5 requests per 60 seconds. The IP is captured at WebSocket upgrade and kept in the socket attachment. This stops one person from spending budget across many rooms they created.
 5. **Global daily budget.** A singleton Durable Object, `AiBudget`, counts requests per UTC day across the whole deployment. A request reserves a slot before calling the model. Failed calls are not refunded. When the day's budget is spent, the button shows "AI suggestions are used up for today". The daily request cap is a constant, set so that the cap times the worst case Neurons per request stays at or below 8,000. That leaves 20% of the free allocation as headroom.
 6. **Kill switch.** The `AI_SUGGESTIONS` variable is `on`, `off`, or `fake`. `off`, or a missing binding, hides the feature. `fake` uses a deterministic local suggester for dev and tests, so they never spend real Neurons. Clients learn whether the feature is available from the snapshot.

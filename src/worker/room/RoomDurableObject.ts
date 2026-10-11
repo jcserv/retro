@@ -7,13 +7,13 @@ import {
   type ServerMessage,
 } from "../../shared/protocol";
 import { utcDay } from "../ai/AiBudget";
-import { type Suggester, suggesterFor } from "../ai/suggester";
+import { runWithTimeout, type Suggester, suggesterFor } from "../ai/suggester";
 import { closedSocketResponse } from "../closedSocket";
 import { actorFor, type Change, createRoom, handle, joinRoom } from "./commands";
 import { SocketRateLimiter } from "./rateLimit";
 import { migrate } from "./schema";
 import { RoomStore } from "./store";
-import { completeSuggestion, type ModelOutput, prepareSuggestion } from "./suggestions";
+import { completeSuggestion, prepareSuggestion } from "./suggestions";
 import { project, snapshot, type ViewContext } from "./views";
 
 export type InitResult = "created" | "exists";
@@ -170,7 +170,7 @@ export class RoomDurableObject extends DurableObject<Env> {
 
     const denied = await this.#spendBudget(this.#ipOf(ws), now);
     if (denied) {
-      this.#store.setAiPending(null);
+      this.#store.clearAiPending(now);
       this.#sendError(ws, denied, ERROR_MESSAGES[denied], reqId);
       return;
     }
@@ -178,8 +178,8 @@ export class RoomDurableObject extends DurableObject<Env> {
     if (reqId !== undefined) send(ws, { type: "ack", reqId });
     this.#broadcast([{ kind: "suggestionsChanged" }], now);
 
-    const output = await runWithTimeout(suggester, prepared.input);
-    const done = completeSuggestion(this.#store, prepared.idMap, output, crypto.randomUUID());
+    const output = await runWithTimeout(suggester, prepared.input, now + AI.timeoutMs - Date.now());
+    const done = completeSuggestion(this.#store, prepared.idMap, output, crypto.randomUUID(), now);
     const finishedAt = Date.now();
     this.#broadcast([{ kind: "suggestionsChanged" }], finishedAt);
     if (!done.ok) {
@@ -291,27 +291,6 @@ function send(ws: WebSocket, message: ServerMessage): void {
 
 function messageFor(code: ErrorCode): string {
   return (ERROR_MESSAGES as Partial<Record<ErrorCode, string>>)[code] ?? "Request failed";
-}
-
-async function runWithTimeout(
-  suggester: Suggester,
-  input: Parameters<Suggester>[0],
-): Promise<ModelOutput> {
-  const controller = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new Error("timeout"));
-    }, AI.timeoutMs);
-  });
-  try {
-    return { ok: true, value: await Promise.race([suggester(input, controller.signal), timeout]) };
-  } catch {
-    return { ok: false };
-  } finally {
-    if (timer !== undefined) clearTimeout(timer);
-  }
 }
 
 function reqIdOf(parsed: ReturnType<typeof parseClientMessage> | null): string | undefined {

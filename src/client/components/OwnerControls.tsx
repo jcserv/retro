@@ -91,11 +91,13 @@ function SuggestButton() {
   const store = useRoomStore();
   const [requesting, setRequesting] = useState(false);
   const suggestions = store.room.value?.suggestions ?? null;
-  const cooldownMs = Math.max(0, (suggestions?.cooldownEndsAt ?? 0) - store.serverNow());
-  useTicker(cooldownMs > 0);
+  const now = store.serverNow();
+  const pending = (suggestions?.pendingUntil ?? 0) > now;
+  const cooldownMs = Math.max(0, (suggestions?.cooldownEndsAt ?? 0) - now);
+  useTicker(pending || cooldownMs > 0);
   if (!suggestions?.enabled) return null;
 
-  const reason = suggestions.pending
+  const reason = pending
     ? "Suggesting…"
     : suggestions.runsLeft === 0
       ? "No suggestions left"
@@ -117,7 +119,7 @@ function SuggestButton() {
       onClick={suggest}
       disabled={requesting || reason !== null || !store.isLive.value}
     >
-      {suggestions.pending && <span class={`spinner ${styles.spinner}`} aria-hidden="true" />}
+      {pending && <span class={`spinner ${styles.spinner}`} aria-hidden="true" />}
       {reason ?? "Suggest groups"}
     </button>
   );

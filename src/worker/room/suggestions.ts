@@ -57,8 +57,10 @@ export type ModelOutput = { ok: true; value: unknown } | { ok: false };
 
 export type CompleteResult = { ok: true } | { ok: false; code: "suggest_failed" };
 
-export function isAiPending(ai: AiUsage, now: number): boolean {
-  return ai.pendingSince !== null && now - ai.pendingSince < AI.timeoutMs;
+export function pendingUntil(ai: AiUsage, now: number): number | null {
+  if (ai.pendingSince === null) return null;
+  const until = ai.pendingSince + AI.timeoutMs;
+  return until > now ? until : null;
 }
 
 export function cooldownEndsAt(ai: AiUsage, now: number): number | null {
@@ -75,7 +77,7 @@ export function suggestionsView(
 ): SuggestionsView {
   return {
     enabled,
-    pending: isAiPending(room.ai, now),
+    pendingUntil: pendingUntil(room.ai, now),
     runsLeft: Math.max(0, AI.requestsPerRoom - room.ai.runs),
     cooldownEndsAt: cooldownEndsAt(room.ai, now),
     set:
@@ -97,7 +99,7 @@ export function prepareSuggestion(
     if (!actor.isOwner) return { ok: false, code: "forbidden" };
     if (room.phase !== "group") return { ok: false, code: "wrong_phase" };
     if (!enabled) return { ok: false, code: "suggest_unavailable" };
-    if (isAiPending(room.ai, now) || cooldownEndsAt(room.ai, now) !== null) {
+    if (pendingUntil(room.ai, now) !== null || cooldownEndsAt(room.ai, now) !== null) {
       return { ok: false, code: "suggest_busy" };
     }
     if (room.ai.runs >= AI.requestsPerRoom) return { ok: false, code: "suggest_room_limit" };
@@ -113,9 +115,10 @@ export function completeSuggestion(
   idMap: IdMap,
   output: ModelOutput,
   setId: string,
+  startedAt: number,
 ): CompleteResult {
   return store.transaction((): CompleteResult => {
-    store.setAiPending(null);
+    if (!store.clearAiPending(startedAt)) return { ok: true };
     if (store.getRoom()?.phase !== "group") return { ok: true };
     const parsed = output.ok ? parseSuggestions(output.value, idMap) : null;
     if (parsed === null) return { ok: false, code: "suggest_failed" };

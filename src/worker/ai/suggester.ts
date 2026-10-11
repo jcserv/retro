@@ -1,5 +1,5 @@
 import { AI } from "../../shared/constants";
-import { SUGGESTION_JSON_SCHEMA, type SuggestInput } from "../room/suggestions";
+import { type ModelOutput, SUGGESTION_JSON_SCHEMA, type SuggestInput } from "../room/suggestions";
 
 export type Suggester = (input: SuggestInput, signal: AbortSignal) => Promise<unknown>;
 
@@ -99,5 +99,27 @@ export function suggesterFor(env: Env): Suggester | null {
       return env.AI ? workersAiSuggester(env.AI) : null;
     default:
       return null;
+  }
+}
+
+export async function runWithTimeout(
+  suggester: Suggester,
+  input: SuggestInput,
+  timeoutMs: number,
+): Promise<ModelOutput> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error("timeout"));
+    }, timeoutMs);
+  });
+  try {
+    return { ok: true, value: await Promise.race([suggester(input, controller.signal), timeout]) };
+  } catch {
+    return { ok: false };
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
   }
 }
