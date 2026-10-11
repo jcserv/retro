@@ -2,16 +2,12 @@ import { useState } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import { ROOM_CODE_LENGTH } from "../../shared/constants";
 import { isValidRoomCode } from "../../shared/roomCode";
+import { copy } from "../copy";
 import { createRoom, roomExists } from "../lib/api";
 import { getClientId } from "../lib/clientId";
 import styles from "./Home.module.css";
 
 type Busy = "create" | "join" | null;
-
-const CREATE_ERRORS = {
-  rate_limited: "Too many rooms created, try again in a minute.",
-  failed: "Couldn't create a room. Check your connection and try again.",
-} as const;
 
 export function Home() {
   const { route } = useLocation();
@@ -28,7 +24,7 @@ export function Home() {
       route(`/r/${result.code}`);
       return;
     }
-    setCreateError(CREATE_ERRORS[result.reason]);
+    setCreateError(copy.home.createErrors[result.reason]);
     setBusy(null);
   }
 
@@ -36,7 +32,7 @@ export function Home() {
     event.preventDefault();
     const code = joinCode.trim().toUpperCase();
     if (!isValidRoomCode(code)) {
-      setJoinError(`Room codes are ${ROOM_CODE_LENGTH} letters and numbers.`);
+      setJoinError(copy.home.invalidCode(ROOM_CODE_LENGTH));
       return;
     }
     setBusy("join");
@@ -46,34 +42,30 @@ export function Home() {
       route(`/r/${code}`);
       return;
     }
-    setJoinError(
-      result === "not_found"
-        ? "Room not found. It may have expired."
-        : "Couldn't reach the server. Try again.",
-    );
+    setJoinError(result === "not_found" ? copy.home.roomNotFound : copy.home.unreachable);
     setBusy(null);
   }
 
   return (
     <main class={styles.page}>
       <div class={styles.hero}>
-        <h1 class={styles.title}>Retro</h1>
-        <p class={styles.lead}>Quick, anonymous team retros. No accounts, no setup.</p>
+        <h1 class={styles.title}>{copy.appName}</h1>
+        <p class={styles.lead}>{copy.home.lead}</p>
       </div>
 
       <div class={`card ${styles.panel}`}>
         <section class={styles.section} aria-labelledby="create-heading">
           <h2 id="create-heading" class={styles.sectionTitle}>
-            Start a retro
+            {copy.home.createHeading}
           </h2>
-          <p class={styles.hint}>You'll run the session. Share the link with your team.</p>
+          <p class={styles.hint}>{copy.home.createHint}</p>
           <button
             type="button"
             class="btn btn-primary btn-lg"
             onClick={onCreate}
             disabled={busy !== null}
           >
-            {busy === "create" ? "Creating…" : "Create room"}
+            {busy === "create" ? copy.home.creating : copy.home.create}
           </button>
           {createError && (
             <p class={styles.error} role="alert">
@@ -83,16 +75,16 @@ export function Home() {
         </section>
 
         <div class={styles.divider} aria-hidden="true">
-          <span>or</span>
+          <span>{copy.home.or}</span>
         </div>
 
         <section class={styles.section} aria-labelledby="join-heading">
           <h2 id="join-heading" class={styles.sectionTitle}>
-            Join a retro
+            {copy.home.joinHeading}
           </h2>
           <form class={styles.joinForm} onSubmit={onJoin} noValidate>
             <label class="visually-hidden" for="join-code">
-              Room code
+              {copy.home.joinCodeLabel}
             </label>
             <input
               id="join-code"
@@ -102,7 +94,7 @@ export function Home() {
                 setJoinCode(event.currentTarget.value.toUpperCase());
                 setJoinError(null);
               }}
-              placeholder="ABC234"
+              placeholder={copy.home.joinCodePlaceholder}
               maxLength={ROOM_CODE_LENGTH}
               autocomplete="off"
               autocapitalize="characters"
@@ -111,7 +103,7 @@ export function Home() {
               aria-describedby={joinError ? "join-error" : undefined}
             />
             <button type="submit" class="btn btn-lg" disabled={busy !== null}>
-              {busy === "join" ? "Joining…" : "Join"}
+              {busy === "join" ? copy.home.joining : copy.home.join}
             </button>
           </form>
           {joinError && (

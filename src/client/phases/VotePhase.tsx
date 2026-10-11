@@ -1,6 +1,7 @@
 import { Board } from "../components/Board";
 import { GroupCard } from "../components/GroupCard";
 import { VoteBudget } from "../components/VoteBudget";
+import { copy } from "../copy";
 import { buildBoard } from "../lib/board";
 import { votesUsed } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
@@ -18,17 +19,14 @@ export function VotePhase() {
       <div class={`card ${styles.intro}`}>
         <div class={styles.introText}>
           <h1 id="vote-heading" class={styles.heading}>
-            Vote on what to discuss
+            {copy.vote.heading}
           </h1>
-          <p class={styles.hint}>
-            Spread your votes or stack them on one topic. Totals stay hidden until discussion
-            starts.
-          </p>
+          <p class={styles.hint}>{copy.vote.hint}</p>
         </div>
         <VoteBudget used={used} limit={room.voteLimit} />
       </div>
       {room.groups.length === 0 ? (
-        <p class={`card ${styles.empty}`}>No items were written in this retro.</p>
+        <p class={`card ${styles.empty}`}>{copy.board.noItemsWritten}</p>
       ) : (
         <Board
           columns={buildBoard(room)}
@@ -67,20 +65,20 @@ function VoteControls({ groupId, title, count, canAdd, canRemove }: VoteControls
       <button
         type="button"
         class="btn btn-ghost btn-sm btn-icon"
-        aria-label={`Remove a vote from ${title}`}
+        aria-label={copy.vote.remove(title)}
         disabled={!canRemove || count === 0}
         onClick={() => store.unvote(groupId)}
       >
         <span aria-hidden="true">−</span>
       </button>
       <span class={styles.count}>
-        <span class="visually-hidden">Your votes on {title}: </span>
+        <span class="visually-hidden">{copy.vote.yourVotes(title)}</span>
         {count}
       </span>
       <button
         type="button"
         class="btn btn-subtle btn-sm btn-icon"
-        aria-label={`Add a vote to ${title}`}
+        aria-label={copy.vote.add(title)}
         disabled={!canAdd}
         onClick={() => store.vote(groupId)}
       >

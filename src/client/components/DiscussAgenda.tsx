@@ -1,12 +1,6 @@
-import type { DiscussStatus } from "../../shared/protocol";
+import { copy } from "../copy";
 import type { DiscussEntry } from "../lib/groups";
 import styles from "./DiscussAgenda.module.css";
-
-const STATUS_LABELS: Record<DiscussStatus, string> = {
-  pending: "Up next",
-  discussed: "Discussed",
-  skipped: "Skipped",
-};
 
 export function DiscussAgenda({
   entries,
@@ -22,7 +16,7 @@ export function DiscussAgenda({
   return (
     <aside class={`card ${styles.agenda}`} aria-labelledby="discuss-agenda">
       <h2 id="discuss-agenda" class={styles.heading}>
-        Agenda
+        {copy.discuss.agenda}
       </h2>
       <ol class={styles.list}>
         {entries.map((entry) => {
@@ -35,10 +29,10 @@ export function DiscussAgenda({
               <span class={`user-text ${styles.title}`}>{entry.label}</span>
               <span class={styles.votes}>
                 {entry.votes}
-                <span class="visually-hidden"> {entry.votes === 1 ? "vote" : "votes"}</span>
+                <span class="visually-hidden"> {copy.vote.unit(entry.votes)}</span>
               </span>
               <span class="visually-hidden">
-                , {isCurrent ? "current topic" : STATUS_LABELS[entry.status]}
+                , {isCurrent ? copy.discuss.agendaCurrent : copy.discuss.status[entry.status]}
               </span>
             </>
           );

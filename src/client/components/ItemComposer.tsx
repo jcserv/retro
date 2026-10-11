@@ -1,5 +1,6 @@
 import type { ComponentChildren } from "preact";
 import { useId, useState } from "preact/hooks";
+import { copy } from "../copy";
 import { textLength } from "../lib/format";
 import type { IntentResult } from "../state/roomStore";
 import styles from "./ItemComposer.module.css";
@@ -93,13 +94,13 @@ export function ItemComposer({
       {children}
       <div class={styles.footer}>
         <span id={`${id}-count`} class="field-hint" data-over={over ? "true" : undefined}>
-          <span class="visually-hidden">Characters used: </span>
+          <span class="visually-hidden">{copy.composer.charactersUsed}</span>
           {length}/{max}
         </span>
         <div class={styles.actions}>
           {onCancel && (
             <button type="button" class="btn btn-ghost btn-sm" onClick={onCancel}>
-              Cancel
+              {copy.composer.cancel}
             </button>
           )}
           <button type="submit" class="btn btn-subtle btn-sm" disabled={!canSubmit}>

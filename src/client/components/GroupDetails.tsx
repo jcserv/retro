@@ -1,4 +1,5 @@
 import type { Category } from "../../shared/protocol";
+import { copy } from "../copy";
 import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import { CategoryBadge } from "./CategoryBadge";
 import { categoryColorStyle } from "./CategoryColumn";
@@ -37,15 +38,13 @@ export function GroupDetails({
         {shownCategories.map((index) => (
           <CategoryBadge key={index} category={categories[index]} index={index} />
         ))}
-        <span class="badge badge-accent">
-          {votes} {votes === 1 ? "vote" : "votes"}
-        </span>
+        <span class="badge badge-accent">{copy.vote.count(votes)}</span>
       </div>
       <Heading id={headingId} class={`user-text ${styles.title}`}>
         {group.label}
       </Heading>
       {hasGroupHeading(group) ? (
-        <ul class={`${styles.items} ${mixed ? styles.mixed : ""}`} aria-label="Items">
+        <ul class={`${styles.items} ${mixed ? styles.mixed : ""}`} aria-label={copy.discuss.items}>
           {group.items.map((entry) => {
             const index = categoryIndex(entry.categoryId);
             return (
@@ -53,7 +52,7 @@ export function GroupDetails({
                 {mixed && (
                   <span class={styles.dot} title={categories[index]?.title}>
                     <span class="visually-hidden">
-                      {categories[index]?.title ?? "Uncategorized"}:{" "}
+                      {categories[index]?.title ?? copy.board.uncategorized}:{" "}
                     </span>
                   </span>
                 )}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { TimerState } from "../../shared/protocol";
+import { copy } from "../copy";
 import { beep } from "../lib/beep";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./Timer.module.css";
@@ -69,13 +70,13 @@ export function Timer() {
           {formatClock(reading.remainingMs)}
         </span>
         {reading.up ? (
-          <span class={styles.label}>Time's up</span>
+          <span class={styles.label}>{copy.timer.timesUp}</span>
         ) : (
-          reading.paused && <span class={styles.label}>Paused</span>
+          reading.paused && <span class={styles.label}>{copy.timer.paused}</span>
         )}
       </span>
       <span class="visually-hidden" role="status" aria-live="polite">
-        {reading.up ? "Time's up" : ""}
+        {reading.up ? copy.timer.timesUp : ""}
       </span>
       {room.isOwner && <TimerControls timer={timer} up={reading.up} />}
     </div>

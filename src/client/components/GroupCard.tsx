@@ -2,6 +2,7 @@ import type { ArticleHTMLAttributes, ComponentChildren, HTMLAttributes } from "p
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { ItemView } from "../../shared/protocol";
+import { copy } from "../copy";
 import { type BoardGroup, hasGroupHeading } from "../lib/board";
 import styles from "./GroupCard.module.css";
 import { Icon } from "./Icon";
@@ -36,7 +37,7 @@ export function GroupCard({
       {showHeading && (
         <div class={styles.heading}>
           {heading ?? <h3 class={`${styles.title} user-text`}>{group.label}</h3>}
-          {items.length > 1 && <span class="badge">{items.length} items</span>}
+          {items.length > 1 && <span class="badge">{copy.board.groupItemCount(items.length)}</span>}
         </div>
       )}
       {only && !showHeading ? (
@@ -66,8 +67,6 @@ type GroupTitleProps = {
   disabled: boolean;
   onRename: (title: string) => void;
 };
-
-const UNTITLED_PLACEHOLDER = "Add a title";
 
 export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
   const [draft, setDraft] = useState<string | null>(null);
@@ -101,8 +100,8 @@ export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
             setDraft(title ?? "");
           }}
         >
-          <span class="user-text">{title ?? UNTITLED_PLACEHOLDER}</span>
-          <span class="visually-hidden">, rename group</span>
+          <span class="user-text">{title ?? copy.board.addTitle}</span>
+          <span class="visually-hidden">{copy.board.renameGroup}</span>
           <span class={styles.pencil}>
             <Icon name="pencil" size={12} />
           </span>
@@ -123,8 +122,8 @@ export function GroupTitle({ group, disabled, onRename }: GroupTitleProps) {
     <input
       ref={inputRef}
       class={`input ${styles.titleInput}`}
-      aria-label="Group title"
-      placeholder={UNTITLED_PLACEHOLDER}
+      aria-label={copy.board.groupTitle}
+      placeholder={copy.board.addTitle}
       maxLength={LIMITS.groupTitleMax}
       value={draft}
       onInput={(event) => setDraft(event.currentTarget.value)}

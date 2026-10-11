@@ -1,3 +1,4 @@
+import { copy } from "../copy";
 import { discussEntries } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import type { RoomState } from "../state/roomState";
@@ -13,23 +14,26 @@ export function DiscussPanel({ room }: { room: RoomState }) {
 
   if (!discuss || !current) {
     return (
-      <section class={`card ${styles.panel} ${styles.empty}`} aria-label="Current topic">
-        <h2>Nothing to discuss</h2>
-        <p>No items were written in this retro.</p>
+      <section
+        class={`card ${styles.panel} ${styles.empty}`}
+        aria-label={copy.discuss.currentTopic}
+      >
+        <h2>{copy.discuss.nothingHeading}</h2>
+        <p>{copy.board.noItemsWritten}</p>
       </section>
     );
   }
 
   const { group } = current;
   const total = discuss.order.length;
-  const position = `Topic ${current.index + 1} of ${total}`;
+  const position = copy.discuss.position(current.index + 1, total);
   const isLast = current.index >= total - 1;
   const live = store.isLive.value;
 
   return (
     <section class={`card ${styles.panel}`} aria-labelledby="discuss-current">
       <p class="visually-hidden" aria-live="polite">
-        Now discussing {position.toLowerCase()}: {current.label}
+        {copy.discuss.nowDiscussing(position.toLowerCase(), current.label)}
       </p>
       <GroupDetails
         group={current}
@@ -47,7 +51,7 @@ export function DiscussPanel({ room }: { room: RoomState }) {
             disabled={!live || current.index === 0}
             onClick={() => store.prev(current.index)}
           >
-            Previous
+            {copy.discuss.previous}
           </button>
           <button
             type="button"
@@ -55,7 +59,7 @@ export function DiscussPanel({ room }: { room: RoomState }) {
             disabled={!live}
             onClick={() => store.skip(current.index)}
           >
-            Skip
+            {copy.discuss.skip}
           </button>
           <button
             type="button"
@@ -63,12 +67,12 @@ export function DiscussPanel({ room }: { room: RoomState }) {
             disabled={!live || isLast}
             onClick={() => store.next(current.index)}
           >
-            Next topic
+            {copy.discuss.next}
           </button>
-          {isLast && <p class={styles.navHint}>Last topic. Finish the retro when you're ready.</p>}
+          {isLast && <p class={styles.navHint}>{copy.discuss.lastTopic}</p>}
         </div>
       ) : (
-        <p class={styles.follow}>The facilitator moves everyone to the next topic.</p>
+        <p class={styles.follow}>{copy.discuss.follow}</p>
       )}
       <div class={styles.lists} key={group.id}>
         <CommentList

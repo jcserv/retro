@@ -2,6 +2,7 @@ import type { ComponentChildren } from "preact";
 import { useEffect, useId, useRef, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { TimerState } from "../../shared/protocol";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./Timer.module.css";
 
@@ -21,12 +22,12 @@ export function TimerControls({ timer, up }: TimerControlsProps) {
   return (
     <span class={styles.controls}>
       {timer.kind === "paused" ? (
-        <IconButton label="Resume timer" disabled={disabled} onClick={store.resumeTimer}>
+        <IconButton label={copy.timer.resume} disabled={disabled} onClick={store.resumeTimer}>
           <path d="M5 3.5v9l7-4.5z" fill="currentColor" />
         </IconButton>
       ) : (
         !up && (
-          <IconButton label="Pause timer" disabled={disabled} onClick={store.pauseTimer}>
+          <IconButton label={copy.timer.pause} disabled={disabled} onClick={store.pauseTimer}>
             <path d="M5.5 3.5v9M10.5 3.5v9" stroke="currentColor" stroke-width="2" />
           </IconButton>
         )
@@ -36,11 +37,11 @@ export function TimerControls({ timer, up }: TimerControlsProps) {
         class="btn btn-ghost btn-sm"
         disabled={disabled}
         onClick={store.addTimerMinute}
-        aria-label="Add one minute"
+        aria-label={copy.timer.addMinuteLabel}
       >
-        +1 min
+        {copy.timer.addMinute}
       </button>
-      <IconButton label="Clear timer" disabled={disabled} onClick={store.clearTimer}>
+      <IconButton label={copy.timer.clear} disabled={disabled} onClick={store.clearTimer}>
         <path
           d="M4.5 4.5l7 7M11.5 4.5l-7 7"
           stroke="currentColor"
@@ -126,7 +127,7 @@ function SetTimerMenu({ disabled }: { disabled: boolean }) {
         onClick={() => setOpen((value) => !value)}
       >
         <ClockIcon />
-        Timer
+        {copy.timer.menu}
       </button>
       {open && (
         <div class={`card ${styles.menu}`} id={menuId}>
@@ -140,7 +141,7 @@ function SetTimerMenu({ disabled }: { disabled: boolean }) {
                 disabled={disabled}
                 onClick={() => start(value)}
               >
-                {value} min
+                {copy.timer.preset(value)}
               </button>
             ))}
           </div>
@@ -152,7 +153,7 @@ function SetTimerMenu({ disabled }: { disabled: boolean }) {
             }}
           >
             <label class={styles.customLabel} for={inputId}>
-              Custom minutes
+              {copy.timer.customLabel}
             </label>
             <div class={styles.customRow}>
               <input
@@ -163,7 +164,7 @@ function SetTimerMenu({ disabled }: { disabled: boolean }) {
                 min={MIN_MINUTES}
                 max={MAX_MINUTES}
                 step={1}
-                placeholder={`${MIN_MINUTES}–${MAX_MINUTES}`}
+                placeholder={copy.timer.customPlaceholder(MIN_MINUTES, MAX_MINUTES)}
                 value={minutes}
                 onInput={(event) => setMinutes(event.currentTarget.value)}
               />
@@ -172,7 +173,7 @@ function SetTimerMenu({ disabled }: { disabled: boolean }) {
                 class="btn btn-primary btn-sm"
                 disabled={disabled || !customValid}
               >
-                Start
+                {copy.timer.start}
               </button>
             </div>
           </form>
