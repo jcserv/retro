@@ -1,0 +1,1006 @@
+{
+  "categories": [
+    {
+      "id": "c1",
+      "title": "What went well?"
+    },
+    {
+      "id": "c2",
+      "title": "What went less well?"
+    },
+    {
+      "id": "c3",
+      "title": "What do we want to try next?"
+    },
+    {
+      "id": "c4",
+      "title": "What puzzles us?"
+    },
+    {
+      "id": "c5",
+      "title": "Shoutouts"
+    }
+  ],
+  "ungroupedItems": [
+    {
+      "id": 1,
+      "category": "c2",
+      "text": "Status meetings was painful again and slowed everyone down"
+    },
+    {
+      "id": 2,
+      "category": "c4",
+      "text": "Not sure who decides how build times should work"
+    },
+    {
+      "id": 3,
+      "category": "c2",
+      "text": "Frustrated by the test pipeline, it blocked my work twice this week"
+    },
+    {
+      "id": 4,
+      "category": "c2",
+      "text": "Local setup was painful again and slowed everyone down"
+    },
+    {
+      "id": 5,
+      "category": "c1",
+      "text": "Large PRs felt really smooth this sprint"
+    },
+    {
+      "id": 6,
+      "category": "c3",
+      "text": "Let's set a clear owner for the release train"
+    },
+    {
+      "id": 7,
+      "category": "c4",
+      "text": "Why is incident response so different between teams?"
+    },
+    {
+      "id": 8,
+      "category": "c1",
+      "text": "Big improvement in the runbooks compared to last month"
+    },
+    {
+      "id": 9,
+      "category": "c3",
+      "text": "Let's set a clear owner for review comments"
+    },
+    {
+      "id": 10,
+      "category": "c3",
+      "text": "Track a simple metric for design handoff and review it next retro"
+    },
+    {
+      "id": 11,
+      "category": "c2",
+      "text": "Local setup keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 12,
+      "category": "c3",
+      "text": "Write down a checklist for knowledge sharing so it is repeatable"
+    },
+    {
+      "id": 13,
+      "category": "c4",
+      "text": "Is code review actually worth the time we spend on it?"
+    },
+    {
+      "id": 14,
+      "category": "c2",
+      "text": "The wiki keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 15,
+      "category": "c5",
+      "text": "Shoutout to Aisha for patiently explaining integration tests to new folks"
+    },
+    {
+      "id": 16,
+      "category": "c4",
+      "text": "How did status meetings get this complicated?"
+    },
+    {
+      "id": 17,
+      "category": "c5",
+      "text": "Jun saved the week by sorting out integration tests"
+    },
+    {
+      "id": 18,
+      "category": "c2",
+      "text": "Frustrated by architecture notes, it blocked my work twice this week"
+    },
+    {
+      "id": 19,
+      "category": "c4",
+      "text": "Is CI actually worth the time we spend on it?"
+    },
+    {
+      "id": 20,
+      "category": "c3",
+      "text": "Write down a checklist for CI so it is repeatable"
+    },
+    {
+      "id": 21,
+      "category": "c3",
+      "text": "Experiment with a lighter process for knowledge sharing"
+    },
+    {
+      "id": 22,
+      "category": "c2",
+      "text": "Lost most of a day to problems with knowledge sharing"
+    },
+    {
+      "id": 23,
+      "category": "c1",
+      "text": "Loved how the release train worked out for the team this time"
+    },
+    {
+      "id": 24,
+      "category": "c4",
+      "text": "How did the roadmap get this complicated?"
+    },
+    {
+      "id": 25,
+      "category": "c1",
+      "text": "Loved how ticket grooming worked out for the team this time"
+    },
+    {
+      "id": 26,
+      "category": "c4",
+      "text": "How did preview environments get this complicated?"
+    },
+    {
+      "id": 27,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on estimates"
+    },
+    {
+      "id": 28,
+      "category": "c1",
+      "text": "PR turnaround felt really smooth this sprint"
+    },
+    {
+      "id": 29,
+      "category": "c4",
+      "text": "Is daily check-ins actually worth the time we spend on it?"
+    },
+    {
+      "id": 30,
+      "category": "c1",
+      "text": "Really happy with preview environments after the changes we made"
+    },
+    {
+      "id": 31,
+      "category": "c2",
+      "text": "We said we would fix the standup format last retro and did not"
+    },
+    {
+      "id": 32,
+      "category": "c3",
+      "text": "Track a simple metric for rollouts and review it next retro"
+    },
+    {
+      "id": 33,
+      "category": "c2",
+      "text": "Frustrated by sprint planning, it blocked my work twice this week"
+    },
+    {
+      "id": 34,
+      "category": "c2",
+      "text": "Lost most of a day to problems with code review"
+    },
+    {
+      "id": 35,
+      "category": "c1",
+      "text": "Architecture notes felt really smooth this sprint"
+    },
+    {
+      "id": 36,
+      "category": "c1",
+      "text": "The standup format felt really smooth this sprint"
+    },
+    {
+      "id": 37,
+      "category": "c3",
+      "text": "Track a simple metric for the flaky e2e suite and review it next retro"
+    },
+    {
+      "id": 38,
+      "category": "c1",
+      "text": "Really happy with alert noise after the changes we made"
+    },
+    {
+      "id": 39,
+      "category": "c2",
+      "text": "The flaky e2e suite was painful again and slowed everyone down"
+    },
+    {
+      "id": 40,
+      "category": "c2",
+      "text": "Lost most of a day to problems with incident response"
+    },
+    {
+      "id": 41,
+      "category": "c1",
+      "text": "Big improvement in preview environments compared to last month"
+    },
+    {
+      "id": 42,
+      "category": "c3",
+      "text": "Write down a checklist for the deploy pipeline so it is repeatable"
+    },
+    {
+      "id": 43,
+      "category": "c4",
+      "text": "Is the runbooks actually worth the time we spend on it?"
+    },
+    {
+      "id": 44,
+      "category": "c2",
+      "text": "We said we would fix large PRs last retro and did not"
+    },
+    {
+      "id": 45,
+      "category": "c2",
+      "text": "Lost most of a day to problems with large PRs"
+    },
+    {
+      "id": 46,
+      "category": "c4",
+      "text": "How did PR turnaround get this complicated?"
+    },
+    {
+      "id": 47,
+      "category": "c3",
+      "text": "Experiment with a lighter process for shipping to prod"
+    },
+    {
+      "id": 48,
+      "category": "c1",
+      "text": "UX reviews was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 49,
+      "category": "c5",
+      "text": "Huge thanks to Marco for jumping in on documentation"
+    },
+    {
+      "id": 50,
+      "category": "c2",
+      "text": "Lost most of a day to problems with review comments"
+    },
+    {
+      "id": 51,
+      "category": "c3",
+      "text": "Experiment with a lighter process for design handoff"
+    },
+    {
+      "id": 52,
+      "category": "c2",
+      "text": "Frustrated by CI, it blocked my work twice this week"
+    },
+    {
+      "id": 53,
+      "category": "c4",
+      "text": "How did mob sessions get this complicated?"
+    },
+    {
+      "id": 54,
+      "category": "c2",
+      "text": "Frustrated by the roadmap, it blocked my work twice this week"
+    },
+    {
+      "id": 55,
+      "category": "c5",
+      "text": "Huge thanks to Priya for jumping in on our morning sync"
+    },
+    {
+      "id": 56,
+      "category": "c1",
+      "text": "Really happy with mob sessions after the changes we made"
+    },
+    {
+      "id": 57,
+      "category": "c5",
+      "text": "Hana saved the week by sorting out the onboarding docs"
+    },
+    {
+      "id": 58,
+      "category": "c1",
+      "text": "Really happy with deploys after the changes we made"
+    },
+    {
+      "id": 59,
+      "category": "c5",
+      "text": "Huge thanks to Priya for jumping in on estimates"
+    },
+    {
+      "id": 60,
+      "category": "c2",
+      "text": "Lost most of a day to problems with the runbooks"
+    },
+    {
+      "id": 61,
+      "category": "c2",
+      "text": "Lost most of a day to problems with local setup"
+    },
+    {
+      "id": 62,
+      "category": "c5",
+      "text": "Omar saved the week by sorting out the wiki"
+    },
+    {
+      "id": 63,
+      "category": "c4",
+      "text": "Why is local setup so different between teams?"
+    },
+    {
+      "id": 64,
+      "category": "c1",
+      "text": "The staging environment was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 65,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on our morning sync"
+    },
+    {
+      "id": 66,
+      "category": "c3",
+      "text": "Let's set a clear owner for integration tests"
+    },
+    {
+      "id": 67,
+      "category": "c3",
+      "text": "Experiment with a lighter process for seed scripts"
+    },
+    {
+      "id": 68,
+      "category": "c5",
+      "text": "Huge thanks to Lena for jumping in on the release train"
+    },
+    {
+      "id": 69,
+      "category": "c1",
+      "text": "Integration tests was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 70,
+      "category": "c1",
+      "text": "Loved how the test pipeline worked out for the team this time"
+    },
+    {
+      "id": 71,
+      "category": "c5",
+      "text": "Huge thanks to Ivan for jumping in on the component library"
+    },
+    {
+      "id": 72,
+      "category": "c2",
+      "text": "Frustrated by seed scripts, it blocked my work twice this week"
+    },
+    {
+      "id": 73,
+      "category": "c5",
+      "text": "Tom saved the week by sorting out preview environments"
+    },
+    {
+      "id": 74,
+      "category": "c4",
+      "text": "Not sure who decides how status meetings should work"
+    },
+    {
+      "id": 75,
+      "category": "c2",
+      "text": "Frustrated by the flaky e2e suite, it blocked my work twice this week"
+    },
+    {
+      "id": 76,
+      "category": "c2",
+      "text": "Lost most of a day to problems with on-call"
+    },
+    {
+      "id": 77,
+      "category": "c3",
+      "text": "Write down a checklist for the onboarding docs so it is repeatable"
+    },
+    {
+      "id": 78,
+      "category": "c5",
+      "text": "Shoutout to Diego for patiently explaining code review to new folks"
+    },
+    {
+      "id": 79,
+      "category": "c1",
+      "text": "PR turnaround was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 80,
+      "category": "c2",
+      "text": "Estimates keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 81,
+      "category": "c1",
+      "text": "Loved how documentation worked out for the team this time"
+    },
+    {
+      "id": 82,
+      "category": "c2",
+      "text": "Rollouts keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 83,
+      "category": "c3",
+      "text": "Let's set a clear owner for the staging environment"
+    },
+    {
+      "id": 84,
+      "category": "c5",
+      "text": "Shoutout to Lena for patiently explaining CI to new folks"
+    },
+    {
+      "id": 85,
+      "category": "c1",
+      "text": "Big improvement in daily check-ins compared to last month"
+    },
+    {
+      "id": 86,
+      "category": "c5",
+      "text": "Jun saved the week by sorting out design QA"
+    },
+    {
+      "id": 87,
+      "category": "c1",
+      "text": "The release train was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 88,
+      "category": "c2",
+      "text": "Deploys keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 89,
+      "category": "c3",
+      "text": "Write down a checklist for code review so it is repeatable"
+    },
+    {
+      "id": 90,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on the deploy pipeline"
+    },
+    {
+      "id": 91,
+      "category": "c5",
+      "text": "Huge thanks to Tom for jumping in on on-call"
+    },
+    {
+      "id": 92,
+      "category": "c5",
+      "text": "Huge thanks to Lena for jumping in on the runbooks"
+    },
+    {
+      "id": 93,
+      "category": "c2",
+      "text": "Daily check-ins keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 94,
+      "category": "c5",
+      "text": "Huge thanks to Ivan for jumping in on deploys"
+    },
+    {
+      "id": 95,
+      "category": "c2",
+      "text": "Frustrated by large PRs, it blocked my work twice this week"
+    },
+    {
+      "id": 96,
+      "category": "c5",
+      "text": "Diego saved the week by sorting out the test pipeline"
+    },
+    {
+      "id": 97,
+      "category": "c3",
+      "text": "Write down a checklist for ticket grooming so it is repeatable"
+    },
+    {
+      "id": 98,
+      "category": "c3",
+      "text": "Write down a checklist for status meetings so it is repeatable"
+    },
+    {
+      "id": 99,
+      "category": "c4",
+      "text": "Is deploys actually worth the time we spend on it?"
+    },
+    {
+      "id": 100,
+      "category": "c1",
+      "text": "Really happy with the test pipeline after the changes we made"
+    },
+    {
+      "id": 101,
+      "category": "c5",
+      "text": "Lena saved the week by sorting out the Figma specs"
+    },
+    {
+      "id": 102,
+      "category": "c1",
+      "text": "Loved how our morning sync worked out for the team this time"
+    },
+    {
+      "id": 103,
+      "category": "c1",
+      "text": "Really happy with API docs after the changes we made"
+    },
+    {
+      "id": 104,
+      "category": "c2",
+      "text": "Pages overnight keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 105,
+      "category": "c1",
+      "text": "Sprint planning was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 106,
+      "category": "c2",
+      "text": "We said we would fix PR turnaround last retro and did not"
+    },
+    {
+      "id": 107,
+      "category": "c1",
+      "text": "The flaky e2e suite was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 108,
+      "category": "c1",
+      "text": "Loved how shipping to prod worked out for the team this time"
+    },
+    {
+      "id": 109,
+      "category": "c2",
+      "text": "Lost most of a day to problems with the component library"
+    },
+    {
+      "id": 110,
+      "category": "c5",
+      "text": "Shoutout to Ivan for patiently explaining design QA to new folks"
+    },
+    {
+      "id": 111,
+      "category": "c5",
+      "text": "Omar saved the week by sorting out daily check-ins"
+    },
+    {
+      "id": 112,
+      "category": "c3",
+      "text": "Experiment with a lighter process for the deploy pipeline"
+    },
+    {
+      "id": 113,
+      "category": "c3",
+      "text": "Track a simple metric for test data in staging and review it next retro"
+    },
+    {
+      "id": 114,
+      "category": "c1",
+      "text": "Daily check-ins felt really smooth this sprint"
+    },
+    {
+      "id": 115,
+      "category": "c4",
+      "text": "Not sure who decides how the staging environment should work"
+    },
+    {
+      "id": 116,
+      "category": "c2",
+      "text": "Waiting on approvals keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 117,
+      "category": "c2",
+      "text": "We said we would fix integration tests last retro and did not"
+    },
+    {
+      "id": 118,
+      "category": "c3",
+      "text": "Write down a checklist for the test pipeline so it is repeatable"
+    },
+    {
+      "id": 119,
+      "category": "c4",
+      "text": "Why is PR turnaround so different between teams?"
+    },
+    {
+      "id": 120,
+      "category": "c3",
+      "text": "Experiment with a lighter process for shadowing"
+    },
+    {
+      "id": 121,
+      "category": "c2",
+      "text": "We said we would fix on-call last retro and did not"
+    },
+    {
+      "id": 122,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on integration tests"
+    },
+    {
+      "id": 123,
+      "category": "c2",
+      "text": "We said we would fix the runbooks last retro and did not"
+    },
+    {
+      "id": 124,
+      "category": "c1",
+      "text": "Loved how rollouts worked out for the team this time"
+    },
+    {
+      "id": 125,
+      "category": "c1",
+      "text": "Loved how waiting on approvals worked out for the team this time"
+    },
+    {
+      "id": 126,
+      "category": "c2",
+      "text": "Frustrated by shadowing, it blocked my work twice this week"
+    },
+    {
+      "id": 127,
+      "category": "c5",
+      "text": "Shoutout to Marco for patiently explaining test data in staging to new folks"
+    },
+    {
+      "id": 128,
+      "category": "c5",
+      "text": "Shoutout to Marco for patiently explaining shipping to prod to new folks"
+    },
+    {
+      "id": 129,
+      "category": "c4",
+      "text": "How did knowledge sharing get this complicated?"
+    },
+    {
+      "id": 130,
+      "category": "c5",
+      "text": "Marco saved the week by sorting out code review"
+    },
+    {
+      "id": 131,
+      "category": "c1",
+      "text": "Loved how preview environments worked out for the team this time"
+    },
+    {
+      "id": 132,
+      "category": "c3",
+      "text": "Let's set a clear owner for preview environments"
+    },
+    {
+      "id": 133,
+      "category": "c1",
+      "text": "Shadowing was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 134,
+      "category": "c3",
+      "text": "Experiment with a lighter process for scope changes mid-sprint"
+    },
+    {
+      "id": 135,
+      "category": "c4",
+      "text": "Not sure who decides how the flaky e2e suite should work"
+    },
+    {
+      "id": 136,
+      "category": "c2",
+      "text": "Frustrated by documentation, it blocked my work twice this week"
+    },
+    {
+      "id": 137,
+      "category": "c5",
+      "text": "Shoutout to Sofia for patiently explaining design handoff to new folks"
+    },
+    {
+      "id": 138,
+      "category": "c4",
+      "text": "Not sure who decides how shipping to prod should work"
+    },
+    {
+      "id": 139,
+      "category": "c4",
+      "text": "Why is pages overnight so different between teams?"
+    },
+    {
+      "id": 140,
+      "category": "c2",
+      "text": "The onboarding docs keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 141,
+      "category": "c5",
+      "text": "Tom saved the week by sorting out ticket grooming"
+    },
+    {
+      "id": 142,
+      "category": "c3",
+      "text": "Experiment with a lighter process for rollouts"
+    },
+    {
+      "id": 143,
+      "category": "c4",
+      "text": "Not sure who decides how incident response should work"
+    },
+    {
+      "id": 144,
+      "category": "c1",
+      "text": "Loved how shadowing worked out for the team this time"
+    },
+    {
+      "id": 145,
+      "category": "c2",
+      "text": "Lost most of a day to problems with sprint planning"
+    },
+    {
+      "id": 146,
+      "category": "c1",
+      "text": "Large PRs was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 147,
+      "category": "c2",
+      "text": "Frustrated by the wiki, it blocked my work twice this week"
+    },
+    {
+      "id": 148,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on code review"
+    },
+    {
+      "id": 149,
+      "category": "c4",
+      "text": "How did code review get this complicated?"
+    },
+    {
+      "id": 150,
+      "category": "c2",
+      "text": "Frustrated by test data in staging, it blocked my work twice this week"
+    },
+    {
+      "id": 151,
+      "category": "c5",
+      "text": "Grace saved the week by sorting out the standup format"
+    },
+    {
+      "id": 152,
+      "category": "c2",
+      "text": "Shadowing keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 153,
+      "category": "c1",
+      "text": "Really happy with the roadmap after the changes we made"
+    },
+    {
+      "id": 154,
+      "category": "c1",
+      "text": "Ticket grooming was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 155,
+      "category": "c2",
+      "text": "Lost most of a day to problems with the flaky e2e suite"
+    },
+    {
+      "id": 156,
+      "category": "c2",
+      "text": "The test pipeline was painful again and slowed everyone down"
+    },
+    {
+      "id": 157,
+      "category": "c4",
+      "text": "Why is the release train so different between teams?"
+    },
+    {
+      "id": 158,
+      "category": "c5",
+      "text": "Lena saved the week by sorting out pages overnight"
+    },
+    {
+      "id": 159,
+      "category": "c2",
+      "text": "Sprint planning was painful again and slowed everyone down"
+    },
+    {
+      "id": 160,
+      "category": "c2",
+      "text": "Frustrated by the Figma specs, it blocked my work twice this week"
+    },
+    {
+      "id": 161,
+      "category": "c2",
+      "text": "Design handoff was painful again and slowed everyone down"
+    },
+    {
+      "id": 162,
+      "category": "c2",
+      "text": "Knowledge sharing keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 163,
+      "category": "c4",
+      "text": "Why is waiting on approvals so different between teams?"
+    },
+    {
+      "id": 164,
+      "category": "c2",
+      "text": "Scope changes mid-sprint was painful again and slowed everyone down"
+    },
+    {
+      "id": 165,
+      "category": "c1",
+      "text": "Loved how sprint planning worked out for the team this time"
+    },
+    {
+      "id": 166,
+      "category": "c3",
+      "text": "Experiment with a lighter process for the onboarding docs"
+    },
+    {
+      "id": 167,
+      "category": "c1",
+      "text": "The runbooks felt really smooth this sprint"
+    },
+    {
+      "id": 168,
+      "category": "c2",
+      "text": "Alert noise was painful again and slowed everyone down"
+    },
+    {
+      "id": 169,
+      "category": "c2",
+      "text": "Frustrated by our morning sync, it blocked my work twice this week"
+    },
+    {
+      "id": 170,
+      "category": "c5",
+      "text": "Huge thanks to Sofia for jumping in on the deploy pipeline"
+    },
+    {
+      "id": 171,
+      "category": "c1",
+      "text": "Big improvement in the deploy pipeline compared to last month"
+    },
+    {
+      "id": 172,
+      "category": "c5",
+      "text": "Huge thanks to Aisha for jumping in on documentation"
+    },
+    {
+      "id": 173,
+      "category": "c2",
+      "text": "Frustrated by the standup format, it blocked my work twice this week"
+    },
+    {
+      "id": 174,
+      "category": "c2",
+      "text": "Scope changes mid-sprint keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 175,
+      "category": "c1",
+      "text": "Loved how deploys worked out for the team this time"
+    },
+    {
+      "id": 176,
+      "category": "c2",
+      "text": "Lost most of a day to problems with integration tests"
+    },
+    {
+      "id": 177,
+      "category": "c2",
+      "text": "Incident response was painful again and slowed everyone down"
+    },
+    {
+      "id": 178,
+      "category": "c3",
+      "text": "Track a simple metric for review comments and review it next retro"
+    },
+    {
+      "id": 179,
+      "category": "c1",
+      "text": "The wiki felt really smooth this sprint"
+    },
+    {
+      "id": 180,
+      "category": "c2",
+      "text": "Lost most of a day to problems with shipping to prod"
+    },
+    {
+      "id": 181,
+      "category": "c1",
+      "text": "Loved how UX reviews worked out for the team this time"
+    },
+    {
+      "id": 182,
+      "category": "c2",
+      "text": "Design handoff keeps getting worse and nobody owns it"
+    },
+    {
+      "id": 183,
+      "category": "c3",
+      "text": "Write down a checklist for API docs so it is repeatable"
+    },
+    {
+      "id": 184,
+      "category": "c3",
+      "text": "Let's set a clear owner for design handoff"
+    },
+    {
+      "id": 185,
+      "category": "c4",
+      "text": "Why is status meetings so different between teams?"
+    },
+    {
+      "id": 186,
+      "category": "c4",
+      "text": "Not sure who decides how knowledge sharing should work"
+    },
+    {
+      "id": 187,
+      "category": "c1",
+      "text": "Our morning sync was fast and predictable, no surprises at all"
+    },
+    {
+      "id": 188,
+      "category": "c3",
+      "text": "Track a simple metric for the buddy system and review it next retro"
+    },
+    {
+      "id": 189,
+      "category": "c1",
+      "text": "Sprint planning felt really smooth this sprint"
+    },
+    {
+      "id": 190,
+      "category": "c3",
+      "text": "Experiment with a lighter process for code review"
+    }
+  ],
+  "groups": [
+    {
+      "id": "g1",
+      "category": "c2",
+      "title": "Flaky CI",
+      "items": [
+        "The flaky e2e suite failed on every third run",
+        "Build times are over 20 minutes now"
+      ]
+    },
+    {
+      "id": "g2",
+      "category": "c1",
+      "title": null,
+      "items": [
+        "Pairing on the payments bug was great",
+        "Mob session on Friday cleared the backlog"
+      ]
+    },
+    {
+      "id": "g3",
+      "category": "c2",
+      "title": null,
+      "items": [
+        "Pages overnight three times this week",
+        "Alert noise is drowning out real incidents",
+        "The runbooks are missing the new services"
+      ]
+    }
+  ]
+}

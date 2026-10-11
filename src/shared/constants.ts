@@ -38,3 +38,16 @@ export const CloseCode = {
   RoomFull: 4009,
   Expired: 4010,
 } as const;
+
+export const AI = {
+  model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  requestsPerRoom: 5,
+  cooldownMs: 30_000,
+  timeoutMs: 60_000,
+  maxItems: 200,
+  maxInputChars: 12_000,
+  maxItemChars: 120,
+  maxOutputTokens: 1200,
+  titleMax: 60,
+  dailyRequestCap: 20,
+} as const;

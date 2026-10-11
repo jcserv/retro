@@ -6,6 +6,7 @@ import { useRoomStore } from "../state/roomContext";
 import { Icon } from "./Icon";
 import styles from "./OwnerControls.module.css";
 import { READY_PHASES } from "./ReadyToggle";
+import { useTicker } from "./Timer";
 
 const VOTE_LIMIT_PHASES: readonly Phase[] = ["write", "group", "vote"];
 
@@ -28,6 +29,7 @@ export function OwnerControls() {
         </span>
       )}
       {VOTE_LIMIT_PHASES.includes(room.phase) && <VoteLimitStepper />}
+      {room.phase === "group" && <SuggestButton />}
       <AdvanceButton phase={room.phase} />
     </div>
   );
@@ -75,6 +77,44 @@ function VoteLimitStepper() {
         </button>
       </div>
     </fieldset>
+  );
+}
+
+function SuggestButton() {
+  const store = useRoomStore();
+  const [requesting, setRequesting] = useState(false);
+  const suggestions = store.room.value?.suggestions ?? null;
+  const now = store.serverNow();
+  const pending = (suggestions?.pendingUntil ?? 0) > now;
+  const cooldownMs = Math.max(0, (suggestions?.cooldownEndsAt ?? 0) - now);
+  useTicker(pending || cooldownMs > 0);
+  if (!suggestions?.enabled) return null;
+
+  const reason = pending
+    ? copy.suggestions.suggesting
+    : suggestions.runsLeft === 0
+      ? copy.suggestions.noneLeft
+      : cooldownMs > 0
+        ? copy.suggestions.suggestAgain(Math.ceil(cooldownMs / 1000))
+        : null;
+
+  async function suggest() {
+    setRequesting(true);
+    await store.suggestGroups();
+    setRequesting(false);
+  }
+
+  return (
+    <button
+      type="button"
+      class={`btn btn-subtle ${styles.suggest}`}
+      title={copy.suggestions.suggestTitle}
+      onClick={suggest}
+      disabled={requesting || reason !== null || !store.isLive.value}
+    >
+      {pending && <span class={`spinner ${styles.spinner}`} aria-hidden="true" />}
+      {reason ?? copy.suggestions.suggest}
+    </button>
   );
 }
 

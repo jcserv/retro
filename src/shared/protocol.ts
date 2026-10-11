@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LIMITS } from "./constants";
+import { AI, LIMITS } from "./constants";
 import { isEmoji, normalizeEmoji } from "./emoji";
 import { PHASES, type Phase } from "./phases";
 
@@ -62,6 +62,22 @@ export type DiscussState = {
   status: Record<string, DiscussStatus>;
 };
 
+export type SuggestionEntryView = {
+  index: number;
+  targetGroupId: string | null;
+  itemIds: string[];
+  title: string | null;
+  status: "pending" | "applied";
+};
+
+export type SuggestionsView = {
+  enabled: boolean;
+  pendingUntil: number | null;
+  runsLeft: number;
+  cooldownEndsAt: number | null;
+  set: { id: string; entries: SuggestionEntryView[] } | null;
+};
+
 export type RoomSnapshot = {
   code: string;
   createdAt: number;
@@ -82,6 +98,7 @@ export type RoomSnapshot = {
   discuss: DiscussState | null;
   comments: CommentView[];
   actions: ActionView[];
+  suggestions: SuggestionsView | null;
 };
 
 const REQ_ID_MAX = 36;
@@ -147,6 +164,11 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
   intent("prev", { fromIndex: index }),
   intent("goTo", { fromIndex: index, toIndex: index }),
   intent("skip", { fromIndex: index }),
+  intent("suggestGroups", {}),
+  intent("applySuggestions", {
+    setId: id,
+    indexes: z.array(index).min(1).max(AI.maxItems),
+  }),
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;
@@ -163,7 +185,15 @@ export type ErrorCode =
   | "vote_limit"
   | "reaction_limit"
   | "stale"
-  | "rate_limited";
+  | "rate_limited"
+  | "suggest_busy"
+  | "suggest_room_limit"
+  | "suggest_rate_limited"
+  | "suggest_daily_limit"
+  | "suggest_too_large"
+  | "suggest_ineligible"
+  | "suggest_failed"
+  | "suggest_unavailable";
 
 export type ServerMessage =
   | { type: "snapshot"; room: RoomSnapshot }
@@ -183,7 +213,8 @@ export type ServerMessage =
   | { type: "commentUpserted"; comment: CommentView }
   | { type: "commentRemoved"; commentId: string }
   | { type: "actionUpserted"; action: ActionView }
-  | { type: "actionRemoved"; actionId: string };
+  | { type: "actionRemoved"; actionId: string }
+  | { type: "suggestions"; suggestions: SuggestionsView };
 
 export type ServerMessageType = ServerMessage["type"];
 

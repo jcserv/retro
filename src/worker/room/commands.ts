@@ -2,8 +2,9 @@ import { DEFAULT_CATEGORIES, LIMITS, ROOM_TTL_MS } from "../../shared/constants"
 import { type ClientMessage, type ErrorCode, PHASES, type Phase } from "../../shared/protocol";
 import { discussOrder } from "./discussOrder";
 import type { Item, Room, RoomStore } from "./store";
+import { applySuggestionEntries } from "./suggestions";
 
-export type ClientIntent = Exclude<ClientMessage, { type: "hello" }>;
+export type ClientIntent = Exclude<ClientMessage, { type: "hello" | "suggestGroups" }>;
 type IntentType = ClientIntent["type"];
 type IntentOf<K extends IntentType> = Extract<ClientIntent, { type: K }>;
 
@@ -25,7 +26,8 @@ export type Change =
   | { kind: "commentUpserted"; commentId: string }
   | { kind: "commentRemoved"; commentId: string }
   | { kind: "actionUpserted"; actionId: string }
-  | { kind: "actionRemoved"; actionId: string };
+  | { kind: "actionRemoved"; actionId: string }
+  | { kind: "suggestionsChanged" };
 
 export type CommandResult =
   | { ok: true; changes: Change[] }
@@ -38,6 +40,7 @@ type Rule = { ownerOnly: boolean; phases: readonly Phase[] };
 type Handler<K extends IntentType> = (ctx: Context, intent: IntentOf<K>) => CommandResult;
 
 const TIMER_MINUTE_MS = 60_000;
+const STALE_SUGGESTIONS = "Those suggestions are out of date";
 const ACTIVE_PHASES: readonly Phase[] = ["write", "group", "vote", "discuss"];
 
 const RULES: { [K in IntentType]: Rule } = {
@@ -71,6 +74,7 @@ const RULES: { [K in IntentType]: Rule } = {
   prev: { ownerOnly: true, phases: ["discuss"] },
   goTo: { ownerOnly: true, phases: ["discuss"] },
   skip: { ownerOnly: true, phases: ["discuss"] },
+  applySuggestions: { ownerOnly: true, phases: ["group"] },
 };
 
 const ok = (...changes: Change[]): CommandResult => ({ ok: true, changes });
@@ -372,6 +376,7 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
         break;
       case "group":
         store.resetAllReady();
+        store.clearSuggestions();
         store.setPhase("vote");
         break;
       case "vote":
@@ -444,9 +449,20 @@ const HANDLERS: { [K in IntentType]: Handler<K> } = {
     if (room.discussIndex + 1 < count) arriveAt(store, room.discussIndex + 1);
     return ok({ kind: "discussCursorChanged" });
   },
+
+  applySuggestions({ store, room }, { setId, indexes }) {
+    if (room.suggestionSetId !== setId) return fail("stale", STALE_SUGGESTIONS);
+    const wanted = new Set(indexes);
+    const entries = store
+      .listSuggestions()
+      .filter((entry) => entry.status === "pending" && wanted.has(entry.index));
+    const { changes, stale } = applySuggestionEntries(store, entries);
+    if (stale.length === entries.length) return fail("stale", STALE_SUGGESTIONS);
+    return ok(...changes);
+  },
 };
 
-function removeGroupIfEmpty(store: RoomStore, groupId: string): Change {
+export function removeGroupIfEmpty(store: RoomStore, groupId: string): Change {
   if (store.countItemsInGroup(groupId) > 0) return { kind: "groupUpserted", groupId };
   store.deleteGroup(groupId);
   return { kind: "groupRemoved", groupId };

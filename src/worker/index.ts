@@ -3,6 +3,7 @@ import { CloseCode } from "../shared/constants";
 import { generateRoomCode, isValidRoomCode } from "../shared/roomCode";
 import { closedSocketResponse } from "./closedSocket";
 
+export { AiBudget } from "./ai/AiBudget";
 export { RoomDurableObject } from "./room/RoomDurableObject";
 
 const CREATE_ATTEMPTS = 5;

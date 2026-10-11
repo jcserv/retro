@@ -73,6 +73,8 @@ export type RoomStore = {
   prev(fromIndex: number): Promise<IntentResult>;
   goTo(fromIndex: number, toIndex: number): Promise<IntentResult>;
   skip(fromIndex: number): Promise<IntentResult>;
+  suggestGroups(): Promise<IntentResult>;
+  applySuggestions(setId: string, indexes: number[]): Promise<IntentResult>;
 };
 
 const OK: IntentResult = { ok: true };
@@ -201,5 +203,7 @@ export function createRoomStore(options: RoomStoreOptions): RoomStore {
     prev: (fromIndex) => send({ type: "prev", fromIndex }),
     goTo: (fromIndex, toIndex) => send({ type: "goTo", fromIndex, toIndex }),
     skip: (fromIndex) => send({ type: "skip", fromIndex }),
+    suggestGroups: () => send({ type: "suggestGroups" }),
+    applySuggestions: (setId, indexes) => send({ type: "applySuggestions", setId, indexes }),
   };
 }

@@ -18,6 +18,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --port ${port} --strictPort`,
     url: baseURL,
+    env: { AI_SUGGESTIONS: "fake", E2E: "1" },
     reuseExistingServer: !process.env.CI,
   },
 });

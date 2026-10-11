@@ -23,6 +23,7 @@ export function makeSnapshot(overrides: Partial<RoomSnapshot> = {}): RoomSnapsho
     discuss: null,
     comments: [],
     actions: [],
+    suggestions: null,
     ...overrides,
   };
 }

@@ -1,38 +1,54 @@
 import { DurableObject } from "cloudflare:workers";
-import { CloseCode } from "../../shared/constants";
+import { AI, CloseCode } from "../../shared/constants";
 import {
   type ClientMessage,
   type ErrorCode,
   parseClientMessage,
   type ServerMessage,
 } from "../../shared/protocol";
+import { utcDay } from "../ai/AiBudget";
+import { runWithTimeout, type Suggester, suggesterFor } from "../ai/suggester";
 import { closedSocketResponse } from "../closedSocket";
 import { actorFor, type Change, createRoom, handle, joinRoom } from "./commands";
 import { SocketRateLimiter } from "./rateLimit";
 import { migrate } from "./schema";
 import { RoomStore } from "./store";
+import { completeSuggestion, prepareSuggestion } from "./suggestions";
 import { project, snapshot, type ViewContext } from "./views";
 
 export type InitResult = "created" | "exists";
 
-type Attachment = { clientId: string | null };
+type Attachment = { clientId: string | null; ip: string };
 
 const MAX_FRAME_CHARS = 8 * 1024;
 
-const ERROR_MESSAGES: Record<"invalid_message" | "too_long" | "empty" | "rate_limited", string> = {
+const ERROR_MESSAGES = {
   invalid_message: "Invalid message",
   too_long: "Text is too long",
   empty: "Text is empty",
   rate_limited: "Too many messages, slow down",
-};
+  not_found: "Room not found",
+  forbidden: "Only the owner can do that",
+  wrong_phase: "Suggestions are only available while grouping",
+  suggest_busy: "Wait a moment before asking for suggestions again",
+  suggest_room_limit: "This room has used all of its AI suggestions",
+  suggest_rate_limited: "Too many suggestion requests, try again in a minute",
+  suggest_daily_limit: "AI suggestions are used up for today",
+  suggest_too_large: "Too many items for suggestions",
+  suggest_ineligible: "Nothing left to group",
+  suggest_failed: "Couldn't get suggestions, try again",
+  suggest_unavailable: "AI suggestions are not available",
+} satisfies Partial<Record<ErrorCode, string>>;
 
 export class RoomDurableObject extends DurableObject<Env> {
   readonly #store: RoomStore;
   readonly #limiters = new Map<WebSocket, SocketRateLimiter>();
+  readonly #suggester: Suggester | null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.#store = new RoomStore(ctx.storage);
+    this.#suggester = suggesterFor(env);
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong"));
     void ctx.blockConcurrencyWhile(async () => migrate(ctx.storage.sql));
   }
@@ -50,12 +66,13 @@ export class RoomDurableObject extends DurableObject<Env> {
     return this.#isLive(Date.now());
   }
 
-  override async fetch(_request: Request): Promise<Response> {
+  override async fetch(request: Request): Promise<Response> {
     if (!this.#isLive(Date.now()))
       return closedSocketResponse(CloseCode.NotFound, "Room not found");
     const { 0: client, 1: server } = new WebSocketPair();
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ clientId: null } satisfies Attachment);
+    const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+    server.serializeAttachment({ clientId: null, ip } satisfies Attachment);
     return new Response(null, { status: 101, webSocket: client });
   }
 
@@ -97,6 +114,10 @@ export class RoomDurableObject extends DurableObject<Env> {
       this.#sendError(ws, "invalid_message", "Already said hello", message.reqId);
       return;
     }
+    if (message.type === "suggestGroups") {
+      await this.#suggest(ws, clientId, message.reqId, now);
+      return;
+    }
     const result = handle(this.#store, actorFor(this.#store, clientId), message, now);
     if (!result.ok) {
       this.#sendError(ws, result.code, result.message, message.reqId);
@@ -125,11 +146,64 @@ export class RoomDurableObject extends DurableObject<Env> {
       this.#close(ws, CloseCode.RoomFull, "Room is full");
       return;
     }
-    ws.serializeAttachment({ clientId: message.clientId } satisfies Attachment);
+    ws.serializeAttachment({ clientId: message.clientId, ip: this.#ipOf(ws) } satisfies Attachment);
     const viewer = actorFor(this.#store, message.clientId);
     send(ws, { type: "snapshot", room: snapshot(this.#store, viewer, this.#viewContext(now)) });
     this.#broadcast(joined.changes, now);
     if (message.reqId !== undefined) send(ws, { type: "ack", reqId: message.reqId });
+  }
+
+  async #suggest(
+    ws: WebSocket,
+    clientId: string,
+    reqId: string | undefined,
+    now: number,
+  ): Promise<void> {
+    const suggester = this.#suggester;
+    const actor = actorFor(this.#store, clientId);
+    const prepared = prepareSuggestion(this.#store, actor, now, suggester !== null);
+    if (!prepared.ok || !suggester) {
+      const code = prepared.ok ? "suggest_unavailable" : prepared.code;
+      this.#sendError(ws, code, messageFor(code), reqId);
+      return;
+    }
+
+    const denied = await this.#spendBudget(this.#ipOf(ws), now);
+    if (denied) {
+      this.#store.clearAiPending(now);
+      this.#sendError(ws, denied, ERROR_MESSAGES[denied], reqId);
+      return;
+    }
+    this.#store.recordAiRun(now);
+    if (reqId !== undefined) send(ws, { type: "ack", reqId });
+    this.#broadcast([{ kind: "suggestionsChanged" }], now);
+
+    const output = await runWithTimeout(suggester, prepared.input, now + AI.timeoutMs - Date.now());
+    const done = completeSuggestion(this.#store, prepared.idMap, output, crypto.randomUUID(), now);
+    const finishedAt = Date.now();
+    this.#broadcast([{ kind: "suggestionsChanged" }], finishedAt);
+    if (!done.ok) {
+      for (const owner of this.#authenticatedSockets()) {
+        if (actorFor(this.#store, owner.clientId).isOwner) {
+          this.#sendError(owner.ws, done.code, ERROR_MESSAGES[done.code]);
+        }
+      }
+    }
+  }
+
+  async #spendBudget(
+    ip: string,
+    now: number,
+  ): Promise<"suggest_rate_limited" | "suggest_daily_limit" | "suggest_failed" | null> {
+    try {
+      const { success } = await this.env.AI_SUGGEST_LIMITER.limit({ key: ip });
+      if (!success) return "suggest_rate_limited";
+      const budget = this.env.AI_BUDGET.getByName("global");
+      if (!(await budget.reserve(utcDay(now), AI.dailyRequestCap))) return "suggest_daily_limit";
+      return null;
+    } catch {
+      return "suggest_failed";
+    }
   }
 
   #disconnected(ws: WebSocket): void {
@@ -163,6 +237,10 @@ export class RoomDurableObject extends DurableObject<Env> {
     return (ws.deserializeAttachment() as Attachment | null)?.clientId ?? null;
   }
 
+  #ipOf(ws: WebSocket): string {
+    return (ws.deserializeAttachment() as Partial<Attachment> | null)?.ip ?? "unknown";
+  }
+
   #authenticatedSockets(exclude?: WebSocket): Array<{ ws: WebSocket; clientId: string }> {
     const sockets: Array<{ ws: WebSocket; clientId: string }> = [];
     for (const ws of this.ctx.getWebSockets()) {
@@ -175,7 +253,7 @@ export class RoomDurableObject extends DurableObject<Env> {
 
   #viewContext(now: number, exclude?: WebSocket): ViewContext {
     const clientIds = this.#authenticatedSockets(exclude).map(({ clientId }) => clientId);
-    return { now, connectedClientIds: new Set(clientIds) };
+    return { now, connectedClientIds: new Set(clientIds), aiEnabled: this.#suggester !== null };
   }
 
   #broadcast(changes: readonly Change[], now: number, exclude?: WebSocket): void {
@@ -209,6 +287,10 @@ export class RoomDurableObject extends DurableObject<Env> {
 
 function send(ws: WebSocket, message: ServerMessage): void {
   ws.send(JSON.stringify(message));
+}
+
+function messageFor(code: ErrorCode): string {
+  return (ERROR_MESSAGES as Partial<Record<ErrorCode, string>>)[code] ?? "Request failed";
 }
 
 function reqIdOf(parsed: ReturnType<typeof parseClientMessage> | null): string | undefined {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { Board } from "../components/Board";
 import { GroupCard, GroupTitle } from "../components/GroupCard";
+import { SuggestionsPanel } from "../components/SuggestionsPanel";
 import { copy } from "../copy";
 import {
   type BoardColumn,
@@ -155,6 +156,7 @@ export function GroupPhase() {
           <span class={styles.hintCoarse}>{copy.group.hintCoarse}</span>
         </p>
       </div>
+      {room.isOwner && <SuggestionsPanel />}
       {room.items.length === 0 ? (
         <p class={styles.empty}>{copy.board.noItemsWritten}</p>
       ) : (

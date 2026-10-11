@@ -74,6 +74,23 @@ const MIGRATIONS: readonly string[] = [
     PRIMARY KEY (item_id, client_id, emoji)
   );
   `,
+  `
+  ALTER TABLE room ADD COLUMN ai_runs INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE room ADD COLUMN ai_last_run_at INTEGER;
+  ALTER TABLE room ADD COLUMN ai_pending_since INTEGER;
+  ALTER TABLE room ADD COLUMN suggestion_set_id TEXT;
+  CREATE TABLE suggestion_entries (
+    idx INTEGER PRIMARY KEY,
+    target_group_id TEXT,
+    title TEXT,
+    status TEXT NOT NULL
+  );
+  CREATE TABLE suggestion_items (
+    entry_idx INTEGER NOT NULL REFERENCES suggestion_entries(idx),
+    item_id TEXT NOT NULL,
+    PRIMARY KEY (entry_idx, item_id)
+  );
+  `,
 ];
 
 export function migrate(sql: SqlStorage): void {

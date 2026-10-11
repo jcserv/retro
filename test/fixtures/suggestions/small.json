@@ -1,0 +1,85 @@
+{
+  "categories": [
+    {
+      "id": "c1",
+      "title": "What went well?"
+    },
+    {
+      "id": "c2",
+      "title": "What went less well?"
+    },
+    {
+      "id": "c3",
+      "title": "What do we want to try next?"
+    },
+    {
+      "id": "c4",
+      "title": "What puzzles us?"
+    },
+    {
+      "id": "c5",
+      "title": "Shoutouts"
+    }
+  ],
+  "ungroupedItems": [
+    {
+      "id": 1,
+      "category": "c1",
+      "text": "Deploys went out every day without drama"
+    },
+    {
+      "id": 2,
+      "category": "c2",
+      "text": "Two deploys had to be rolled back on Thursday"
+    },
+    {
+      "id": 3,
+      "category": "c2",
+      "text": "Standup ran over 30 minutes most days"
+    },
+    {
+      "id": 4,
+      "category": "c3",
+      "text": "Timebox standup to 15 minutes"
+    },
+    {
+      "id": 5,
+      "category": "c2",
+      "text": "CI is flaky, reran the pipeline 4 times for one PR"
+    },
+    {
+      "id": 6,
+      "category": "c4",
+      "text": "Why do the e2e tests only fail on CI?"
+    },
+    {
+      "id": 7,
+      "category": "c5",
+      "text": "Thanks Priya for unblocking the billing migration"
+    },
+    {
+      "id": 8,
+      "category": "c3",
+      "text": "Try pairing on the gnarly reviews"
+    },
+    {
+      "id": 9,
+      "category": "c2",
+      "text": "Reviews sat for two days before anyone looked"
+    }
+  ],
+  "groups": [
+    {
+      "id": "g1",
+      "category": "c1",
+      "title": null,
+      "items": ["New dashboard shipped", "Customers loved the dashboard"]
+    },
+    {
+      "id": "g2",
+      "category": "c2",
+      "title": "On-call",
+      "items": ["Paged at 3am for a disk alert", "Runbook for the queue was out of date"]
+    }
+  ]
+}

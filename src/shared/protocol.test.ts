@@ -76,6 +76,8 @@ test.each([
   ["vote limit out of range", json({ type: "setVoteLimit", limit: LIMITS.voteLimitMax + 1 })],
   ["timer below minimum", json({ type: "setTimer", durationMs: LIMITS.timerMinMs - 1 })],
   ["fractional index", json({ type: "next", fromIndex: 1.5 })],
+  ["no suggestions to apply", json({ type: "applySuggestions", setId: "s", indexes: [] })],
+  ["negative suggestion index", json({ type: "applySuggestions", setId: "s", indexes: [-1] })],
   ["over-length reqId", json({ type: "pauseTimer", reqId: "r".repeat(37) })],
 ])("rejects %s as invalid_message", (_, raw) => {
   expect(parseClientMessage(raw)).toEqual({ ok: false, code: "invalid_message" });

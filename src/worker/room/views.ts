@@ -12,10 +12,15 @@ import type {
 } from "../../shared/protocol";
 import type { Change } from "./commands";
 import type { Action, Comment, Group, Item, Reaction, Room, RoomStore } from "./store";
+import { suggestionsView } from "./suggestions";
 
 export type Viewer = { clientId: string; isOwner: boolean };
 
-export type ViewContext = { now: number; connectedClientIds: ReadonlySet<string> };
+export type ViewContext = {
+  now: number;
+  connectedClientIds: ReadonlySet<string>;
+  aiEnabled: boolean;
+};
 
 const isRevealed = (phase: Phase): boolean => phase !== "write";
 const hasVotes = (phase: Phase): boolean =>
@@ -96,6 +101,9 @@ const actionView = (action: Action, viewer: Viewer): ActionView => ({
   updatedAt: action.updatedAt,
 });
 
+const seesSuggestions = (room: Room, viewer: Viewer): boolean =>
+  viewer.isOwner && room.phase === "group";
+
 function requireRoom(store: RoomStore): Room {
   const room = store.getRoom();
   if (!room) throw new Error("Room not initialized");
@@ -155,6 +163,9 @@ export function snapshot(store: RoomStore, viewer: Viewer, ctx: ViewContext): Ro
     discuss: discussing ? discussState(store, room) : null,
     comments: store.listComments().map((comment) => commentView(comment, viewer)),
     actions: store.listActions().map((action) => actionView(action, viewer)),
+    suggestions: seesSuggestions(room, viewer)
+      ? suggestionsView(store, room, ctx.now, ctx.aiEnabled)
+      : null,
   };
 }
 
@@ -223,5 +234,11 @@ export function project(
     }
     case "actionRemoved":
       return { type: "actionRemoved", actionId: change.actionId };
+    case "suggestionsChanged":
+      if (!seesSuggestions(room, viewer)) return null;
+      return {
+        type: "suggestions",
+        suggestions: suggestionsView(store, room, ctx.now, ctx.aiEnabled),
+      };
   }
 }
