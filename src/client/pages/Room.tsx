@@ -9,6 +9,7 @@ import { PhaseBar } from "../components/PhaseBar";
 import { READY_PHASES, ReadyToggle } from "../components/ReadyToggle";
 import { RoomLayout } from "../components/RoomLayout";
 import { Timer } from "../components/Timer";
+import { copy } from "../copy";
 import { getClientId } from "../lib/clientId";
 import { DiscussPhase } from "../phases/DiscussPhase";
 import { DonePhase } from "../phases/DonePhase";
@@ -52,7 +53,7 @@ function RoomSession({ code }: { code: string }) {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = `Retro · ${code}`;
+    document.title = copy.room.documentTitle(code);
     return () => {
       document.title = previous;
     };
@@ -86,7 +87,7 @@ function RoomSession({ code }: { code: string }) {
         ) : (
           <div class={styles.joining}>
             <div class="spinner" aria-hidden="true" />
-            <p>Joining room…</p>
+            <p>{copy.room.joining}</p>
           </div>
         )}
       </RoomLayout>

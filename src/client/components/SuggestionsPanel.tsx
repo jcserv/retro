@@ -1,4 +1,5 @@
 import { useMemo, useState } from "preact/hooks";
+import { copy } from "../copy";
 import { buildBoard } from "../lib/board";
 import { type ResolvedSuggestion, resolveSuggestion } from "../lib/suggestions";
 import { useRoomStore } from "../state/roomContext";
@@ -47,12 +48,10 @@ export function SuggestionsPanel() {
       <header class={styles.header}>
         <div class={styles.titles}>
           <h3 id="suggestions-heading" class={styles.title}>
-            Suggested groups
+            {copy.suggestions.heading}
           </h3>
           <p class={styles.description}>
-            {visible.length === 0
-              ? "No suggestions for this board."
-              : "Review each suggestion. Nothing changes until you accept it."}
+            {visible.length === 0 ? copy.suggestions.empty : copy.suggestions.review}
           </p>
         </div>
         <div class={styles.headerActions}>
@@ -63,13 +62,13 @@ export function SuggestionsPanel() {
               disabled={disabled}
               onClick={() => accept(acceptable.map((s) => s.entry.index))}
             >
-              Accept all
+              {copy.suggestions.acceptAll}
             </button>
           )}
           <button
             type="button"
             class="btn btn-ghost btn-sm btn-icon"
-            aria-label="Close suggestions"
+            aria-label={copy.suggestions.close}
             onClick={() => dismiss(set.entries.map((entry) => entry.index))}
           >
             <Icon name="close" />
@@ -84,7 +83,7 @@ export function SuggestionsPanel() {
               suggestion={suggestion}
               targetLabel={
                 suggestion.target.kind === "existing"
-                  ? (labels.get(suggestion.target.groupId) ?? "group")
+                  ? (labels.get(suggestion.target.groupId) ?? copy.group.fallbackGroup)
                   : null
               }
               disabled={disabled}
@@ -114,17 +113,17 @@ function SuggestionCard({
   const { entry, items, target, stale } = suggestion;
   const destination =
     target.kind === "new"
-      ? "New group"
+      ? copy.suggestions.newGroup
       : target.kind === "missing"
-        ? "Group no longer exists"
-        : `Add to “${targetLabel}”`;
+        ? copy.suggestions.missingGroup
+        : copy.suggestions.addTo(targetLabel ?? copy.group.fallbackGroup);
   const headingId = `suggestion-${entry.index}`;
 
   return (
     <li class={styles.suggestion} aria-labelledby={headingId} data-stale={stale || undefined}>
       <div class={styles.suggestionHeader}>
         <h4 id={headingId} class={styles.suggestionTitle}>
-          {entry.title ?? (target.kind === "new" ? "Untitled group" : targetLabel)}
+          {entry.title ?? (target.kind === "new" ? copy.board.untitledGroup : targetLabel)}
         </h4>
         <span class={styles.destination}>{destination}</span>
       </div>
@@ -137,7 +136,7 @@ function SuggestionCard({
               ) : (
                 <>
                   <s>{item.text}</s>
-                  <span class="visually-hidden"> (already grouped)</span>
+                  <span class="visually-hidden">{copy.suggestions.alreadyGrouped}</span>
                 </>
               )}
             </li>
@@ -145,9 +144,9 @@ function SuggestionCard({
         </ul>
       )}
       <div class={styles.actions}>
-        {stale && <span class="badge badge-warning">Out of date</span>}
+        {stale && <span class="badge badge-warning">{copy.suggestions.outOfDate}</span>}
         <button type="button" class="btn btn-ghost btn-sm" onClick={onDismiss}>
-          Dismiss
+          {copy.suggestions.dismiss}
         </button>
         <button
           type="button"
@@ -155,7 +154,7 @@ function SuggestionCard({
           disabled={disabled || stale}
           onClick={onAccept}
         >
-          Accept
+          {copy.suggestions.accept}
         </button>
       </div>
     </li>

@@ -1,4 +1,5 @@
 import type { ComponentChildren } from "preact";
+import { copy } from "../copy";
 import type { BoardColumn } from "../lib/board";
 import { DROP_ATTRIBUTE } from "../lib/pointerDrag";
 import styles from "./CategoryColumn.module.css";
@@ -32,20 +33,18 @@ export function CategoryColumn({ column, dropKey, children }: CategoryColumnProp
           {column.category.title}
         </h2>
         <span class={styles.count}>
-          {itemCount} {itemCount === 1 ? "item" : "items"}
-          <span class="visually-hidden">
-            {` in ${groups.length} ${groups.length === 1 ? "group" : "groups"}`}
-          </span>
+          {copy.board.itemCount(itemCount)}
+          <span class="visually-hidden">{copy.board.inGroups(groups.length)}</span>
         </span>
       </header>
       {groups.length > 0 ? (
         <ul class={styles.list}>{children}</ul>
       ) : (
-        <p class={styles.empty}>No items</p>
+        <p class={styles.empty}>{copy.board.noItems}</p>
       )}
       {dropKey && (
         <p class={styles.dropHint} aria-hidden="true">
-          Drop here to ungroup
+          {copy.board.dropToUngroup}
         </p>
       )}
     </section>

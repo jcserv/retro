@@ -1,6 +1,7 @@
 import { useId, useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { ActionView } from "../../shared/protocol";
+import { copy } from "../copy";
 import { formatDueDate, textLength } from "../lib/format";
 import { useRoomStore } from "../state/roomContext";
 import type { ActionFields } from "../state/roomStore";
@@ -28,10 +29,10 @@ export function ActionList({ groupId, actions, editable }: ActionListProps) {
   return (
     <section ref={focus.section} class={styles.section} aria-labelledby={headingId}>
       <h3 ref={focus.heading} id={headingId} class={styles.heading} tabIndex={-1}>
-        Action items <span class="badge">{sorted.length}</span>
+        {copy.actions.heading} <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
-        <p class={styles.empty}>{editable ? "No action items yet." : "No action items."}</p>
+        <p class={styles.empty}>{editable ? copy.actions.emptyEditable : copy.actions.empty}</p>
       ) : (
         <ul class={styles.list}>
           {sorted.map((action) => (
@@ -53,7 +54,7 @@ export function AssigneeBadge({ assignee }: { assignee: string | null }) {
   if (!assignee) return null;
   return (
     <span class={`badge ${styles.assignee}`}>
-      <span class="visually-hidden">Assigned to </span>
+      <span class="visually-hidden">{copy.actions.assignedTo}</span>
       <span class="user-text">{assignee}</span>
     </span>
   );
@@ -63,7 +64,7 @@ export function DueDateBadge({ dueDate }: { dueDate: string | null }) {
   if (!dueDate) return null;
   return (
     <span class="badge">
-      Due <time dateTime={dueDate}>{formatDueDate(dueDate)}</time>
+      {copy.actions.due} <time dateTime={dueDate}>{formatDueDate(dueDate)}</time>
     </span>
   );
 }
@@ -89,10 +90,10 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
       <li class={styles.entry}>
         <div class={styles.form}>
           <ItemComposer
-            label="Edit action item"
+            label={copy.actions.edit}
             max={TEXT_MAX}
             initialText={action.text}
-            submitLabel="Save"
+            submitLabel={copy.composer.save}
             disabled={!live}
             autoFocus
             extraInvalid={!assigneeFits(fields.assignee)}
@@ -100,7 +101,7 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
             onSubmit={(text) => store.editAction(action.id, text, trimmed(fields))}
           >
             <ActionFieldInputs
-              labelPrefix="Edit "
+              labelPrefix={copy.actions.editPrefix}
               value={fields}
               disabled={!live}
               onChange={editor.update}
@@ -128,7 +129,7 @@ function ActionRow({ action, editable, onDeleted }: ActionRowProps) {
       {editable && action.mine && (
         <EntryActions
           class={styles.entryActions}
-          noun="action item"
+          noun={copy.actions.noun}
           describedBy={`action-${action.id}`}
           editRef={editor.editButton}
           editDisabled={!live}
@@ -168,10 +169,10 @@ function ActionComposer({ groupId }: { groupId: string }) {
 
   return (
     <ItemComposer
-      label="New action item"
+      label={copy.actions.add}
       max={TEXT_MAX}
-      placeholder="Add an action item…"
-      submitLabel="Add action"
+      placeholder={copy.actions.addPlaceholder}
+      submitLabel={copy.actions.submit}
       disabled={!live}
       extraInvalid={!assigneeFits(fields.assignee)}
       onSubmit={submit}
@@ -208,12 +209,12 @@ function ActionFieldInputs({
     <div class={styles.actionFields}>
       <div class={styles.assigneeField}>
         <label class="visually-hidden" for={assigneeId}>
-          {labelPrefix ? `${labelPrefix}assignee` : "Assignee"}
+          {labelPrefix ? copy.actions.assigneeLabel(labelPrefix) : copy.actions.assignee}
         </label>
         <input
           id={assigneeId}
           class="input"
-          placeholder="Assignee (optional)"
+          placeholder={copy.actions.assigneePlaceholder}
           value={value.assignee}
           disabled={disabled}
           aria-invalid={assigneeFits(value.assignee) ? undefined : "true"}
@@ -224,9 +225,11 @@ function ActionFieldInputs({
       </div>
       <label class={styles.dueDateField} for={dueDateId}>
         <span class={styles.dueDateLabel} aria-hidden="true">
-          Due
+          {copy.actions.due}
         </span>
-        <span class="visually-hidden">{labelPrefix ? `${labelPrefix}due date` : "Due date"}</span>
+        <span class="visually-hidden">
+          {labelPrefix ? copy.actions.dueDateLabel(labelPrefix) : copy.actions.dueDate}
+        </span>
         <input
           id={dueDateId}
           type="date"

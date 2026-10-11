@@ -1,4 +1,5 @@
 import type { ComponentChildren } from "preact";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import { ErrorToast } from "./ErrorToast";
 import styles from "./RoomLayout.module.css";
@@ -19,7 +20,7 @@ export function RoomLayout({ header, toolbar, children }: RoomLayoutProps) {
       </header>
       {showOffline && (
         <div class={styles.offline} role="alert">
-          <div class="container">Connection lost. Reconnecting, changes are paused until then.</div>
+          <div class="container">{copy.room.offline}</div>
         </div>
       )}
       {toolbar && <div class={`container ${styles.toolbar}`}>{toolbar}</div>}

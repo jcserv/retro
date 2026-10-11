@@ -1,4 +1,5 @@
 import type { Category, GroupView, ItemView } from "../../shared/protocol";
+import { copy } from "../copy";
 import { type GroupingIntent, PENDING_GROUP_ID_PREFIX } from "../state/optimistic";
 import type { RoomState } from "../state/roomState";
 
@@ -28,7 +29,7 @@ export function isPendingGroupId(groupId: string): boolean {
 }
 
 export function groupLabel(group: GroupView, items: readonly ItemView[]): string {
-  return group.title ?? items[0]?.text ?? "Untitled group";
+  return group.title ?? items[0]?.text ?? copy.board.untitledGroup;
 }
 
 export function hasGroupHeading(group: BoardGroup): boolean {

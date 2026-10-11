@@ -1,0 +1,328 @@
+import type { DiscussStatus, Phase } from "../shared/protocol";
+import type { ConnectionStatus, IntentErrorCode } from "./lib/connection";
+import { plural } from "./lib/format";
+
+export const copy = {
+  appName: "Retro",
+
+  home: {
+    lead: "Quick, anonymous team retros with no sign-up.",
+    createHeading: "Start a retro",
+    createHint: "You'll facilitate and share the link with your team.",
+    create: "Create room",
+    creating: "Creating…",
+    createErrors: {
+      rate_limited: "Please wait a minute before creating another room.",
+      failed: "Couldn't reach the server to create a room.",
+    },
+    or: "or",
+    joinHeading: "Join a retro",
+    joinCodeLabel: "Room code",
+    joinCodePlaceholder: "ABC234",
+    join: "Join",
+    joining: "Joining…",
+    invalidCode: (length: number) => `Codes are ${length} letters and numbers.`,
+    roomNotFound: "Room not found or expired.",
+    unreachable: "Couldn't reach the server, try again.",
+  },
+
+  roomUnavailable: {
+    not_found: {
+      title: "Room not found",
+      body: "This room doesn't exist or has expired (rooms last 7 days).",
+    },
+    full: {
+      title: "Room is full",
+      body: "This room has reached its participant limit.",
+    },
+    backHome: "Back to home",
+  },
+
+  room: {
+    documentTitle: (code: string) => `Retro · ${code}`,
+    joining: "Joining room…",
+    offline: "Changes are paused while we reconnect…",
+  },
+
+  header: {
+    roomCode: "Room code ",
+    peopleHere: (count: number) => `${plural(count, "person", "people")} here`,
+    peopleHereCount: "People here: ",
+    expiresInTitle: (time: string) => `Room expires in ${time}`,
+    expired: "Room expired",
+    expiresIn: "Expires in ",
+    copyLink: "Copy link",
+    copied: "Copied",
+    copyFailed: "Couldn't copy",
+  },
+
+  connection: {
+    connecting: "Connecting…",
+    open: "Live",
+    reconnecting: "Reconnecting…",
+    not_found: "Room closed",
+    full: "Room full",
+  } satisfies Record<ConnectionStatus, string>,
+
+  phases: {
+    write: "Write",
+    group: "Group",
+    vote: "Vote",
+    discuss: "Discuss",
+    done: "Done",
+  } satisfies Record<Phase, string>,
+
+  phaseBar: {
+    label: "Retro phases",
+  },
+
+  phasePlaceholder: {
+    heading: (phase: string) => `${phase} phase`,
+    body: "This phase is not built yet.",
+  },
+
+  ready: {
+    toggle: "I'm ready",
+    count: (ready: number, connected: number) => `${ready}/${connected} ready`,
+  },
+
+  owner: {
+    advance: {
+      write: "Start grouping",
+      group: "Start voting",
+      vote: "Start discussion",
+      discuss: "Finish retro",
+      done: null,
+    } satisfies Record<Phase, string | null>,
+    votesPerPerson: "Votes per person",
+    votes: "Votes",
+    fewerVotes: "Fewer votes per person",
+    moreVotes: "More votes per person",
+    votesPerPersonValue: "Votes per person: ",
+  },
+
+  timer: {
+    timesUp: "Time's up",
+    paused: "Paused",
+    resume: "Resume timer",
+    pause: "Pause timer",
+    addMinuteLabel: "Add one minute",
+    addMinute: "+1 min",
+    clear: "Clear timer",
+    menu: "Timer",
+    preset: (minutes: number) => `${minutes} min`,
+    customLabel: "Custom minutes",
+    customPlaceholder: (min: number, max: number) => `${min}–${max}`,
+    start: "Start",
+  },
+
+  errors: {
+    invalid_message: "Couldn't send that.",
+    forbidden: "Only the facilitator can do that.",
+    wrong_phase: "Not available in this phase.",
+    not_found: "That no longer exists.",
+    too_long: "That's too long.",
+    empty: "That can't be empty.",
+    item_limit: "You've hit the item limit.",
+    vote_limit: "You're out of votes.",
+    reaction_limit: "This item can't take more reactions.",
+    stale: "Someone already did that.",
+    rate_limited: "Slow down a bit.",
+    disconnected: "You're offline. Reconnecting…",
+    timeout: "The room didn't respond, try again.",
+    suggest_busy: "Wait a moment before suggesting again.",
+    suggest_room_limit: "This room is out of AI suggestions.",
+    suggest_rate_limited: "Too many requests, try again in a minute.",
+    suggest_daily_limit: "AI suggestions are used up for today.",
+    suggest_too_large: "Too many items to suggest groups.",
+    suggest_ineligible: "Nothing left to group.",
+    suggest_failed: "Couldn't get suggestions, try again.",
+    suggest_unavailable: "AI suggestions aren't available.",
+  } satisfies Record<IntentErrorCode, string>,
+  dismissError: "Dismiss",
+
+  composer: {
+    charactersUsed: "Characters used: ",
+    cancel: "Cancel",
+    save: "Save",
+  },
+
+  entry: {
+    edit: "Edit",
+    editLabel: (noun: string) => `Edit ${noun}`,
+    delete: "Delete",
+    deleteLabel: (noun: string) => `Delete ${noun}`,
+    you: "You",
+    edited: "edited",
+  },
+
+  write: {
+    heading: "Write phase",
+    lead: "Your items stay private until grouping starts.",
+    itemsWritten: (count: number, max: number) => `${count}/${max} items written`,
+    totalTitle: "Items from everyone",
+    total: (count: number) => plural(count, "item"),
+    yourItems: (category: string) => `Your items in ${category}`,
+    addItemLabel: (category: string) => `Add an item to ${category}`,
+    add: "Add",
+    addPlaceholder: "Add an item…",
+    itemLimit: "Item limit reached",
+    editItem: "Edit item",
+    itemNoun: "item",
+  },
+
+  board: {
+    itemCount: (count: number) => `${count} ${count === 1 ? "item" : "items"}`,
+    inGroups: (count: number) => ` in ${count} ${count === 1 ? "group" : "groups"}`,
+    noItems: "No items",
+    dropToUngroup: "Drop here to ungroup",
+    groupItemCount: (count: number) => `${count} items`,
+    untitledGroup: "Untitled group",
+    addTitle: "Add a title",
+    renameGroup: ", rename group",
+    groupTitle: "Group title",
+    uncategorized: "Uncategorized",
+    noItemsWritten: "No items to show.",
+  },
+
+  group: {
+    heading: "Group similar items",
+    hintFine: "Drag items together to group them, or back to their column to ungroup.",
+    hintCoarse: "Press and hold to drag items together, or back to their column to ungroup.",
+    fallbackGroup: "group",
+    fallbackItem: "item",
+    merged: (source: string, target: string) => `Grouped ${source} with ${target}.`,
+    moved: (item: string, group: string) => `Moved ${item} to ${group}.`,
+    ungrouped: (item: string) => `Ungrouped ${item}.`,
+  },
+
+  suggestions: {
+    suggest: "Suggest groups",
+    suggestTitle: "Sends item text to Cloudflare Workers AI",
+    suggesting: "Suggesting…",
+    noneLeft: "No suggestions left",
+    suggestAgain: (seconds: number) => `Suggest again in ${seconds}s`,
+    heading: "Suggested groups",
+    empty: "No suggestions for this board.",
+    review: "Nothing changes until you accept a suggestion.",
+    acceptAll: "Accept all",
+    close: "Close suggestions",
+    newGroup: "New group",
+    missingGroup: "Group no longer exists",
+    addTo: (group: string) => `Add to “${group}”`,
+    alreadyGrouped: " (already grouped)",
+    outOfDate: "Out of date",
+    dismiss: "Dismiss",
+    accept: "Accept",
+  },
+
+  reactions: {
+    remove: "Remove your reaction",
+    add: "Add yours",
+    addLabel: "Add reaction",
+    pickerHeading: (text: string) => `React to “${text}”`,
+    close: "Close",
+  },
+
+  vote: {
+    heading: "Vote on what to discuss",
+    hint: "Totals stay hidden until discussion starts.",
+    budget: (limit: number) => ` of ${limit} ${limit === 1 ? "vote" : "votes"} left`,
+    remove: (title: string) => `Remove a vote from ${title}`,
+    yourVotes: (title: string) => `Your votes on ${title}: `,
+    add: (title: string) => `Add a vote to ${title}`,
+    unit: (count: number) => (count === 1 ? "vote" : "votes"),
+    count: (count: number) => `${count} ${count === 1 ? "vote" : "votes"}`,
+  },
+
+  discuss: {
+    currentTopic: "Current topic",
+    nothingHeading: "Nothing to discuss",
+    position: (index: number, total: number) => `Topic ${index} of ${total}`,
+    nowDiscussing: (position: string, label: string) => `Now discussing ${position}: ${label}`,
+    previous: "Previous",
+    skip: "Skip",
+    next: "Next topic",
+    lastTopic: "Last topic",
+    follow: "The facilitator controls which topic is up.",
+    agenda: "Agenda",
+    agendaCurrent: "current topic",
+    status: {
+      pending: "Up next",
+      discussed: "Discussed",
+      skipped: "Skipped",
+    } satisfies Record<DiscussStatus, string>,
+    items: "Items",
+  },
+
+  comments: {
+    heading: "Comments",
+    emptyEditable: "No comments yet.",
+    empty: "No comments.",
+    edit: "Edit comment",
+    noun: "comment",
+    convertLabel: "Convert comment to action item",
+    convert: "Convert to action item",
+    tooLongToConvert: (max: number) => `Too long for an action item (${max} max)`,
+    add: "Add a comment",
+    addPlaceholder: "Add a comment…",
+    submit: "Comment",
+  },
+
+  actions: {
+    heading: "Action items",
+    emptyEditable: "No action items yet.",
+    empty: "No action items.",
+    assignedTo: "Assigned to ",
+    due: "Due",
+    edit: "Edit action item",
+    editPrefix: "Edit ",
+    noun: "action item",
+    add: "New action item",
+    addPlaceholder: "Add an action item…",
+    submit: "Add action",
+    assignee: "Assignee",
+    assigneeLabel: (prefix: string) => `${prefix}assignee`,
+    assigneePlaceholder: "Assignee (optional)",
+    dueDate: "Due date",
+    dueDateLabel: (prefix: string) => `${prefix}due date`,
+  },
+
+  done: {
+    heading: "Retro complete",
+    stats: (discussed: number, topics: number, actions: number, participants: number) =>
+      `${discussed} of ${topics} ${topics === 1 ? "topic" : "topics"} discussed · ${actions} action ${actions === 1 ? "item" : "items"} · ${participants} ${participants === 1 ? "participant" : "participants"}`,
+    actionsHeading: "Action items",
+    noActions: "No action items.",
+    fromTopic: "From topic ",
+    discussed: "Discussed",
+    notDiscussed: "Not discussed",
+    topic: (position: number) => `Topic ${position}`,
+    skipped: "Skipped",
+  },
+
+  exportPanel: {
+    heading: "Export",
+    description: "A Markdown summary you can paste anywhere.",
+    copy: "Copy",
+    copied: "Copied",
+    download: "Download .md",
+    copiedFeedback: "Copied to clipboard.",
+    copyFailed: "Couldn't copy, so use the preview instead.",
+    preview: "Preview",
+  },
+
+  markdown: {
+    none: "(none)",
+    votes: (count: number) => plural(count, "vote"),
+    title: (date: string) => `# Retro: ${date}`,
+    subtitle: (code: string, participants: number) =>
+      `Room ${code} · ${plural(participants, "participant")}`,
+    discussed: "## Discussed",
+    items: "- Items:",
+    comments: "- Comments:",
+    actions: "- Action items:",
+    due: (date: string) => `due ${date}`,
+    notDiscussed: "## Not discussed",
+  },
+};

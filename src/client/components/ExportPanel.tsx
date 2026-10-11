@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "preact/hooks";
+import { copy } from "../copy";
 import { exportFileName, toMarkdown } from "../lib/markdown";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./ExportPanel.module.css";
@@ -22,7 +23,7 @@ export function ExportPanel() {
 
   if (!room) return null;
 
-  const copy = async () => {
+  const copyMarkdown = async () => {
     try {
       await navigator.clipboard.writeText(markdown);
       setCopyState("copied");
@@ -45,25 +46,25 @@ export function ExportPanel() {
       <div class={styles.header}>
         <div class={styles.titles}>
           <h2 id={headingId} class={styles.title}>
-            Export
+            {copy.exportPanel.heading}
           </h2>
-          <p class={styles.description}>Markdown summary of this retro.</p>
+          <p class={styles.description}>{copy.exportPanel.description}</p>
         </div>
         <div class="cluster">
-          <button type="button" class="btn btn-sm" onClick={copy}>
-            {copyState === "copied" ? "Copied" : "Copy"}
+          <button type="button" class="btn btn-sm" onClick={copyMarkdown}>
+            {copyState === "copied" ? copy.exportPanel.copied : copy.exportPanel.copy}
           </button>
           <button type="button" class="btn btn-primary btn-sm" onClick={download}>
-            Download .md
+            {copy.exportPanel.download}
           </button>
         </div>
       </div>
       <p class={styles.feedback} role="status" aria-live="polite" data-state={copyState}>
-        {copyState === "copied" && "Copied to clipboard."}
-        {copyState === "failed" && "Couldn't copy. Open the preview to copy it manually."}
+        {copyState === "copied" && copy.exportPanel.copiedFeedback}
+        {copyState === "failed" && copy.exportPanel.copyFailed}
       </p>
       <details class={styles.preview}>
-        <summary>Preview</summary>
+        <summary>{copy.exportPanel.preview}</summary>
         <pre class={styles.markdown}>{markdown}</pre>
       </details>
     </section>

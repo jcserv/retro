@@ -1,7 +1,7 @@
 import type { GroupView } from "../../shared/protocol";
+import { copy } from "../copy";
 import type { RoomState } from "../state/roomState";
 import { boardGroupResolver, hasGroupHeading } from "./board";
-import { plural } from "./format";
 
 export function escapeMarkdown(text: string): string {
   return text
@@ -26,7 +26,7 @@ function byCreation<T extends { createdAt: number }>(entries: T[]): T[] {
 }
 
 function bulletList(lines: string[]): string[] {
-  return lines.length > 0 ? lines.map((line) => `  - ${line}`) : ["  - (none)"];
+  return lines.length > 0 ? lines.map((line) => `  - ${line}`) : [`  - ${copy.markdown.none}`];
 }
 
 export function toMarkdown(state: RoomState): string {
@@ -39,7 +39,7 @@ export function toMarkdown(state: RoomState): string {
   const summary = (group: GroupView) => {
     const votes = state.voteTotals?.[group.id] ?? 0;
     const category = categoryTitle.get(group.categoryId) ?? group.categoryId;
-    return `${escapeMarkdown(resolve(group).label)} (${plural(votes, "vote")}) [${category}]`;
+    return `${escapeMarkdown(resolve(group).label)} (${copy.markdown.votes(votes)}) [${category}]`;
   };
 
   const ordered = order.flatMap((id) => {
@@ -50,30 +50,30 @@ export function toMarkdown(state: RoomState): string {
   const notDiscussed = ordered.filter((group) => status[group.id] !== "discussed");
 
   const lines = [
-    `# Retro: ${localDate(state.createdAt)}`,
-    `Room ${state.code} · ${plural(state.presence.participantCount, "participant")}`,
+    copy.markdown.title(localDate(state.createdAt)),
+    copy.markdown.subtitle(state.code, state.presence.participantCount),
     "",
-    "## Discussed",
+    copy.markdown.discussed,
   ];
 
-  if (discussed.length === 0) lines.push("- (none)");
+  if (discussed.length === 0) lines.push(`- ${copy.markdown.none}`);
   discussed.forEach((group, index) => {
     lines.push("", `### ${index + 1}. ${summary(group)}`);
     const entry = resolve(group);
     if (hasGroupHeading(entry)) {
       const texts = entry.items.map((item) => escapeMarkdown(item.text));
-      lines.push("- Items:", ...bulletList(texts));
+      lines.push(copy.markdown.items, ...bulletList(texts));
     }
     const comments = byCreation(state.comments.filter((comment) => comment.groupId === group.id));
-    lines.push("- Comments:", ...bulletList(comments.map((c) => escapeMarkdown(c.text))));
+    lines.push(copy.markdown.comments, ...bulletList(comments.map((c) => escapeMarkdown(c.text))));
     const actions = byCreation(state.actions.filter((action) => action.groupId === group.id));
     lines.push(
-      "- Action items:",
+      copy.markdown.actions,
       ...bulletList(
         actions.map((action) => {
           const details = [
             action.assignee && escapeMarkdown(action.assignee),
-            action.dueDate && `due ${action.dueDate}`,
+            action.dueDate && copy.markdown.due(action.dueDate),
           ].filter(Boolean);
           const suffix = details.length > 0 ? ` (${details.join(", ")})` : "";
           return `[ ] ${escapeMarkdown(action.text)}${suffix}`;
@@ -82,8 +82,8 @@ export function toMarkdown(state: RoomState): string {
     );
   });
 
-  lines.push("", "## Not discussed");
-  if (notDiscussed.length === 0) lines.push("- (none)");
+  lines.push("", copy.markdown.notDiscussed);
+  if (notDiscussed.length === 0) lines.push(`- ${copy.markdown.none}`);
   for (const group of notDiscussed) lines.push(`- ${summary(group)}`);
 
   return `${lines.join("\n")}\n`;

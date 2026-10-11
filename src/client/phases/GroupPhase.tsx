@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { Board } from "../components/Board";
 import { GroupCard, GroupTitle } from "../components/GroupCard";
 import { SuggestionsPanel } from "../components/SuggestionsPanel";
+import { copy } from "../copy";
 import {
   type BoardColumn,
   type BoardGroup,
@@ -38,16 +39,17 @@ function findGroup(columns: readonly BoardColumn[], groupId: string): BoardGroup
 
 function announcementFor(intent: GroupingIntent, room: RoomState): string {
   const columns = buildBoard(room);
-  const label = (groupId: string) => quote(findGroup(columns, groupId)?.label ?? "group");
+  const label = (groupId: string) =>
+    quote(findGroup(columns, groupId)?.label ?? copy.group.fallbackGroup);
   const text = (itemId: string) =>
-    quote(room.items.find((entry) => entry.id === itemId)?.text ?? "item");
+    quote(room.items.find((entry) => entry.id === itemId)?.text ?? copy.group.fallbackItem);
   switch (intent.type) {
     case "mergeGroups":
-      return `Grouped ${label(intent.sourceGroupId)} with ${label(intent.targetGroupId)}.`;
+      return copy.group.merged(label(intent.sourceGroupId), label(intent.targetGroupId));
     case "moveItemToGroup":
-      return `Moved ${text(intent.itemId)} to ${label(intent.groupId)}.`;
+      return copy.group.moved(text(intent.itemId), label(intent.groupId));
     case "ungroupItem":
-      return `Ungrouped ${text(intent.itemId)}.`;
+      return copy.group.ungrouped(text(intent.itemId));
   }
 }
 
@@ -147,17 +149,16 @@ export function GroupPhase() {
     <section class={styles.phase} aria-labelledby="group-phase-heading">
       <div class={styles.intro}>
         <h2 id="group-phase-heading" class={styles.heading}>
-          Group similar items
+          {copy.group.heading}
         </h2>
         <p class={styles.hint}>
-          <span class={styles.hintFine}>Drag a card onto another to group them</span>
-          <span class={styles.hintCoarse}>Press and hold a card, then drag it onto another</span>.
-          Drag an item out of a group onto its column to ungroup it.
+          <span class={styles.hintFine}>{copy.group.hintFine}</span>
+          <span class={styles.hintCoarse}>{copy.group.hintCoarse}</span>
         </p>
       </div>
       {room.isOwner && <SuggestionsPanel />}
       {room.items.length === 0 ? (
-        <p class={styles.empty}>No items were written in this retro.</p>
+        <p class={styles.empty}>{copy.board.noItemsWritten}</p>
       ) : (
         <Board
           columns={columns}

@@ -1,19 +1,12 @@
 import { useState } from "preact/hooks";
 import { LIMITS } from "../../shared/constants";
 import type { Phase } from "../../shared/protocol";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import { Icon } from "./Icon";
 import styles from "./OwnerControls.module.css";
 import { READY_PHASES } from "./ReadyToggle";
 import { useTicker } from "./Timer";
-
-const ADVANCE_LABELS: Record<Phase, string | null> = {
-  write: "Start grouping",
-  group: "Start voting",
-  vote: "Start discussion",
-  discuss: "Finish retro",
-  done: null,
-};
 
 const VOTE_LIMIT_PHASES: readonly Phase[] = ["write", "group", "vote"];
 
@@ -32,7 +25,7 @@ export function OwnerControls() {
           class={`badge ${allReady ? "badge-success" : ""} ${styles.readyCount}`}
           aria-live="polite"
         >
-          {readyCount}/{connectedCount} ready
+          {copy.ready.count(readyCount, connectedCount)}
         </span>
       )}
       {VOTE_LIMIT_PHASES.includes(room.phase) && <VoteLimitStepper />}
@@ -55,28 +48,28 @@ function VoteLimitStepper() {
 
   return (
     <fieldset class={styles.fieldset}>
-      <legend class="visually-hidden">Votes per person</legend>
+      <legend class="visually-hidden">{copy.owner.votesPerPerson}</legend>
       <div class={styles.stepper}>
         <span class={styles.stepperLabel} aria-hidden="true">
-          Votes
+          {copy.owner.votes}
         </span>
         <button
           type="button"
           class="btn btn-ghost btn-sm btn-icon"
-          aria-label="Fewer votes per person"
+          aria-label={copy.owner.fewerVotes}
           disabled={disabled || limit <= LIMITS.voteLimitMin}
           onClick={() => step(-1)}
         >
           <Icon name="minus" />
         </button>
         <output class={styles.stepperValue} aria-live="polite">
-          <span class="visually-hidden">Votes per person: </span>
+          <span class="visually-hidden">{copy.owner.votesPerPersonValue}</span>
           {limit}
         </output>
         <button
           type="button"
           class="btn btn-ghost btn-sm btn-icon"
-          aria-label="More votes per person"
+          aria-label={copy.owner.moreVotes}
           disabled={disabled || limit >= LIMITS.voteLimitMax}
           onClick={() => step(1)}
         >
@@ -98,11 +91,11 @@ function SuggestButton() {
   if (!suggestions?.enabled) return null;
 
   const reason = pending
-    ? "Suggesting…"
+    ? copy.suggestions.suggesting
     : suggestions.runsLeft === 0
-      ? "No suggestions left"
+      ? copy.suggestions.noneLeft
       : cooldownMs > 0
-        ? `Suggest again in ${Math.ceil(cooldownMs / 1000)}s`
+        ? copy.suggestions.suggestAgain(Math.ceil(cooldownMs / 1000))
         : null;
 
   async function suggest() {
@@ -115,12 +108,12 @@ function SuggestButton() {
     <button
       type="button"
       class={`btn btn-subtle ${styles.suggest}`}
-      title="Sends card text to Cloudflare Workers AI"
+      title={copy.suggestions.suggestTitle}
       onClick={suggest}
       disabled={requesting || reason !== null || !store.isLive.value}
     >
       {pending && <span class={`spinner ${styles.spinner}`} aria-hidden="true" />}
-      {reason ?? "Suggest groups"}
+      {reason ?? copy.suggestions.suggest}
     </button>
   );
 }
@@ -128,7 +121,7 @@ function SuggestButton() {
 function AdvanceButton({ phase }: { phase: Phase }) {
   const store = useRoomStore();
   const [pending, setPending] = useState(false);
-  const label = ADVANCE_LABELS[phase];
+  const label = copy.owner.advance[phase];
   if (!label) return null;
 
   async function advance() {
