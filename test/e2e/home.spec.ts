@@ -23,7 +23,7 @@ test("create room explains the rate limit", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Create room" }).click();
   await expect(page.getByRole("alert")).toHaveText(
-    "Too many rooms created, try again in a minute.",
+    "Please wait a minute before creating another room.",
   );
   await expect(page.getByRole("button", { name: "Create room" })).toBeEnabled();
 });
@@ -47,7 +47,7 @@ test("join shows room not found inline", async ({ page }) => {
   await page.getByLabel("Room code").fill("ABC234");
   await page.getByLabel("Room code").press("Enter");
 
-  await expect(page.getByRole("alert")).toHaveText("Room not found. It may have expired.");
+  await expect(page.getByRole("alert")).toHaveText("Room not found or expired.");
   await expect(page).toHaveURL("/");
 });
 
@@ -61,6 +61,6 @@ test("join rejects a malformed code without a request", async ({ page }) => {
   await page.getByLabel("Room code").fill("AB1");
   await page.getByRole("button", { name: "Join" }).click();
 
-  await expect(page.getByRole("alert")).toHaveText("Room codes are 6 letters and numbers.");
+  await expect(page.getByRole("alert")).toHaveText("Codes are 6 letters and numbers.");
   expect(requested).toBe(false);
 });

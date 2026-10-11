@@ -7,7 +7,7 @@ test("live: joining a nonexistent code from home shows room not found", async ({
   await page.getByLabel("Room code").fill(MISSING);
   await page.getByRole("button", { name: "Join" }).click();
 
-  await expect(page.getByRole("alert")).toHaveText("Room not found. It may have expired.");
+  await expect(page.getByRole("alert")).toHaveText("Room not found or expired.");
   await expect(page).toHaveURL("/");
 });
 

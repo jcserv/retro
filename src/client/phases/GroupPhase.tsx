@@ -152,7 +152,7 @@ export function GroupPhase() {
         </h2>
         <p class={styles.hint}>
           <span class={styles.hintFine}>{copy.group.hintFine}</span>
-          <span class={styles.hintCoarse}>{copy.group.hintCoarse}</span>. {copy.group.hintUngroup}
+          <span class={styles.hintCoarse}>{copy.group.hintCoarse}</span>
         </p>
       </div>
       {room.items.length === 0 ? (

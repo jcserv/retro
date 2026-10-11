@@ -6,14 +6,14 @@ export const copy = {
   appName: "Retro",
 
   home: {
-    lead: "Quick, anonymous team retros. No accounts, no setup.",
+    lead: "Quick, anonymous team retros with no sign-up.",
     createHeading: "Start a retro",
-    createHint: "You'll run the session. Share the link with your team.",
+    createHint: "You'll facilitate and share the link with your team.",
     create: "Create room",
     creating: "Creating…",
     createErrors: {
-      rate_limited: "Too many rooms created, try again in a minute.",
-      failed: "Couldn't create a room. Check your connection and try again.",
+      rate_limited: "Please wait a minute before creating another room.",
+      failed: "Couldn't reach the server to create a room.",
     },
     or: "or",
     joinHeading: "Join a retro",
@@ -21,15 +21,15 @@ export const copy = {
     joinCodePlaceholder: "ABC234",
     join: "Join",
     joining: "Joining…",
-    invalidCode: (length: number) => `Room codes are ${length} letters and numbers.`,
-    roomNotFound: "Room not found. It may have expired.",
-    unreachable: "Couldn't reach the server. Try again.",
+    invalidCode: (length: number) => `Codes are ${length} letters and numbers.`,
+    roomNotFound: "Room not found or expired.",
+    unreachable: "Couldn't reach the server, try again.",
   },
 
   roomUnavailable: {
     not_found: {
       title: "Room not found",
-      body: "This room doesn't exist or has expired. Rooms last 7 days.",
+      body: "This room doesn't exist or has expired (rooms last 7 days).",
     },
     full: {
       title: "Room is full",
@@ -41,7 +41,7 @@ export const copy = {
   room: {
     documentTitle: (code: string) => `Retro · ${code}`,
     joining: "Joining room…",
-    offline: "Connection lost. Reconnecting, changes are paused until then.",
+    offline: "Changes are paused while we reconnect…",
   },
 
   header: {
@@ -117,19 +117,19 @@ export const copy = {
   },
 
   errors: {
-    invalid_message: "Something went wrong sending that. Try again.",
-    forbidden: "Only the room owner can do that.",
-    wrong_phase: "That isn't available in this phase anymore.",
+    invalid_message: "Couldn't send that.",
+    forbidden: "Only the facilitator can do that.",
+    wrong_phase: "Not available in this phase.",
     not_found: "That no longer exists.",
     too_long: "That's too long.",
     empty: "That can't be empty.",
-    item_limit: "You've reached the item limit for this room.",
+    item_limit: "You've hit the item limit.",
     vote_limit: "You're out of votes.",
-    reaction_limit: "That item has too many different reactions.",
+    reaction_limit: "This item can't take more reactions.",
     stale: "Someone already did that.",
-    rate_limited: "Slow down a little and try again.",
+    rate_limited: "Slow down a bit.",
     disconnected: "You're offline. Reconnecting…",
-    timeout: "The room didn't respond. Try again.",
+    timeout: "The room didn't respond, try again.",
   } satisfies Record<IntentErrorCode, string>,
   dismissError: "Dismiss",
 
@@ -150,7 +150,7 @@ export const copy = {
 
   write: {
     heading: "Write phase",
-    lead: "Add as many thoughts as you like. Only you can see your items until grouping starts.",
+    lead: "Your items stay private until grouping starts.",
     itemsWritten: (count: number, max: number) => `${count}/${max} items written`,
     totalTitle: "Items from everyone",
     total: (count: number) => plural(count, "item"),
@@ -158,7 +158,7 @@ export const copy = {
     addItemLabel: (category: string) => `Add an item to ${category}`,
     add: "Add",
     addPlaceholder: "Add an item…",
-    itemLimit: "You've reached the item limit",
+    itemLimit: "Item limit reached",
     editItem: "Edit item",
     itemNoun: "item",
   },
@@ -174,14 +174,13 @@ export const copy = {
     renameGroup: ", rename group",
     groupTitle: "Group title",
     uncategorized: "Uncategorized",
-    noItemsWritten: "No items were written in this retro.",
+    noItemsWritten: "No items to show.",
   },
 
   group: {
     heading: "Group similar items",
-    hintFine: "Drag a card onto another to group them",
-    hintCoarse: "Press and hold a card, then drag it onto another",
-    hintUngroup: "Drag an item out of a group onto its column to ungroup it.",
+    hintFine: "Drag items together to group them, or back to their column to ungroup.",
+    hintCoarse: "Press and hold to drag items together, or back to their column to ungroup.",
     fallbackGroup: "group",
     fallbackItem: "item",
     merged: (source: string, target: string) => `Grouped ${source} with ${target}.`,
@@ -191,7 +190,7 @@ export const copy = {
 
   reactions: {
     remove: "Remove your reaction",
-    add: "React with this",
+    add: "Add yours",
     addLabel: "Add reaction",
     pickerHeading: (text: string) => `React to “${text}”`,
     close: "Close",
@@ -199,7 +198,7 @@ export const copy = {
 
   vote: {
     heading: "Vote on what to discuss",
-    hint: "Spread your votes or stack them on one topic. Totals stay hidden until discussion starts.",
+    hint: "Totals stay hidden until discussion starts.",
     budget: (limit: number) => ` of ${limit} ${limit === 1 ? "vote" : "votes"} left`,
     remove: (title: string) => `Remove a vote from ${title}`,
     yourVotes: (title: string) => `Your votes on ${title}: `,
@@ -216,8 +215,8 @@ export const copy = {
     previous: "Previous",
     skip: "Skip",
     next: "Next topic",
-    lastTopic: "Last topic. Finish the retro when you're ready.",
-    follow: "The facilitator moves everyone to the next topic.",
+    lastTopic: "Last topic",
+    follow: "The facilitator controls which topic is up.",
     agenda: "Agenda",
     agendaCurrent: "current topic",
     status: {
@@ -236,7 +235,7 @@ export const copy = {
     noun: "comment",
     convertLabel: "Convert comment to action item",
     convert: "Convert to action item",
-    tooLongToConvert: (max: number) => `Too long for an action item (max ${max} characters)`,
+    tooLongToConvert: (max: number) => `Too long for an action item (${max} max)`,
     add: "Add a comment",
     addPlaceholder: "Add a comment…",
     submit: "Comment",
@@ -266,7 +265,7 @@ export const copy = {
     stats: (discussed: number, topics: number, actions: number, participants: number) =>
       `${discussed} of ${topics} ${topics === 1 ? "topic" : "topics"} discussed · ${actions} action ${actions === 1 ? "item" : "items"} · ${participants} ${participants === 1 ? "participant" : "participants"}`,
     actionsHeading: "Action items",
-    noActions: "No action items were added.",
+    noActions: "No action items.",
     fromTopic: "From topic ",
     discussed: "Discussed",
     notDiscussed: "Not discussed",
@@ -276,12 +275,12 @@ export const copy = {
 
   exportPanel: {
     heading: "Export",
-    description: "Markdown summary of this retro.",
+    description: "A Markdown summary you can paste anywhere.",
     copy: "Copy",
     copied: "Copied",
     download: "Download .md",
     copiedFeedback: "Copied to clipboard.",
-    copyFailed: "Couldn't copy. Open the preview to copy it manually.",
+    copyFailed: "Couldn't copy, so use the preview instead.",
     preview: "Preview",
   },
 
