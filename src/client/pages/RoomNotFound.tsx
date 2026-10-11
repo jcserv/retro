@@ -1,25 +1,17 @@
+import { copy } from "../copy";
 import styles from "./Centered.module.css";
 
-const COPY = {
-  not_found: {
-    title: "Room not found",
-    body: "This room doesn't exist or has expired. Rooms last 7 days.",
-  },
-  full: {
-    title: "Room is full",
-    body: "This room has reached its participant limit.",
-  },
-} as const;
+type Reason = "not_found" | "full";
 
-export function RoomNotFound({ reason = "not_found" }: { reason?: keyof typeof COPY }) {
-  const copy = COPY[reason];
+export function RoomNotFound({ reason = "not_found" }: { reason?: Reason }) {
+  const content = copy.roomUnavailable[reason];
   return (
     <main class={styles.page}>
       <div class={styles.content}>
-        <h1 class={styles.heading}>{copy.title}</h1>
-        <p class={styles.lead}>{copy.body}</p>
+        <h1 class={styles.heading}>{content.title}</h1>
+        <p class={styles.lead}>{content.body}</p>
         <a class="btn btn-primary btn-lg" href="/">
-          Back to home
+          {copy.roomUnavailable.backHome}
         </a>
       </div>
     </main>

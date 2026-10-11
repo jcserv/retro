@@ -1,3 +1,4 @@
+import { copy } from "../copy";
 import styles from "./VoteBudget.module.css";
 
 export function VoteBudget({ used, limit }: { used: number; limit: number }) {
@@ -5,7 +6,8 @@ export function VoteBudget({ used, limit }: { used: number; limit: number }) {
   return (
     <div class={styles.budget}>
       <p class={styles.label} role="status" aria-live="polite">
-        <strong>{left}</strong> of {limit} {limit === 1 ? "vote" : "votes"} left
+        <strong>{left}</strong>
+        {copy.vote.budget(limit)}
       </p>
       <span class={styles.pips} aria-hidden="true">
         {Array.from({ length: limit }, (_, index) => (

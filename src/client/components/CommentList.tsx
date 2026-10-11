@@ -1,5 +1,6 @@
 import { LIMITS } from "../../shared/constants";
 import type { CommentView } from "../../shared/protocol";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import type { IntentResult } from "../state/roomStore";
 import styles from "./Discussion.module.css";
@@ -24,10 +25,10 @@ export function CommentList({ groupId, comments, editable }: CommentListProps) {
   return (
     <section ref={focus.section} class={styles.section} aria-labelledby={headingId}>
       <h3 ref={focus.heading} id={headingId} class={styles.heading} tabIndex={-1}>
-        Comments <span class="badge">{sorted.length}</span>
+        {copy.comments.heading} <span class="badge">{sorted.length}</span>
       </h3>
       {sorted.length === 0 ? (
-        <p class={styles.empty}>{editable ? "No comments yet." : "No comments."}</p>
+        <p class={styles.empty}>{editable ? copy.comments.emptyEditable : copy.comments.empty}</p>
       ) : (
         <ul class={styles.list}>
           {sorted.map((comment) => (
@@ -58,10 +59,10 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
       <li class={styles.entry}>
         <div class={styles.form}>
           <ItemComposer
-            label="Edit comment"
+            label={copy.comments.edit}
             max={MAX}
             initialText={comment.text}
-            submitLabel="Save"
+            submitLabel={copy.composer.save}
             disabled={!live}
             autoFocus
             onCancel={editor.cancel}
@@ -85,7 +86,7 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
       {editable && comment.mine && (
         <EntryActions
           class={styles.entryActions}
-          noun="comment"
+          noun={copy.comments.noun}
           describedBy={`comment-${comment.id}`}
           editRef={editor.editButton}
           editDisabled={!live}
@@ -96,12 +97,12 @@ function CommentRow({ comment, editable, onDeleted }: CommentRowProps) {
           <button
             type="button"
             class="btn btn-ghost btn-sm btn-icon"
-            aria-label="Convert comment to action item"
+            aria-label={copy.comments.convertLabel}
             aria-describedby={`comment-${comment.id}`}
             title={
               fitsAction
-                ? "Convert to action item"
-                : `Too long for an action item (max ${LIMITS.actionTextMax} characters)`
+                ? copy.comments.convert
+                : copy.comments.tooLongToConvert(LIMITS.actionTextMax)
             }
             disabled={!live || editor.busy || !fitsAction}
             onClick={() => editor.remove(() => store.convertComment(comment.id), onDeleted)}
@@ -118,9 +119,9 @@ export function EntryMeta({ mine, edited }: { mine: boolean; edited: boolean }) 
   if (!mine && !edited) return null;
   return (
     <span class={styles.meta}>
-      {mine && <span>You</span>}
+      {mine && <span>{copy.entry.you}</span>}
       {mine && edited && <span aria-hidden="true">·</span>}
-      {edited && <span>edited</span>}
+      {edited && <span>{copy.entry.edited}</span>}
     </span>
   );
 }
@@ -129,10 +130,10 @@ function CommentComposer({ groupId }: { groupId: string }) {
   const store = useRoomStore();
   return (
     <ItemComposer
-      label="Add a comment"
+      label={copy.comments.add}
       max={MAX}
-      placeholder="Add a comment…"
-      submitLabel="Comment"
+      placeholder={copy.comments.addPlaceholder}
+      submitLabel={copy.comments.submit}
       disabled={!store.isLive.value}
       onSubmit={(text) => store.addComment(groupId, text)}
     />

@@ -1,5 +1,5 @@
 import { useEffect } from "preact/hooks";
-import { ERROR_MESSAGES } from "../lib/errorMessages";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import styles from "./ErrorToast.module.css";
 
@@ -19,12 +19,12 @@ export function ErrorToast() {
     <div class={styles.region} role="status" aria-live="polite">
       {error && (
         <div class={styles.toast} key={error.id}>
-          <span>{ERROR_MESSAGES[error.code]}</span>
+          <span>{copy.errors[error.code]}</span>
           <button
             type="button"
             class="btn btn-ghost btn-sm btn-icon"
             onClick={store.dismissError}
-            aria-label="Dismiss"
+            aria-label={copy.dismissError}
           >
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
               <path

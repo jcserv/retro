@@ -2,6 +2,7 @@ import { ActionList, ActionMarker, AssigneeBadge, DueDateBadge } from "../compon
 import { CommentList } from "../components/CommentList";
 import { ExportPanel } from "../components/ExportPanel";
 import { GroupDetails } from "../components/GroupDetails";
+import { copy } from "../copy";
 import { type DiscussEntry, discussEntries } from "../lib/groups";
 import { useRoomStore } from "../state/roomContext";
 import type { RoomState } from "../state/roomState";
@@ -24,13 +25,15 @@ export function DonePhase() {
     <div class={styles.done}>
       <section class={`card ${styles.summary}`} aria-labelledby="done-heading">
         <h1 id="done-heading" class={styles.heading}>
-          Retro complete
+          {copy.done.heading}
         </h1>
         <p class={styles.stats}>
-          {discussed.length} of {entries.length} {entries.length === 1 ? "topic" : "topics"}{" "}
-          discussed · {actions.length} action {actions.length === 1 ? "item" : "items"} ·{" "}
-          {room.presence.participantCount}{" "}
-          {room.presence.participantCount === 1 ? "participant" : "participants"}
+          {copy.done.stats(
+            discussed.length,
+            entries.length,
+            actions.length,
+            room.presence.participantCount,
+          )}
         </p>
       </section>
 
@@ -38,10 +41,10 @@ export function DonePhase() {
 
       <section class={`card ${styles.block}`} aria-labelledby="done-actions">
         <h2 id="done-actions" class={styles.sectionHeading}>
-          Action items
+          {copy.done.actionsHeading}
         </h2>
         {actions.length === 0 ? (
-          <p class={styles.empty}>No action items were added.</p>
+          <p class={styles.empty}>{copy.done.noActions}</p>
         ) : (
           <ul class={styles.actions}>
             {actions.map((action) => (
@@ -53,7 +56,7 @@ export function DonePhase() {
                     <AssigneeBadge assignee={action.assignee} />
                     <DueDateBadge dueDate={action.dueDate} />
                     <span class={`user-text ${styles.from}`}>
-                      <span class="visually-hidden">From topic </span>
+                      <span class="visually-hidden">{copy.done.fromTopic}</span>
                       {titles.get(action.groupId)}
                     </span>
                   </div>
@@ -67,7 +70,7 @@ export function DonePhase() {
       {discussed.length > 0 && (
         <TopicSection
           id="done-discussed"
-          title="Discussed"
+          title={copy.done.discussed}
           entries={discussed}
           room={room}
           numbered
@@ -76,7 +79,7 @@ export function DonePhase() {
       {notDiscussed.length > 0 && (
         <TopicSection
           id="done-not-discussed"
-          title="Not discussed"
+          title={copy.done.notDiscussed}
           entries={notDiscussed}
           room={room}
         />
@@ -112,9 +115,9 @@ function TopicSection({ id, title, entries, room, numbered }: TopicSectionProps)
                 headingLevel="h3"
                 eyebrow={
                   numbered
-                    ? `Topic ${position + 1}`
+                    ? copy.done.topic(position + 1)
                     : entry.status === "skipped"
-                      ? "Skipped"
+                      ? copy.done.skipped
                       : undefined
                 }
               />

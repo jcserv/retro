@@ -2,6 +2,7 @@ import dataSource from "emoji-picker-element-data/en/emojibase/data.json?url";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { normalizeEmoji } from "../../shared/emoji";
 import type { ItemView, Phase } from "../../shared/protocol";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import { Icon } from "./Icon";
 import styles from "./ItemReactions.module.css";
@@ -29,7 +30,7 @@ export function ItemReactions({ item }: { item: ItemView }) {
             class={styles.pill}
             aria-pressed={mine}
             aria-label={`${emoji} ${count}`}
-            title={mine ? "Remove your reaction" : "React with this"}
+            title={mine ? copy.reactions.remove : copy.reactions.add}
             disabled={!live}
             onClick={() => toggle(emoji, mine)}
           >
@@ -47,8 +48,8 @@ export function ItemReactions({ item }: { item: ItemView }) {
         <button
           type="button"
           class={`btn btn-ghost btn-sm btn-icon ${styles.add}`}
-          aria-label="Add reaction"
-          title="Add reaction"
+          aria-label={copy.reactions.addLabel}
+          title={copy.reactions.addLabel}
           disabled={!live}
           onClick={() => setPicking(true)}
         >
@@ -116,12 +117,12 @@ function EmojiPickerDialog({ itemText, onPick, onClose }: EmojiPickerDialogProps
     >
       <div class={styles.top}>
         <h2 id="reaction-picker-heading" class={`${styles.heading} user-text`}>
-          React to “{itemText}”
+          {copy.reactions.pickerHeading(itemText)}
         </h2>
         <button
           type="button"
           class="btn btn-ghost btn-sm btn-icon"
-          aria-label="Close"
+          aria-label={copy.reactions.close}
           onClick={() => dialogRef.current?.close()}
         >
           <Icon name="close" size={14} />

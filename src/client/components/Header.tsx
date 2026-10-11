@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
-import { expiryTickMs, formatTimeLeft, plural } from "../lib/format";
+import { copy } from "../copy";
+import { expiryTickMs, formatTimeLeft } from "../lib/format";
 import { useRoomStore } from "../state/roomContext";
 import { ConnectionIndicator } from "./ConnectionIndicator";
 import styles from "./Header.module.css";
@@ -11,23 +12,20 @@ export function Header() {
   return (
     <div class={styles.header}>
       <a class={styles.brand} href="/">
-        Retro
+        {copy.appName}
       </a>
       <span class={styles.divider} aria-hidden="true" />
       <span class={styles.code}>
-        <span class="visually-hidden">Room code </span>
+        <span class="visually-hidden">{copy.header.roomCode}</span>
         {store.code}
       </span>
       <CopyLinkButton code={store.code} />
       <div class={styles.end}>
         {room && (
           <>
-            <span
-              class={styles.meta}
-              title={`${plural(room.presence.connectedCount, "person", "people")} here`}
-            >
+            <span class={styles.meta} title={copy.header.peopleHere(room.presence.connectedCount)}>
               <Icon name="people" />
-              <span class="visually-hidden">People here: </span>
+              <span class="visually-hidden">{copy.header.peopleHereCount}</span>
               {room.presence.connectedCount}
             </span>
             <Expiry expiresAt={room.expiresAt} />
@@ -54,11 +52,11 @@ function Expiry({ expiresAt }: { expiresAt: number }) {
     <span
       class={styles.meta}
       data-urgent={left < 60 * 60_000 ? "true" : undefined}
-      title={left > 0 ? `Room expires in ${label}` : "Room expired"}
+      title={left > 0 ? copy.header.expiresInTitle(label) : copy.header.expired}
     >
       <Icon name="clock" />
       <span>
-        {left > 0 && <span class={styles.expiryPrefix}>Expires in </span>}
+        {left > 0 && <span class={styles.expiryPrefix}>{copy.header.expiresIn}</span>}
         {label}
       </span>
     </span>
@@ -76,7 +74,7 @@ function CopyLinkButton({ code }: { code: string }) {
     return () => clearTimeout(timer);
   }, [state]);
 
-  async function copy() {
+  async function copyLink() {
     try {
       await navigator.clipboard.writeText(`${location.origin}/r/${code}`);
       setState("copied");
@@ -85,13 +83,18 @@ function CopyLinkButton({ code }: { code: string }) {
     }
   }
 
-  const label = state === "copied" ? "Copied" : state === "failed" ? "Couldn't copy" : "Copy link";
+  const label =
+    state === "copied"
+      ? copy.header.copied
+      : state === "failed"
+        ? copy.header.copyFailed
+        : copy.header.copyLink;
   return (
     <button
       type="button"
       class={`btn btn-ghost btn-sm ${styles.copy}`}
       data-state={state}
-      onClick={copy}
+      onClick={copyLink}
     >
       <Icon name={state === "copied" ? "check" : "link"} />
       <span class={styles.copyLabel} aria-live="polite">

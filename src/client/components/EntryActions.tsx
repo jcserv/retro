@@ -1,4 +1,5 @@
 import type { ComponentChildren, Ref } from "preact";
+import { copy } from "../copy";
 import styles from "./EntryActions.module.css";
 import { Icon } from "./Icon";
 
@@ -32,9 +33,9 @@ export function EntryActions({
         ref={editRef}
         type="button"
         class="btn btn-ghost btn-sm btn-icon"
-        aria-label={`Edit ${noun}`}
+        aria-label={copy.entry.editLabel(noun)}
         aria-describedby={describedBy}
-        title="Edit"
+        title={copy.entry.edit}
         disabled={editDisabled}
         onClick={onEdit}
       >
@@ -43,9 +44,9 @@ export function EntryActions({
       <button
         type="button"
         class={`btn btn-ghost btn-sm btn-icon ${styles.delete}`}
-        aria-label={`Delete ${noun}`}
+        aria-label={copy.entry.deleteLabel(noun)}
         aria-describedby={describedBy}
-        title="Delete"
+        title={copy.entry.delete}
         disabled={deleteDisabled}
         onClick={onDelete}
       >

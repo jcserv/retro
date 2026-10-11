@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import type { Phase } from "../../shared/protocol";
+import { copy } from "../copy";
 import { useRoomStore } from "../state/roomContext";
 import { Icon } from "./Icon";
 import styles from "./ReadyToggle.module.css";
@@ -30,7 +31,7 @@ export function ReadyToggle() {
       <span class={styles.box} aria-hidden="true">
         {ready && <Icon name="check" size={14} />}
       </span>
-      I'm ready
+      {copy.ready.toggle}
     </button>
   );
 }
