@@ -1,5 +1,5 @@
 import { exports } from "cloudflare:workers";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { CloseCode, LIMITS } from "../../src/shared/constants";
 import { generateRoomCode, isValidRoomCode } from "../../src/shared/roomCode";
 import { createRoom, openSocket, postRoom } from "./ws";
@@ -8,11 +8,15 @@ vi.mock("../../src/shared/roomCode", { spy: true });
 
 const OWNER = "00000000-0000-4000-8000-000000000001";
 
+const getRoom = (code: string) => exports.default.fetch(`https://example.com/api/rooms/${code}`);
+
+beforeAll(async () => {
+  await getRoom("WARMUP");
+}, 30_000);
+
 beforeEach(() => {
   vi.mocked(generateRoomCode).mockRestore();
 });
-
-const getRoom = (code: string) => exports.default.fetch(`https://example.com/api/rooms/${code}`);
 
 describe("POST /api/rooms", () => {
   test("creates a room that then exists", async () => {
