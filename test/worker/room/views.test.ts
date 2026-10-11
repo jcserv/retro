@@ -7,6 +7,7 @@ import { ALICE, ALL_CLIENTS, alice, bob, OWNER, owner, type Room, withRoom } fro
 const ctxFor = (room: Room, connected: readonly string[] = ALL_CLIENTS): ViewContext => ({
   now: room.now,
   connectedClientIds: new Set(connected),
+  aiEnabled: true,
 });
 
 function seed(room: Room) {
@@ -253,6 +254,27 @@ describe("project", () => {
           serverNow: room.now,
         },
       ]);
+    });
+  });
+
+  test("suggestions reach only the owner during group", async () => {
+    await withRoom((room) => {
+      const { a, b } = seed(room);
+      expect(snapshot(room.store, owner, ctxFor(room)).suggestions).toBeNull();
+      room.advanceTo("group");
+      room.store.replaceSuggestions("set-1", [
+        { index: 0, targetGroupId: null, itemIds: [a, b], title: "Secrets" },
+      ]);
+      const changes = room.ok(owner, { type: "applySuggestions", setId: "set-1", indexes: [0] });
+
+      expect(snapshot(room.store, owner, ctxFor(room)).suggestions?.set?.id).toBe("set-1");
+      expect(projectAll(room, changes, owner).map((m) => m.type)).toContain("suggestions");
+      for (const viewer of [alice, bob]) {
+        expect(snapshot(room.store, viewer, ctxFor(room)).suggestions).toBeNull();
+        const messages = projectAll(room, changes, viewer);
+        expect(messages.map((m) => m.type)).not.toContain("suggestions");
+        expect(JSON.stringify(messages)).not.toContain("set-1");
+      }
     });
   });
 

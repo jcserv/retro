@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { Board } from "../components/Board";
 import { GroupCard, GroupTitle } from "../components/GroupCard";
+import { SuggestionsPanel } from "../components/SuggestionsPanel";
 import {
   type BoardColumn,
   type BoardGroup,
@@ -154,6 +155,7 @@ export function GroupPhase() {
           Drag an item out of a group onto its column to ungroup it.
         </p>
       </div>
+      {room.isOwner && <SuggestionsPanel />}
       {room.items.length === 0 ? (
         <p class={styles.empty}>No items were written in this retro.</p>
       ) : (

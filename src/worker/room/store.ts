@@ -9,6 +9,20 @@ export type Room = {
   voteLimit: number;
   timer: TimerState;
   discussIndex: number;
+  ai: AiUsage;
+  suggestionSetId: string | null;
+};
+
+export type AiUsage = { runs: number; lastRunAt: number | null; pendingSince: number | null };
+
+export type SuggestionStatus = "pending" | "applied";
+
+export type SuggestionEntry = {
+  index: number;
+  targetGroupId: string | null;
+  itemIds: string[];
+  title: string | null;
+  status: SuggestionStatus;
 };
 
 export type Item = {
@@ -53,6 +67,10 @@ type RoomRow = {
   timer_ends_at: number | null;
   timer_paused_remaining_ms: number | null;
   discuss_index: number;
+  ai_runs: number;
+  ai_last_run_at: number | null;
+  ai_pending_since: number | null;
+  suggestion_set_id: string | null;
 };
 
 type ItemRow = {
@@ -97,6 +115,8 @@ const toRoom = (row: RoomRow): Room => ({
   voteLimit: row.vote_limit,
   timer: toTimer(row),
   discussIndex: row.discuss_index,
+  ai: { runs: row.ai_runs, lastRunAt: row.ai_last_run_at, pendingSince: row.ai_pending_since },
+  suggestionSetId: row.suggestion_set_id,
 });
 
 const toItem = (row: ItemRow): Item => ({
@@ -173,7 +193,7 @@ export class RoomStore {
     return row ? toRoom(row) : null;
   }
 
-  insertRoom(room: Omit<Room, "timer" | "discussIndex">): void {
+  insertRoom(room: Omit<Room, "timer" | "discussIndex" | "ai" | "suggestionSetId">): void {
     this.#run(
       `INSERT INTO room (id, code, owner_client_id, created_at, expires_at, phase, vote_limit)
        VALUES (1, ?, ?, ?, ?, ?, ?)`,
@@ -204,6 +224,65 @@ export class RoomStore {
 
   setDiscussIndex(index: number): void {
     this.#run("UPDATE room SET discuss_index = ? WHERE id = 1", index);
+  }
+
+  setAiPending(since: number | null): void {
+    this.#run("UPDATE room SET ai_pending_since = ? WHERE id = 1", since);
+  }
+
+  recordAiRun(at: number): void {
+    this.#run("UPDATE room SET ai_runs = ai_runs + 1, ai_last_run_at = ? WHERE id = 1", at);
+  }
+
+  replaceSuggestions(setId: string, entries: readonly Omit<SuggestionEntry, "status">[]): void {
+    this.clearSuggestions();
+    this.#run("UPDATE room SET suggestion_set_id = ? WHERE id = 1", setId);
+    for (const entry of entries) {
+      this.#run(
+        "INSERT INTO suggestion_entries (idx, target_group_id, title, status) VALUES (?, ?, ?, 'pending')",
+        entry.index,
+        entry.targetGroupId,
+        entry.title,
+      );
+      for (const itemId of entry.itemIds) {
+        this.#run(
+          "INSERT INTO suggestion_items (entry_idx, item_id) VALUES (?, ?)",
+          entry.index,
+          itemId,
+        );
+      }
+    }
+  }
+
+  listSuggestions(): SuggestionEntry[] {
+    const itemsByEntry = new Map<number, string[]>();
+    for (const row of this.#all<{ entry_idx: number; item_id: string }>(
+      "SELECT entry_idx, item_id FROM suggestion_items ORDER BY rowid",
+    )) {
+      itemsByEntry.set(row.entry_idx, [...(itemsByEntry.get(row.entry_idx) ?? []), row.item_id]);
+    }
+    return this.#all<{
+      idx: number;
+      target_group_id: string | null;
+      title: string | null;
+      status: string;
+    }>("SELECT * FROM suggestion_entries ORDER BY idx").map((row) => ({
+      index: row.idx,
+      targetGroupId: row.target_group_id,
+      itemIds: itemsByEntry.get(row.idx) ?? [],
+      title: row.title,
+      status: row.status as SuggestionStatus,
+    }));
+  }
+
+  markSuggestionApplied(index: number): void {
+    this.#run("UPDATE suggestion_entries SET status = 'applied' WHERE idx = ?", index);
+  }
+
+  clearSuggestions(): void {
+    this.#run("DELETE FROM suggestion_items");
+    this.#run("DELETE FROM suggestion_entries");
+    this.#run("UPDATE room SET suggestion_set_id = NULL WHERE id = 1");
   }
 
   insertCategory(category: Category, position: number): void {
@@ -359,6 +438,10 @@ export class RoomStore {
 
   setGroupTitle(id: string, title: string | null): void {
     this.#run("UPDATE groups SET title = ? WHERE id = ?", title, id);
+  }
+
+  setGroupCategory(id: string, categoryId: string): void {
+    this.#run("UPDATE groups SET category_id = ? WHERE id = ?", categoryId, id);
   }
 
   deleteGroup(id: string): void {

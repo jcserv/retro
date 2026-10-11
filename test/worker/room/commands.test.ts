@@ -56,6 +56,7 @@ const SAMPLE_INTENTS: Record<ClientIntent["type"], ClientIntent> = {
   prev: { type: "prev", fromIndex: 0 },
   goTo: { type: "goTo", fromIndex: 0, toIndex: 1 },
   skip: { type: "skip", fromIndex: 0 },
+  applySuggestions: { type: "applySuggestions", setId: ID, indexes: [0] },
 };
 
 const ACTIVE: Phase[] = ["write", "group", "vote", "discuss"];
@@ -90,6 +91,7 @@ const ALLOWED_PHASES: Record<ClientIntent["type"], Phase[]> = {
   prev: ["discuss"],
   goTo: ["discuss"],
   skip: ["discuss"],
+  applySuggestions: ["group"],
 };
 
 const OWNER_ONLY = new Set<ClientIntent["type"]>([
@@ -104,6 +106,7 @@ const OWNER_ONLY = new Set<ClientIntent["type"]>([
   "prev",
   "goTo",
   "skip",
+  "applySuggestions",
 ]);
 
 const intentTypes = Object.keys(SAMPLE_INTENTS) as ClientIntent["type"][];
@@ -474,6 +477,57 @@ describe("grouping", () => {
         expectGroupingInvariant(room.store);
       }
       expect(room.store.listItems()).toHaveLength(itemIds.length);
+    });
+  });
+});
+
+describe("applySuggestions", () => {
+  function seedSuggestions(room: Room) {
+    const { a, b, c } = seedThreeItems(room);
+    room.advanceTo("group");
+    room.store.replaceSuggestions("set-1", [
+      { index: 0, targetGroupId: null, itemIds: [a, b], title: "Pair" },
+      { index: 1, targetGroupId: room.groupOf(c), itemIds: [], title: "Solo" },
+    ]);
+    return { a, b, c };
+  }
+
+  test("applies only the requested entries and marks them applied", async () => {
+    await withRoom((room) => {
+      const { a, b, c } = seedSuggestions(room);
+      room.ok(owner, { type: "applySuggestions", setId: "set-1", indexes: [0] });
+      expect(room.groupOf(a)).toBe(room.groupOf(b));
+      expect(room.store.getGroup(room.groupOf(c))?.title).toBeNull();
+      expect(room.store.listSuggestions().map((entry) => entry.status)).toEqual([
+        "applied",
+        "pending",
+      ]);
+    });
+  });
+
+  test("rejects an old set id and entries that are all applied or out of date", async () => {
+    await withRoom((room) => {
+      const { a, b } = seedSuggestions(room);
+      expect(room.rejects(owner, { type: "applySuggestions", setId: "set-0", indexes: [0] })).toBe(
+        "stale",
+      );
+      room.ok(alice, { type: "moveItemToGroup", itemId: a, groupId: room.groupOf(b) });
+      expect(room.rejects(owner, { type: "applySuggestions", setId: "set-1", indexes: [0] })).toBe(
+        "stale",
+      );
+      room.ok(owner, { type: "applySuggestions", setId: "set-1", indexes: [1] });
+      expect(room.rejects(owner, { type: "applySuggestions", setId: "set-1", indexes: [1] })).toBe(
+        "stale",
+      );
+    });
+  });
+
+  test("leaving group clears the set", async () => {
+    await withRoom((room) => {
+      seedSuggestions(room);
+      room.advanceTo("vote");
+      expect(room.store.getRoom()?.suggestionSetId).toBeNull();
+      expect(room.store.listSuggestions()).toEqual([]);
     });
   });
 });

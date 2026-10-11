@@ -1,0 +1,492 @@
+{
+  "categories": [
+    {
+      "id": "c1",
+      "title": "What went well?"
+    },
+    {
+      "id": "c2",
+      "title": "What went less well?"
+    },
+    {
+      "id": "c3",
+      "title": "What do we want to try next?"
+    },
+    {
+      "id": "c4",
+      "title": "What puzzles us?"
+    },
+    {
+      "id": "c5",
+      "title": "Shoutouts"
+    }
+  ],
+  "ungroupedItems": [
+    {
+      "id": 1,
+      "category": "c2",
+      "text": "Status meetings was painful again and slowed everyone down. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 2,
+      "category": "c4",
+      "text": "Not sure who decides how build times should work. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 3,
+      "category": "c2",
+      "text": "Frustrated by the test pipeline, it blocked my work twice this week. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 4,
+      "category": "c2",
+      "text": "Local setup was painful again and slowed everyone down. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 5,
+      "category": "c1",
+      "text": "Large PRs felt really smooth this sprint. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 6,
+      "category": "c3",
+      "text": "Let's set a clear owner for the release train. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 7,
+      "category": "c4",
+      "text": "Why is incident response so different between teams?. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 8,
+      "category": "c1",
+      "text": "Big improvement in the runbooks compared to last month. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 9,
+      "category": "c3",
+      "text": "Let's set a clear owner for review comments. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 10,
+      "category": "c3",
+      "text": "Track a simple metric for design handoff and review it next retro. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 11,
+      "category": "c2",
+      "text": "Local setup keeps getting worse and nobody owns it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 12,
+      "category": "c3",
+      "text": "Write down a checklist for knowledge sharing so it is repeatable. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 13,
+      "category": "c4",
+      "text": "Is code review actually worth the time we spend on it?. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 14,
+      "category": "c2",
+      "text": "The wiki keeps getting worse and nobody owns it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 15,
+      "category": "c5",
+      "text": "Shoutout to Aisha for patiently explaining integration tests to new folks. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 16,
+      "category": "c4",
+      "text": "How did status meetings get this complicated?. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 17,
+      "category": "c5",
+      "text": "Jun saved the week by sorting out integration tests. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 18,
+      "category": "c2",
+      "text": "Frustrated by architecture notes, it blocked my work twice this week. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 19,
+      "category": "c4",
+      "text": "Is CI actually worth the time we spend on it?. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 20,
+      "category": "c3",
+      "text": "Write down a checklist for CI so it is repeatable. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 21,
+      "category": "c3",
+      "text": "Experiment with a lighter process for knowledge sharing. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 22,
+      "category": "c2",
+      "text": "Lost most of a day to problems with knowledge sharing. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 23,
+      "category": "c1",
+      "text": "Loved how the release train worked out for the team this time. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 24,
+      "category": "c4",
+      "text": "How did the roadmap get this complicated?. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 25,
+      "category": "c1",
+      "text": "Loved how ticket grooming worked out for the team this time. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 26,
+      "category": "c4",
+      "text": "How did preview environments get this complicated?. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 27,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on estimates. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 28,
+      "category": "c1",
+      "text": "PR turnaround felt really smooth this sprint. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 29,
+      "category": "c4",
+      "text": "Is daily check-ins actually worth the time we spend on it?. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 30,
+      "category": "c1",
+      "text": "Really happy with preview environments after the changes we made. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 31,
+      "category": "c2",
+      "text": "We said we would fix the standup format last retro and did not. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 32,
+      "category": "c3",
+      "text": "Track a simple metric for rollouts and review it next retro. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 33,
+      "category": "c2",
+      "text": "Frustrated by sprint planning, it blocked my work twice this week. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 34,
+      "category": "c2",
+      "text": "Lost most of a day to problems with code review. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 35,
+      "category": "c1",
+      "text": "Architecture notes felt really smooth this sprint. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 36,
+      "category": "c1",
+      "text": "The standup format felt really smooth this sprint. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 37,
+      "category": "c3",
+      "text": "Track a simple metric for the flaky e2e suite and review it next retro. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 38,
+      "category": "c1",
+      "text": "Really happy with alert noise after the changes we made. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 39,
+      "category": "c2",
+      "text": "The flaky e2e suite was painful again and slowed everyone down. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 40,
+      "category": "c2",
+      "text": "Lost most of a day to problems with incident response. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 41,
+      "category": "c1",
+      "text": "Big improvement in preview environments compared to last month. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 42,
+      "category": "c3",
+      "text": "Write down a checklist for the deploy pipeline so it is repeatable. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 43,
+      "category": "c4",
+      "text": "Is the runbooks actually worth the time we spend on it?. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 44,
+      "category": "c2",
+      "text": "We said we would fix large PRs last retro and did not. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 45,
+      "category": "c2",
+      "text": "Lost most of a day to problems with large PRs. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 46,
+      "category": "c4",
+      "text": "How did PR turnaround get this complicated?. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 47,
+      "category": "c3",
+      "text": "Experiment with a lighter process for shipping to prod. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 48,
+      "category": "c1",
+      "text": "UX reviews was fast and predictable, no surprises at all. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 49,
+      "category": "c5",
+      "text": "Huge thanks to Marco for jumping in on documentation. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 50,
+      "category": "c2",
+      "text": "Lost most of a day to problems with review comments. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 51,
+      "category": "c3",
+      "text": "Experiment with a lighter process for design handoff. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 52,
+      "category": "c2",
+      "text": "Frustrated by CI, it blocked my work twice this week. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 53,
+      "category": "c4",
+      "text": "How did mob sessions get this complicated?. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 54,
+      "category": "c2",
+      "text": "Frustrated by the roadmap, it blocked my work twice this week. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 55,
+      "category": "c5",
+      "text": "Huge thanks to Priya for jumping in on our morning sync. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 56,
+      "category": "c1",
+      "text": "Really happy with mob sessions after the changes we made. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 57,
+      "category": "c5",
+      "text": "Hana saved the week by sorting out the onboarding docs. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 58,
+      "category": "c1",
+      "text": "Really happy with deploys after the changes we made. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 59,
+      "category": "c5",
+      "text": "Huge thanks to Priya for jumping in on estimates. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 60,
+      "category": "c2",
+      "text": "Lost most of a day to problems with the runbooks. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 61,
+      "category": "c2",
+      "text": "Lost most of a day to problems with local setup. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 62,
+      "category": "c5",
+      "text": "Omar saved the week by sorting out the wiki. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 63,
+      "category": "c4",
+      "text": "Why is local setup so different between teams?. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 64,
+      "category": "c1",
+      "text": "The staging environment was fast and predictable, no surprises at all. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 65,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on our morning sync. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 66,
+      "category": "c3",
+      "text": "Let's set a clear owner for integration tests. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 67,
+      "category": "c3",
+      "text": "Experiment with a lighter process for seed scripts. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 68,
+      "category": "c5",
+      "text": "Huge thanks to Lena for jumping in on the release train. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 69,
+      "category": "c1",
+      "text": "Integration tests was fast and predictable, no surprises at all. It came up in three separate conversations this week and people seem genuinely stuck on it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 70,
+      "category": "c1",
+      "text": "Loved how the test pipeline worked out for the team this time. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 71,
+      "category": "c5",
+      "text": "Huge thanks to Ivan for jumping in on the component library. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 72,
+      "category": "c2",
+      "text": "Frustrated by seed scripts, it blocked my work twice this week. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 73,
+      "category": "c5",
+      "text": "Tom saved the week by sorting out preview environments. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 74,
+      "category": "c4",
+      "text": "Not sure who decides how status meetings should work. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 75,
+      "category": "c2",
+      "text": "Frustrated by the flaky e2e suite, it blocked my work twice this week. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before plannin"
+    },
+    {
+      "id": 76,
+      "category": "c2",
+      "text": "Lost most of a day to problems with on-call. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 77,
+      "category": "c3",
+      "text": "Write down a checklist for the onboarding docs so it is repeatable. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 78,
+      "category": "c5",
+      "text": "Shoutout to Diego for patiently explaining code review to new folks. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 79,
+      "category": "c1",
+      "text": "PR turnaround was fast and predictable, no surprises at all. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 80,
+      "category": "c2",
+      "text": "Estimates keeps getting worse and nobody owns it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 81,
+      "category": "c1",
+      "text": "Loved how documentation worked out for the team this time. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 82,
+      "category": "c2",
+      "text": "Rollouts keeps getting worse and nobody owns it. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 83,
+      "category": "c3",
+      "text": "Let's set a clear owner for the staging environment. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 84,
+      "category": "c5",
+      "text": "Shoutout to Lena for patiently explaining CI to new folks. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 85,
+      "category": "c1",
+      "text": "Big improvement in daily check-ins compared to last month. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 86,
+      "category": "c5",
+      "text": "Jun saved the week by sorting out design QA. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 87,
+      "category": "c1",
+      "text": "The release train was fast and predictable, no surprises at all. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 88,
+      "category": "c2",
+      "text": "Deploys keeps getting worse and nobody owns it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 89,
+      "category": "c3",
+      "text": "Write down a checklist for code review so it is repeatable. It came up in three separate conversations this week and people seem genuinely stuck on it. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning."
+    },
+    {
+      "id": 90,
+      "category": "c3",
+      "text": "Try a weekly 20 minute session on the deploy pipeline. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside."
+    },
+    {
+      "id": 91,
+      "category": "c5",
+      "text": "Huge thanks to Tom for jumping in on on-call. Happy to dig into this with whoever has context, it would be good to agree on next steps before planning. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 92,
+      "category": "c5",
+      "text": "Huge thanks to Lena for jumping in on the runbooks. I think this affects the newer folks more than the rest of us, but it is hard to tell from the outside. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    },
+    {
+      "id": 93,
+      "category": "c2",
+      "text": "Daily check-ins keeps getting worse and nobody owns it. It came up in three separate conversations this week and people seem genuinely stuck on it. It came up in three separate conversations this week and people seem genuinely stuck on it."
+    }
+  ],
+  "groups": []
+}

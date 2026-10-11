@@ -23,7 +23,7 @@ export function formatClock(remainingMs: number): string {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function useTicker(active: boolean): void {
+export function useTicker(active: boolean): void {
   const [, setTick] = useState(0);
   useEffect(() => {
     if (!active) return;

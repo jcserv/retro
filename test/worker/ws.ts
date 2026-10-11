@@ -95,9 +95,9 @@ export class TestSocket {
   }
 }
 
-export async function openSocket(code: string): Promise<TestSocket> {
+export async function openSocket(code: string, ip?: string): Promise<TestSocket> {
   const response = await exports.default.fetch(`https://example.com/ws/${code}`, {
-    headers: { Upgrade: "websocket" },
+    headers: { Upgrade: "websocket", ...(ip === undefined ? {} : { "CF-Connecting-IP": ip }) },
   });
   const ws = response.webSocket;
   if (response.status !== 101 || !ws) throw new Error(`upgrade failed: ${response.status}`);
@@ -108,8 +108,9 @@ export async function openSocket(code: string): Promise<TestSocket> {
 export async function connect(
   code: string,
   clientId: string,
+  ip?: string,
 ): Promise<{ socket: TestSocket; room: RoomSnapshot }> {
-  const socket = await openSocket(code);
+  const socket = await openSocket(code, ip);
   socket.send({ type: "hello", clientId });
   const { room } = await socket.next("snapshot");
   return { socket, room };

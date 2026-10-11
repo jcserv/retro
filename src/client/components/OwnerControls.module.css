@@ -40,6 +40,15 @@
   text-align: center;
 }
 
+.suggest {
+  font-variant-numeric: tabular-nums;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+}
+
 @media (max-width: 599px) {
   .advance {
     flex: 1 0 auto;

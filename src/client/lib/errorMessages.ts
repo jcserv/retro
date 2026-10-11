@@ -14,4 +14,12 @@ export const ERROR_MESSAGES: Record<IntentErrorCode, string> = {
   rate_limited: "Slow down a little and try again.",
   disconnected: "You're offline. Reconnecting…",
   timeout: "The room didn't respond. Try again.",
+  suggest_busy: "Suggestions are already on their way. Try again in a moment.",
+  suggest_room_limit: "This room has used all of its AI suggestions.",
+  suggest_rate_limited: "Too many suggestion requests. Try again in a minute.",
+  suggest_daily_limit: "AI suggestions are used up for today.",
+  suggest_too_large: "Too many items for suggestions.",
+  suggest_ineligible: "There's nothing left to group.",
+  suggest_failed: "Couldn't get suggestions. Try again.",
+  suggest_unavailable: "AI suggestions aren't available.",
 };

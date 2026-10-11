@@ -5,6 +5,7 @@ import { useRoomStore } from "../state/roomContext";
 import { Icon } from "./Icon";
 import styles from "./OwnerControls.module.css";
 import { READY_PHASES } from "./ReadyToggle";
+import { useTicker } from "./Timer";
 
 const ADVANCE_LABELS: Record<Phase, string | null> = {
   write: "Start grouping",
@@ -35,6 +36,7 @@ export function OwnerControls() {
         </span>
       )}
       {VOTE_LIMIT_PHASES.includes(room.phase) && <VoteLimitStepper />}
+      {room.phase === "group" && <SuggestButton />}
       <AdvanceButton phase={room.phase} />
     </div>
   );
@@ -82,6 +84,42 @@ function VoteLimitStepper() {
         </button>
       </div>
     </fieldset>
+  );
+}
+
+function SuggestButton() {
+  const store = useRoomStore();
+  const [requesting, setRequesting] = useState(false);
+  const suggestions = store.room.value?.suggestions ?? null;
+  const cooldownMs = Math.max(0, (suggestions?.cooldownEndsAt ?? 0) - store.serverNow());
+  useTicker(cooldownMs > 0);
+  if (!suggestions?.enabled) return null;
+
+  const reason = suggestions.pending
+    ? "Suggesting…"
+    : suggestions.runsLeft === 0
+      ? "No suggestions left"
+      : cooldownMs > 0
+        ? `Suggest again in ${Math.ceil(cooldownMs / 1000)}s`
+        : null;
+
+  async function suggest() {
+    setRequesting(true);
+    await store.suggestGroups();
+    setRequesting(false);
+  }
+
+  return (
+    <button
+      type="button"
+      class={`btn btn-subtle ${styles.suggest}`}
+      title="Sends card text to Cloudflare Workers AI"
+      onClick={suggest}
+      disabled={requesting || reason !== null || !store.isLive.value}
+    >
+      {suggestions.pending && <span class={`spinner ${styles.spinner}`} aria-hidden="true" />}
+      {reason ?? "Suggest groups"}
+    </button>
   );
 }
 

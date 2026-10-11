@@ -56,5 +56,7 @@ export function applyServerMessage(state: RoomState | null, msg: ServerMessage):
       return { ...state, actions: upsert(state.actions, msg.action) };
     case "actionRemoved":
       return { ...state, actions: remove(state.actions, msg.actionId) };
+    case "suggestions":
+      return { ...state, suggestions: msg.suggestions };
   }
 }

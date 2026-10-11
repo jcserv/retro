@@ -169,6 +169,7 @@ export class FakeRoom {
       discuss: null,
       comments: [],
       actions: [],
+      suggestions: null,
     };
   }
 
